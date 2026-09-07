@@ -2,6 +2,13 @@ import AppKit
 import Combine
 import SwiftUI
 
+final class InteractiveTrayPanel: NSPanel {
+    // Borderless panels do not reliably become key by default. SwiftUI controls
+    // can consequently stop receiving clicks while another app owns the focus.
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
+}
+
 @MainActor
 final class TrayPanelController {
     private let store: TrayStore
@@ -14,7 +21,7 @@ final class TrayPanelController {
         self.store = store
         self.settings = settings ?? .shared
 
-        panel = NSPanel(
+        panel = InteractiveTrayPanel(
             contentRect: NSRect(origin: .zero, size: NSSize(width: 264, height: 180)),
             styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
@@ -28,7 +35,7 @@ final class TrayPanelController {
         panel.isOpaque = false
         panel.hasShadow = false
         panel.hidesOnDeactivate = false
-        panel.becomesKeyOnlyIfNeeded = true
+        panel.becomesKeyOnlyIfNeeded = false
         panel.acceptsMouseMovedEvents = true
         panel.ignoresMouseEvents = false
         panel.animationBehavior = .utilityWindow
@@ -36,6 +43,8 @@ final class TrayPanelController {
         panel.isMovableByWindowBackground = false
         panel.title = "Bandeja"
         panel.setAccessibilityLabel("Bandeja temporal de archivos")
+        panel.contentMinSize = .zero
+        panel.contentMaxSize = NSSize(width: 2_000, height: 2_000)
 
         let rootView = TrayView(
             store: store,
@@ -73,7 +82,7 @@ final class TrayPanelController {
         _ cursor: CGPoint = NSEvent.mouseLocation,
         emptyDismissAfter: TimeInterval = 15
     ) {
-        resize(forItemCount: store.items.count, isExpanded: store.isExpanded, animated: false)
+        resize(forItemCount: store.items.count, isExpanded: store.isExpanded)
         positionPanel(near: cursor)
 
         // AppKit can defer animator-backed changes while another app owns the drag
@@ -124,7 +133,7 @@ final class TrayPanelController {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
     }
 
-    private func resize(forItemCount count: Int, isExpanded: Bool, animated: Bool = true) {
+    private func resize(forItemCount count: Int, isExpanded: Bool) {
         let targetSize = TrayPanelLayout.size(itemCount: count, isExpanded: isExpanded)
 
         var frame = panel.frame
@@ -135,7 +144,14 @@ final class TrayPanelController {
         frame.origin.x = centerX - targetSize.width / 2
         frame.origin.y = top - targetSize.height
         frame = clampedFrame(frame)
-        panel.setFrame(frame, display: true, animate: animated && panel.isVisible)
+
+        // NSHostingView can otherwise retain the expanded view's minimum width
+        // after collapsing. Keep the WindowServer frame and the SwiftUI hit-test
+        // tree in lockstep; an interrupted animation must never leave an invisible
+        // 520-point window around a 264-point tray.
+        panel.contentMinSize = .zero
+        panel.setFrame(frame, display: true, animate: false)
+        panel.contentView?.layoutSubtreeIfNeeded()
     }
 
     private func positionPanel(near cursor: CGPoint) {
@@ -177,6 +193,9 @@ private final class TrayDropContainerView: NSView {
         registerForDraggedTypes([.fileURL, .png, .tiff])
 
         let hostingView = FirstMouseHostingView(rootView: rootView)
+        // Keep SwiftUI's visual intrinsic size, but never let its transient
+        // expanded minimum/maximum sizes constrain the surrounding NSPanel.
+        hostingView.sizingOptions = [.intrinsicContentSize]
         hostingView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(hostingView)
         NSLayoutConstraint.activate([
@@ -217,6 +236,10 @@ private final class TrayDropContainerView: NSView {
         return TrayPasteboardImporter.importItems(from: sender.draggingPasteboard, into: store) > 0
     }
 
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
+
     private func validatedOperation(for sender: NSDraggingInfo) -> NSDragOperation {
         guard !isInternalDrag(sender) else {
             store.isDropTargeted = false
@@ -232,7 +255,7 @@ private final class TrayDropContainerView: NSView {
     }
 }
 
-private final class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
+final class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         true
     }

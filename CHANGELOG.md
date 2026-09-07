@@ -2,6 +2,16 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.1.5] — 2026-09-07
+
+### Correcciones
+
+- Impide que la vista compacta conserve una ventana transparente de 520 puntos después de cerrar la cuadrícula expandida.
+- Sincroniza de forma inmediata el tamaño visible, el tamaño de WindowServer y las zonas que reciben clics.
+- Permite que el panel flotante sin bordes reciba el primer clic sin convertirlo en ventana principal ni activar innecesariamente la aplicación.
+- Evita animaciones de redimensionado interrumpibles que podían dejar la X, la cápsula y la zona de movimiento fuera de sus posiciones interactivas reales.
+- Conserva el tamaño visual intrínseco de SwiftUI sin permitir que sus mínimos transitorios vuelvan a ensanchar la ventana.
+
 ## [0.1.4] — 2026-09-07
 
 ### Correcciones
@@ -68,3 +78,4 @@ Primera versión pública del MVP.
 [0.1.2]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.2
 [0.1.3]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.3
 [0.1.4]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.4
+[0.1.5]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.5

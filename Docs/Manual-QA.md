@@ -25,14 +25,18 @@ Para la versión 0.1.4 se cerraron temporalmente Dropover y sus procesos auxilia
 
 Después de instalar la compilación final 0.1.4, Bandeja se añadió a **Privacidad y seguridad → Monitorización de entrada**, el interruptor quedó activo y macOS reinició la aplicación. Se ejecutó entonces una integración Finder → Bandeja con una imagen JPEG real: el botón izquierdo permaneció pulsado, se enviaron cinco inversiones horizontales rápidas y el panel apareció antes de soltar. La imagen se depositó en la bandeja y quedó expuesta como **1 imagen**. Con Finder nuevamente activo, la X cerró el panel al primer clic. La huella SHA-256 del original fue idéntica antes y después (`c444d824…c2fedb6`) y WindowServer confirmó cero paneles flotantes visibles después del cierre.
 
+La versión 0.1.5 parte de una reproducción en vivo del segundo bloqueo informado. El proceso permanecía sano y la bandeja todavía aceptaba nuevos archivos, pero los clics físicos no llegaban a la X, la cápsula ni la zona de movimiento. WindowServer mostró la causa: aunque SwiftUI dibujaba la bandeja compacta de 264 puntos, `NSHostingView` conservaba el ancho mínimo de 520 puntos de la cuadrícula expandida. La corrección elimina esa restricción residual, sincroniza el marco sin animaciones interrumpibles y permite que el panel sin bordes reciba el primer clic sin convertirse en ventana principal.
+
+Después de compilar e instalar la corrección final 0.1.5, se abrió la bandeja desde el menú con otra aplicación al frente. El panel vacío se renderizó correctamente con 264 × 180 puntos, nivel flotante 3 y fondo Liquid Glass visible. Un clic físico sobre la X cerró el panel al primer intento y WindowServer confirmó que no quedó ninguna ventana invisible. La primera variante de la corrección, que eliminaba todas las opciones de tamaño del alojamiento SwiftUI, se descartó durante esta comprobación porque también ocultaba el contenido; la versión final conserva solo el tamaño visual intrínseco y excluye los mínimos y máximos automáticos.
+
 La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
-Se ejecutaron **29 pruebas XCTest, 29 correctas, 0 fallos**:
+Se ejecutaron **31 pruebas XCTest, 31 correctas, 0 fallos**:
 
 - 9 del detector: sacudida deliberada, arrastre normal, microtemblor, gesto lento, movimiento vertical dominante, reinicio al soltar, dos pruebas del muestreo global del botón y exclusión completa de los clics que empiezan dentro de la bandeja;
 - 9 del estado: referencias sin modificación del original, varios archivos y carpetas, duplicados, entradas inválidas, imágenes en memoria, cierre al quedar vacío, expansión/contracción, salida cancelada y salida aceptada preservando el archivo real;
 - 2 de `NSPasteboard`: varias URLs reales e imagen sin URL;
-- 2 de ventana: colocación en las cuatro esquinas y el centro del área visible, y tamaño compacto idéntico con 1 o 32 elementos con límite desplazable al expandir.
+- 4 de ventana: colocación en las cuatro esquinas y el centro del área visible, tamaño compacto idéntico con 1 o 32 elementos, capacidad del panel sin bordes para recibir el primer clic y ausencia de un tamaño mínimo residual impuesto por SwiftUI.
 - 7 de configuración, privacidad e inicio: valores iniciales prudentes, persistencia independiente del contenido, filtro de capturas recientes, combinaciones distintas de atajos, máscara del monitor limitada al ratón y registro/desregistro del ítem de inicio con sus estados de aprobación.
 
 AirDrop estuvo disponible en esta pasada. Se abrió el selector nativo, informó que no había ninguna persona cercana y se canceló; la bandeja conservó sus tres imágenes. No se seleccionó un receptor ni se realizó un envío real.

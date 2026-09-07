@@ -1,3 +1,5 @@
+import AppKit
+import SwiftUI
 import XCTest
 @testable import Bandeja
 
@@ -33,5 +35,29 @@ final class PanelPositionerTests: XCTestCase {
         let expanded = TrayPanelLayout.size(itemCount: 32, isExpanded: true)
         XCTAssertEqual(expanded.width, 520)
         XCTAssertEqual(expanded.height, 570, "La cuadrícula debe usar desplazamiento en lugar de salir de pantalla")
+    }
+
+    @MainActor
+    func testBorderlessTrayCanReceiveClicksWithoutBecomingMainWindow() {
+        let panel = InteractiveTrayPanel(
+            contentRect: .zero,
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+
+        XCTAssertTrue(panel.canBecomeKey)
+        XCTAssertFalse(panel.canBecomeMain)
+    }
+
+    @MainActor
+    func testHostingViewDoesNotImposeStaleExpandedMinimumSize() {
+        let hostingView = FirstMouseHostingView(rootView: EmptyView())
+        hostingView.sizingOptions = [.intrinsicContentSize]
+
+        XCTAssertTrue(hostingView.sizingOptions.contains(.intrinsicContentSize))
+        XCTAssertFalse(hostingView.sizingOptions.contains(.minSize))
+        XCTAssertFalse(hostingView.sizingOptions.contains(.maxSize))
+        XCTAssertTrue(hostingView.acceptsFirstMouse(for: nil))
     }
 }
