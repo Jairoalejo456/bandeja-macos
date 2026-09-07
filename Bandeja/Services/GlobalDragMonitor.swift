@@ -43,6 +43,8 @@ enum GlobalDragSampleAction: Equatable {
 struct GlobalDragSampleProcessor {
     private var detector: ShakeDetector
     private(set) var isLeftButtonPressed = false
+    private(set) var isIgnoringCurrentPress = false
+    private var didTriggerShakeDuringPress = false
 
     init(configuration: ShakeConfiguration) {
         detector = ShakeDetector(configuration: configuration)
@@ -51,26 +53,41 @@ struct GlobalDragSampleProcessor {
     mutating func process(
         isLeftButtonPressed: Bool,
         point: CGPoint,
-        timestamp: TimeInterval
+        timestamp: TimeInterval,
+        ignoreNewPress: Bool = false
     ) -> GlobalDragSampleAction {
         if isLeftButtonPressed {
             if !self.isLeftButtonPressed {
                 self.isLeftButtonPressed = true
+                isIgnoringCurrentPress = ignoreNewPress
+                didTriggerShakeDuringPress = false
+                guard !isIgnoringCurrentPress else {
+                    detector.endDrag()
+                    return .none
+                }
                 detector.beginDrag(at: point, timestamp: timestamp)
                 return .none
             }
 
-            return detector.updateDrag(at: point, timestamp: timestamp) ? .shake(point) : .none
+            guard !isIgnoringCurrentPress else { return .none }
+            guard detector.updateDrag(at: point, timestamp: timestamp) else { return .none }
+            didTriggerShakeDuringPress = true
+            return .shake(point)
         }
 
         guard self.isLeftButtonPressed else { return .none }
         self.isLeftButtonPressed = false
+        let shouldReportDragEnded = !isIgnoringCurrentPress && didTriggerShakeDuringPress
+        isIgnoringCurrentPress = false
+        didTriggerShakeDuringPress = false
         detector.endDrag()
-        return .dragEnded
+        return shouldReportDragEnded ? .dragEnded : .none
     }
 
     mutating func reset(configuration: ShakeConfiguration) {
         isLeftButtonPressed = false
+        isIgnoringCurrentPress = false
+        didTriggerShakeDuringPress = false
         detector.endDrag()
         detector.configuration = configuration
     }
@@ -100,6 +117,7 @@ final class GlobalDragMonitor {
     private let onShake: (CGPoint) -> Void
     private let onDragEnded: () -> Void
     private let onStatusChange: (GestureMonitoringStatus) -> Void
+    private let shouldIgnoreDragStart: (CGPoint) -> Bool
     private(set) var sensitivity: Sensitivity
 
     static let monitoredEventMask: CGEventMask = [
@@ -120,13 +138,15 @@ final class GlobalDragMonitor {
         sensitivity: Sensitivity = .balanced,
         onShake: @escaping (CGPoint) -> Void,
         onDragEnded: @escaping () -> Void = {},
-        onStatusChange: @escaping (GestureMonitoringStatus) -> Void = { _ in }
+        onStatusChange: @escaping (GestureMonitoringStatus) -> Void = { _ in },
+        shouldIgnoreDragStart: @escaping (CGPoint) -> Bool = { _ in false }
     ) {
         self.sensitivity = sensitivity
         self.sampleProcessor = GlobalDragSampleProcessor(configuration: sensitivity.configuration)
         self.onShake = onShake
         self.onDragEnded = onDragEnded
         self.onStatusChange = onStatusChange
+        self.shouldIgnoreDragStart = shouldIgnoreDragStart
     }
 
     func start(requestPermission: Bool = true) {
@@ -288,10 +308,14 @@ final class GlobalDragMonitor {
         point: CGPoint,
         timestamp: TimeInterval
     ) {
+        let ignoreNewPress = isLeftButtonPressed
+            && !sampleProcessor.isLeftButtonPressed
+            && shouldIgnoreDragStart(point)
         let action = sampleProcessor.process(
             isLeftButtonPressed: isLeftButtonPressed,
             point: point,
-            timestamp: timestamp
+            timestamp: timestamp,
+            ignoreNewPress: ignoreNewPress
         )
 
         switch action {

@@ -2,6 +2,17 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.1.4] — 2026-09-07
+
+### Correcciones
+
+- Evita que el detector global procese los clics y movimientos que empiezan dentro de la propia bandeja.
+- Hace que el área de movimiento y los controles respondan al primer clic aunque otra aplicación esté activa.
+- Elimina una transición asíncrona que podía dejar el panel en un estado visual o interactivo incoherente.
+- Restaura explícitamente la recepción de eventos del ratón cada vez que la bandeja se muestra.
+- Impide que el clic de **Mostrar bandeja** se confunda con el final de un arrastre y la oculte inmediatamente.
+- Añade una prueba automatizada para impedir regresiones de la interacción interna.
+
 ## [0.1.3] — 2026-09-07
 
 ### Mejoras
@@ -56,3 +67,4 @@ Primera versión pública del MVP.
 [0.1.1]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.1
 [0.1.2]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.2
 [0.1.3]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.3
+[0.1.4]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.4

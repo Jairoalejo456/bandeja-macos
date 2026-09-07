@@ -105,7 +105,7 @@ final class ShakeDetectorTests: XCTestCase {
         )
     }
 
-    func testGlobalSampleProcessorEndsOnlyOnceWhenButtonIsReleased() {
+    func testGlobalSampleProcessorOnlyEndsAfterAShakeAndOnlyOnce() {
         var processor = GlobalDragSampleProcessor(configuration: .balanced)
 
         XCTAssertEqual(
@@ -118,11 +118,76 @@ final class ShakeDetectorTests: XCTestCase {
         )
         XCTAssertEqual(
             processor.process(isLeftButtonPressed: false, point: .zero, timestamp: 0.2),
+            .none,
+            "Un clic normal no debe tratarse como el final de un arrastre con sacudida"
+        )
+
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: true, point: .zero, timestamp: 0.3),
+            .none
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: true, point: CGPoint(x: 38, y: 0), timestamp: 0.34),
+            .none
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: true, point: CGPoint(x: -3, y: 0), timestamp: 0.41),
+            .none
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: true, point: CGPoint(x: 39, y: 0), timestamp: 0.48),
+            .none
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: true, point: CGPoint(x: -4, y: 0), timestamp: 0.55),
+            .shake(CGPoint(x: -4, y: 0))
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: false, point: .zero, timestamp: 0.6),
             .dragEnded
         )
         XCTAssertEqual(
-            processor.process(isLeftButtonPressed: false, point: .zero, timestamp: 0.3),
+            processor.process(isLeftButtonPressed: false, point: .zero, timestamp: 0.7),
             .none
         )
+    }
+
+    func testGlobalSampleProcessorIgnoresAnEntirePressThatStartsInsideTheTray() {
+        var processor = GlobalDragSampleProcessor(configuration: .balanced)
+
+        XCTAssertEqual(
+            processor.process(
+                isLeftButtonPressed: true,
+                point: .zero,
+                timestamp: 0,
+                ignoreNewPress: true
+            ),
+            .none
+        )
+
+        let shakePoints = [
+            CGPoint(x: 40, y: 0),
+            CGPoint(x: -4, y: 0),
+            CGPoint(x: 42, y: 0),
+            CGPoint(x: -6, y: 0)
+        ]
+        for (index, point) in shakePoints.enumerated() {
+            XCTAssertEqual(
+                processor.process(
+                    isLeftButtonPressed: true,
+                    point: point,
+                    timestamp: Double(index + 1) * 0.05
+                ),
+                .none
+            )
+        }
+
+        XCTAssertTrue(processor.isIgnoringCurrentPress)
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: false, point: .zero, timestamp: 0.3),
+            .none,
+            "Soltar un clic interno no debe cerrar una bandeja vacía ni finalizar un drag externo"
+        )
+        XCTAssertFalse(processor.isIgnoringCurrentPress)
     }
 }

@@ -36,6 +36,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             },
             onStatusChange: { [weak self] status in
                 self?.handleGestureMonitoringStatus(status)
+            },
+            shouldIgnoreDragStart: { [weak self] point in
+                self?.panelController.containsScreenPoint(point) ?? false
             }
         )
         launchAtLoginController = LaunchAtLoginController()

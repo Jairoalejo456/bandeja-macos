@@ -21,11 +21,13 @@ Esta actualización añade Liquid Glass nativo en macOS 26, respaldo de material
 
 La versión 0.1.2 añade un monitor pasivo de Core Graphics y solicita Monitorización de entrada para detectar de forma fiable los arrastres que pertenecen a Finder u otra aplicación. La máscara automatizada se comprobó: incluye únicamente pulsación, arrastre y liberación del botón izquierdo, y excluye teclado y botón derecho. La concesión real del permiso depende de una decisión del usuario en macOS y queda pendiente de validación manual después de instalar esta compilación. La versión 0.1.3 incorpora además el inicio automático mediante el servicio nativo de macOS. Se activó en la aplicación instalada, macOS mostró el aviso nativo de elemento de inicio agregado y el estado continuó activo después de reiniciar la app; luego se desactivó y continuó apagado tras otro reinicio. La comprobación de un arranque de sesión completo sigue incluida en la lista manual.
 
+Para la versión 0.1.4 se cerraron temporalmente Dropover y sus procesos auxiliares. Bandeja respondió durante 12 movimientos consecutivos; después se movió con una trayectoria horizontal de varias inversiones y terminó exactamente 100 × 100 puntos respecto a su posición inicial, demostrando que su propio gesto ya no reactiva el detector global. Con Finder activo, el botón de cierre respondió al primer clic y el archivo original permaneció intacto. Dropover quedó cerrado, no desinstalado.
+
 La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
-Se ejecutaron **28 pruebas XCTest, 28 correctas, 0 fallos**:
+Se ejecutaron **29 pruebas XCTest, 29 correctas, 0 fallos**:
 
-- 8 del detector: sacudida deliberada, arrastre normal, microtemblor, gesto lento, movimiento vertical dominante, reinicio al soltar y dos pruebas del muestreo global del botón;
+- 9 del detector: sacudida deliberada, arrastre normal, microtemblor, gesto lento, movimiento vertical dominante, reinicio al soltar, dos pruebas del muestreo global del botón y exclusión completa de los clics que empiezan dentro de la bandeja;
 - 9 del estado: referencias sin modificación del original, varios archivos y carpetas, duplicados, entradas inválidas, imágenes en memoria, cierre al quedar vacío, expansión/contracción, salida cancelada y salida aceptada preservando el archivo real;
 - 2 de `NSPasteboard`: varias URLs reales e imagen sin URL;
 - 2 de ventana: colocación en las cuatro esquinas y el centro del área visible, y tamaño compacto idéntico con 1 o 32 elementos con límite desplazable al expandir.
@@ -59,6 +61,8 @@ Usa los tres elementos incluidos en `Docs/QA Fixtures` y cualquier PDF de prueba
 18. Activa la detección de capturas con 3 segundos. Toma una captura guardada como archivo: una bandeja vacía debe mostrarse temporalmente y ocultarse si no recibe contenido. Cambia a 1 y 6 segundos y repite. Desactiva la opción y confirma que deja de aparecer. Repite con una captura enviada solo al portapapeles y confirma que no se detecta.
 19. En macOS 26, revisa el vidrio tintado sobre fondos claros y oscuros, los estados hover y el contraste. Activa Reducir transparencia y confirma que la superficie pasa a ser sólida y legible. En macOS 14–15, confirma el material translúcido de respaldo.
 20. En **Ajustes → Sistema**, activa **Abrir Bandeja al iniciar sesión** y confirma que macOS la muestra en **General → Ítems de inicio y extensiones**. Si aparece “requiere aprobación”, usa **Abrir Ajustes…** y apruébala. Cierra la sesión y vuelve a entrar para confirmar el arranque; después desactiva la opción y repite para confirmar que ya no se inicia.
+21. Con otra aplicación activa, mueve la bandeja repetidas veces desde la cabecera y ciérrala con un solo clic. Repite dibujando una pequeña trayectoria de ida y vuelta al moverla: la detección global no debe reposicionar ni bloquear el panel. Si Dropover está instalado, repite primero con Dropover cerrado para descartar superposición entre ambas utilidades.
+22. Desde el icono de la barra de menús, pulsa **Mostrar bandeja** sin tener archivos. La bandeja debe permanecer visible durante su intervalo normal, no desaparecer al terminar el mismo clic que abrió el menú.
 
 ## Criterio de aceptación
 

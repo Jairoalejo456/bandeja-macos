@@ -16,9 +16,13 @@ private final class WindowDragView: NSView {
 
     override func mouseDown(with event: NSEvent) {
         NSCursor.closedHand.push()
+        defer { NSCursor.pop() }
         window?.performDrag(with: event)
-        NSCursor.pop()
     }
 
     override var acceptsFirstResponder: Bool { false }
+
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
 }

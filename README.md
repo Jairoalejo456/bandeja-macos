@@ -2,7 +2,7 @@
 
 Bandeja es una utilidad nativa de barra de menús para reunir temporalmente archivos, carpetas e imágenes mientras se trabaja entre Finder y otras aplicaciones. Mantiene una sola bandeja flotante y guarda únicamente referencias en memoria: añadir o cerrar nunca mueve ni elimina los originales.
 
-Versión actual: **0.1.3 (MVP)**.
+Versión actual: **0.1.4 (MVP)**.
 
 ## Requisitos
 

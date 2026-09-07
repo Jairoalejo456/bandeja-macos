@@ -88,6 +88,7 @@ struct TrayView: View {
                     .frame(width: 38, height: 38)
             }
             .padding(.horizontal, 10)
+            .zIndex(1)
         }
         .frame(height: 52)
     }
@@ -172,6 +173,7 @@ struct TrayView: View {
                     .frame(width: 40, height: 40)
             }
             .padding(.horizontal, 10)
+            .zIndex(1)
         }
         .frame(height: 58)
     }

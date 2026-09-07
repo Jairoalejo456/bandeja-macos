@@ -29,8 +29,11 @@ final class TrayPanelController {
         panel.hasShadow = false
         panel.hidesOnDeactivate = false
         panel.becomesKeyOnlyIfNeeded = true
+        panel.acceptsMouseMovedEvents = true
+        panel.ignoresMouseEvents = false
         panel.animationBehavior = .utilityWindow
-        panel.isMovable = false
+        panel.isMovable = true
+        panel.isMovableByWindowBackground = false
         panel.title = "Bandeja"
         panel.setAccessibilityLabel("Bandeja temporal de archivos")
 
@@ -62,6 +65,10 @@ final class TrayPanelController {
 
     var isVisible: Bool { panel.isVisible }
 
+    func containsScreenPoint(_ point: CGPoint) -> Bool {
+        panel.isVisible && panel.frame.contains(point)
+    }
+
     func showNearCursor(
         _ cursor: CGPoint = NSEvent.mouseLocation,
         emptyDismissAfter: TimeInterval = 15
@@ -69,17 +76,12 @@ final class TrayPanelController {
         resize(forItemCount: store.items.count, isExpanded: store.isExpanded, animated: false)
         positionPanel(near: cursor)
 
-        if !panel.isVisible {
-            // AppKit can defer animator-backed alpha changes while another app owns
-            // the active drag session, leaving a newly ordered panel fully transparent.
-            // Make the drop target visible synchronously: immediacy is more important
-            // than a fade while the user is still holding the file.
-            panel.alphaValue = 1
-            panel.orderFrontRegardless()
-        } else {
-            panel.alphaValue = 1
-            panel.orderFrontRegardless()
-        }
+        // AppKit can defer animator-backed changes while another app owns the drag
+        // session. Restore mouse handling and visibility synchronously so a stale
+        // transition can never leave an unresponsive panel on screen.
+        panel.ignoresMouseEvents = false
+        panel.alphaValue = 1
+        panel.orderFrontRegardless()
 
         if store.items.isEmpty {
             scheduleEmptyDismissal(after: emptyDismissAfter)
@@ -90,13 +92,8 @@ final class TrayPanelController {
         emptyDismissWorkItem?.cancel()
         emptyDismissWorkItem = nil
         guard panel.isVisible else { return }
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.12
-            panel.animator().alphaValue = 0
-        }, completionHandler: { [weak panel = panel] in
-            panel?.orderOut(nil)
-            panel?.alphaValue = 1
-        })
+        panel.orderOut(nil)
+        panel.alphaValue = 1
     }
 
     func dragDidEnd() {
@@ -179,7 +176,7 @@ private final class TrayDropContainerView: NSView {
         super.init(frame: .zero)
         registerForDraggedTypes([.fileURL, .png, .tiff])
 
-        let hostingView = NSHostingView(rootView: rootView)
+        let hostingView = FirstMouseHostingView(rootView: rootView)
         hostingView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(hostingView)
         NSLayoutConstraint.activate([
@@ -232,6 +229,12 @@ private final class TrayDropContainerView: NSView {
     private func isInternalDrag(_ sender: NSDraggingInfo) -> Bool {
         guard let sourceView = sender.draggingSource as? NSView else { return false }
         return sourceView.window === window
+    }
+}
+
+private final class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
     }
 }
 
