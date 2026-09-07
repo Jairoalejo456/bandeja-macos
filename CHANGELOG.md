@@ -2,6 +2,13 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.1.8] — 2026-09-07
+
+### Apariencia
+
+- Elimina el borde blanco translúcido que producía un contorno gris claro alrededor de la bandeja.
+- Conserva el borde de acento únicamente durante la recepción de un arrastre, cuando funciona como confirmación visual.
+
 ## [0.1.7] — 2026-09-07
 
 ### Correcciones
@@ -98,3 +105,4 @@ Primera versión pública del MVP.
 [0.1.5]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.5
 [0.1.6]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.6
 [0.1.7]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.7
+[0.1.8]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.8

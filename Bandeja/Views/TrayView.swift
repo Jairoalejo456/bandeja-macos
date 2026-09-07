@@ -23,12 +23,11 @@ struct TrayView: View {
             TrayGlassSurface(cornerRadius: 22)
         }
         .overlay {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(
-                    store.isDropTargeted ? Color.accentColor : Color.white.opacity(0.18),
-                    lineWidth: store.isDropTargeted ? 2 : 0.5
-                )
-                .animation(.easeOut(duration: 0.14), value: store.isDropTargeted)
+            if store.isDropTargeted {
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .stroke(Color.accentColor, lineWidth: 2)
+                    .animation(.easeOut(duration: 0.14), value: store.isDropTargeted)
+            }
         }
         .shadow(color: .black.opacity(0.42), radius: 24, y: 12)
         .padding(12)

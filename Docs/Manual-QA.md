@@ -33,6 +33,8 @@ Para la versión 0.1.6 se reprodujo el recorte con la imagen vertical original d
 
 Para la versión 0.1.7 se reprodujo el fallo de navegación con dos imágenes reales. WindowServer mostraba que el primer clic sí ampliaba el panel de 264 × 264 a 520 × 248 puntos, pero SwiftUI conservaba la jerarquía compacta anterior dentro del marco grande. La corrección reconstruye la raíz visual con el mismo estado que utiliza AppKit para dimensionar la ventana. En la comprobación práctica, un solo clic mostró ambas imágenes simultáneamente, **Atrás** restauró la pila de 264 × 264 y un segundo ciclo volvió a completar ambos cambios sin recortes ni bloqueo.
 
+Para la versión 0.1.8 se retiró el trazo blanco translúcido de medio punto que rodeaba la superficie en reposo. La vista compacta se comprobó sobre un fondo claro, donde el contorno gris resultaba más visible: el panel conserva el vidrio oscuro, las esquinas redondeadas y la sombra de profundidad, pero ya no añade ese recuadro claro. El contorno de acento sigue apareciendo solamente al recibir un arrastre válido.
+
 La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
 Se ejecutaron **35 pruebas XCTest, 35 correctas, 0 fallos**:
