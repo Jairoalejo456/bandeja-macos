@@ -2,6 +2,14 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.1.7] — 2026-09-07
+
+### Correcciones
+
+- Sincroniza explícitamente la vista SwiftUI con el tamaño del panel para que un solo clic en la cápsula muestre todos los elementos.
+- Hace que **Atrás** restaure siempre la pila compacta original, sin dejar una cuadrícula comprimida, recortada o aparentemente bloqueada.
+- Añade una prueba de regresión que repite dos veces el ciclo de expansión y contracción y comprueba tanto el contenido dibujado como las dimensiones reales de la ventana.
+
 ## [0.1.6] — 2026-09-07
 
 ### Correcciones
@@ -89,3 +97,4 @@ Primera versión pública del MVP.
 [0.1.4]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.4
 [0.1.5]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.5
 [0.1.6]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.6
+[0.1.7]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.7

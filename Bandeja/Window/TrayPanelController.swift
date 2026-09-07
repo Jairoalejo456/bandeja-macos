@@ -14,6 +14,7 @@ final class TrayPanelController {
     private let store: TrayStore
     private let settings: AppSettings
     private let panel: NSPanel
+    private var dropContainerView: TrayDropContainerView!
     private var itemSubscription: AnyCancellable?
     private var emptyDismissWorkItem: DispatchWorkItem?
 
@@ -49,12 +50,17 @@ final class TrayPanelController {
         let rootView = TrayView(
             store: store,
             settings: self.settings,
+            isExpanded: store.isExpanded,
             onClose: { [weak self] in self?.closeAndClear() },
+            onExpand: { [weak self] in self?.setExpanded(true) },
+            onCollapse: { [weak self] in self?.setExpanded(false) },
             onExternalDragCompleted: { [weak self] operation in
                 self?.completeExternalDrag(operation)
             }
         )
-        panel.contentView = TrayDropContainerView(rootView: rootView, store: store)
+        let dropContainerView = TrayDropContainerView(rootView: rootView, store: store)
+        self.dropContainerView = dropContainerView
+        panel.contentView = dropContainerView
 
         store.onBecameEmpty = { [weak self] in
             self?.hide()
@@ -65,6 +71,12 @@ final class TrayPanelController {
         )
             .sink { [weak self] count, isExpanded in
                 self?.resize(forItemCount: count, isExpanded: isExpanded)
+                // @Published emits before SwiftUI has necessarily committed its
+                // new branch. Refresh explicitly on the next main-loop turn so
+                // the rendered hierarchy always matches the AppKit panel size.
+                DispatchQueue.main.async { [weak self] in
+                    self?.refreshRootView()
+                }
                 if count > 0 {
                     self?.emptyDismissWorkItem?.cancel()
                     self?.emptyDismissWorkItem = nil
@@ -73,6 +85,8 @@ final class TrayPanelController {
     }
 
     var isVisible: Bool { panel.isVisible }
+    var presentationSize: NSSize { panel.frame.size }
+    var renderedIsExpanded: Bool { dropContainerView.renderedIsExpanded }
 
     func containsScreenPoint(_ point: CGPoint) -> Bool {
         panel.isVisible && panel.frame.contains(point)
@@ -82,7 +96,7 @@ final class TrayPanelController {
         _ cursor: CGPoint = NSEvent.mouseLocation,
         emptyDismissAfter: TimeInterval = 15
     ) {
-        resize(forItemCount: store.items.count, isExpanded: store.isExpanded)
+        synchronizePresentation()
         positionPanel(near: cursor)
 
         // AppKit can defer animator-backed changes while another app owns the drag
@@ -123,6 +137,15 @@ final class TrayPanelController {
         store.clear()
     }
 
+    func setExpanded(_ isExpanded: Bool) {
+        if isExpanded {
+            store.expand()
+        } else {
+            store.collapse()
+        }
+        synchronizePresentation()
+    }
+
     private func scheduleEmptyDismissal(after delay: TimeInterval) {
         emptyDismissWorkItem?.cancel()
         let workItem = DispatchWorkItem { [weak self] in
@@ -152,6 +175,31 @@ final class TrayPanelController {
         panel.contentMinSize = .zero
         panel.setFrame(frame, display: true, animate: false)
         panel.contentView?.layoutSubtreeIfNeeded()
+    }
+
+    private func synchronizePresentation() {
+        resize(forItemCount: store.items.count, isExpanded: store.isExpanded)
+        refreshRootView()
+    }
+
+    private func refreshRootView() {
+        dropContainerView.update(rootView: makeRootView())
+        panel.contentView?.layoutSubtreeIfNeeded()
+        panel.displayIfNeeded()
+    }
+
+    private func makeRootView() -> TrayView {
+        TrayView(
+            store: store,
+            settings: settings,
+            isExpanded: store.isExpanded,
+            onClose: { [weak self] in self?.closeAndClear() },
+            onExpand: { [weak self] in self?.setExpanded(true) },
+            onCollapse: { [weak self] in self?.setExpanded(false) },
+            onExternalDragCompleted: { [weak self] operation in
+                self?.completeExternalDrag(operation)
+            }
+        )
     }
 
     private func positionPanel(near cursor: CGPoint) {
@@ -186,13 +234,16 @@ struct TrayPanelLayout {
 
 private final class TrayDropContainerView: NSView {
     private let store: TrayStore
+    private let hostingView: FirstMouseHostingView<TrayView>
+    private(set) var renderedIsExpanded: Bool
 
     init(rootView: TrayView, store: TrayStore) {
         self.store = store
+        self.hostingView = FirstMouseHostingView(rootView: rootView)
+        self.renderedIsExpanded = rootView.isExpanded
         super.init(frame: .zero)
         registerForDraggedTypes([.fileURL, .png, .tiff])
 
-        let hostingView = FirstMouseHostingView(rootView: rootView)
         // Keep SwiftUI's visual intrinsic size, but never let its transient
         // expanded minimum/maximum sizes constrain the surrounding NSPanel.
         hostingView.sizingOptions = [.intrinsicContentSize]
@@ -204,6 +255,14 @@ private final class TrayDropContainerView: NSView {
             hostingView.trailingAnchor.constraint(equalTo: trailingAnchor),
             hostingView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
+    }
+
+    func update(rootView: TrayView) {
+        renderedIsExpanded = rootView.isExpanded
+        hostingView.rootView = rootView
+        hostingView.invalidateIntrinsicContentSize()
+        hostingView.needsLayout = true
+        needsLayout = true
     }
 
     required init?(coder: NSCoder) {

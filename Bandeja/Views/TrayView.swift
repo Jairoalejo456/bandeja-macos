@@ -5,12 +5,15 @@ import UniformTypeIdentifiers
 struct TrayView: View {
     @ObservedObject var store: TrayStore
     @ObservedObject var settings: AppSettings
+    let isExpanded: Bool
     let onClose: () -> Void
+    let onExpand: () -> Void
+    let onCollapse: () -> Void
     let onExternalDragCompleted: (NSDragOperation) -> Void
 
     var body: some View {
         Group {
-            if store.isExpanded {
+            if isExpanded {
                 expandedContent
             } else {
                 compactContent
@@ -45,7 +48,7 @@ struct TrayView: View {
                     previewStack
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                    Button(action: store.expand) {
+                    Button(action: onExpand) {
                         HStack(spacing: 6) {
                             Text(compactCountText)
                             Image(systemName: "chevron.right")
@@ -161,7 +164,7 @@ struct TrayView: View {
             .allowsHitTesting(false)
 
             HStack {
-                Button(action: store.collapse) {
+                Button(action: onCollapse) {
                     Image(systemName: "chevron.left")
                         .frame(width: 38, height: 38)
                 }

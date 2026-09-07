@@ -60,4 +60,33 @@ final class PanelPositionerTests: XCTestCase {
         XCTAssertFalse(hostingView.sizingOptions.contains(.maxSize))
         XCTAssertTrue(hostingView.acceptsFirstMouse(for: nil))
     }
+
+    @MainActor
+    func testPanelAndRenderedContentStayInSyncAcrossRepeatedExpandAndCollapse() throws {
+        let temporaryDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: temporaryDirectory) }
+
+        let firstURL = temporaryDirectory.appendingPathComponent("uno.png")
+        let secondURL = temporaryDirectory.appendingPathComponent("dos.png")
+        try Data([0x01]).write(to: firstURL)
+        try Data([0x02]).write(to: secondURL)
+
+        let store = TrayStore()
+        store.addFileURLs([firstURL, secondURL])
+        let controller = TrayPanelController(store: store)
+
+        for _ in 0..<2 {
+            controller.setExpanded(true)
+            XCTAssertTrue(store.isExpanded)
+            XCTAssertTrue(controller.renderedIsExpanded)
+            XCTAssertEqual(controller.presentationSize, TrayPanelLayout.size(itemCount: 2, isExpanded: true))
+
+            controller.setExpanded(false)
+            XCTAssertFalse(store.isExpanded)
+            XCTAssertFalse(controller.renderedIsExpanded)
+            XCTAssertEqual(controller.presentationSize, TrayPanelLayout.size(itemCount: 2, isExpanded: false))
+        }
+    }
 }

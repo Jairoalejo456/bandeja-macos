@@ -31,14 +31,16 @@ Después de compilar e instalar la corrección final 0.1.5, se abrió la bandeja
 
 Para la versión 0.1.6 se reprodujo el recorte con la imagen vertical original de 1837 × 2281 píxeles. La nueva tarjeta compacta la dibujó completa, centrada y con su relación de aspecto intacta sobre el fondo neutro; también se comprobó visualmente una pila con dos elementos. El receptor central registra explícitamente URLs de archivo, PNG y TIFF, y la cuadrícula desplegada incorpora el mismo flujo de importación. La automatización de geometría y registro pasó, pero el depósito físico exactamente en el centro debe confirmarse también con un arrastre humano: el intento automatizado quedó interferido por Stage Manager y abrió la aplicación asociada al archivo en vez de producir un drag fiable.
 
+Para la versión 0.1.7 se reprodujo el fallo de navegación con dos imágenes reales. WindowServer mostraba que el primer clic sí ampliaba el panel de 264 × 264 a 520 × 248 puntos, pero SwiftUI conservaba la jerarquía compacta anterior dentro del marco grande. La corrección reconstruye la raíz visual con el mismo estado que utiliza AppKit para dimensionar la ventana. En la comprobación práctica, un solo clic mostró ambas imágenes simultáneamente, **Atrás** restauró la pila de 264 × 264 y un segundo ciclo volvió a completar ambos cambios sin recortes ni bloqueo.
+
 La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
-Se ejecutaron **34 pruebas XCTest, 34 correctas, 0 fallos**:
+Se ejecutaron **35 pruebas XCTest, 35 correctas, 0 fallos**:
 
 - 9 del detector: sacudida deliberada, arrastre normal, microtemblor, gesto lento, movimiento vertical dominante, reinicio al soltar, dos pruebas del muestreo global del botón y exclusión completa de los clics que empiezan dentro de la bandeja;
 - 9 del estado: referencias sin modificación del original, varios archivos y carpetas, duplicados, entradas inválidas, imágenes en memoria, cierre al quedar vacío, expansión/contracción, salida cancelada y salida aceptada preservando el archivo real;
 - 2 de `NSPasteboard`: varias URLs reales e imagen sin URL;
-- 4 de ventana: colocación en las cuatro esquinas y el centro del área visible, tamaño compacto idéntico con 1 o 32 elementos, capacidad del panel sin bordes para recibir el primer clic y ausencia de un tamaño mínimo residual impuesto por SwiftUI.
+- 5 de ventana: colocación en las cuatro esquinas y el centro del área visible, tamaño compacto idéntico con 1 o 32 elementos, capacidad del panel sin bordes para recibir el primer clic, ausencia de un tamaño mínimo residual impuesto por SwiftUI y sincronización repetida entre el estado visual y el marco al expandir o contraer.
 - 7 de configuración, privacidad e inicio: valores iniciales prudentes, persistencia independiente del contenido, filtro de capturas recientes, combinaciones distintas de atajos, máscara del monitor limitada al ratón y registro/desregistro del ítem de inicio con sus estados de aprobación.
 - 3 de interacción compacta: ajuste completo de imágenes verticales y horizontales y registro de la zona central como destino de archivos e imágenes.
 
