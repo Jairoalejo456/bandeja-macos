@@ -59,6 +59,7 @@ final class AppSettings: ObservableObject {
 
     @Published private(set) var shortcutStatus: String?
     @Published private(set) var screenshotStatus: String?
+    @Published private(set) var gestureMonitoringStatus: GestureMonitoringStatus = .checking
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -83,5 +84,9 @@ final class AppSettings: ObservableObject {
 
     func setScreenshotStatus(_ status: String?) {
         screenshotStatus = status
+    }
+
+    func setGestureMonitoringStatus(_ status: GestureMonitoringStatus) {
+        gestureMonitoringStatus = status
     }
 }

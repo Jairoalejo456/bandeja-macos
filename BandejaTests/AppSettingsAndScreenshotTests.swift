@@ -13,6 +13,7 @@ final class AppSettingsAndScreenshotTests: XCTestCase {
         XCTAssertFalse(settings.screenshotDetectionEnabled)
         XCTAssertEqual(settings.screenshotTrayDuration, 3)
         XCTAssertTrue(settings.revealInFinderOnDoubleClick)
+        XCTAssertEqual(settings.gestureMonitoringStatus, .checking)
     }
 
     func testPreferencesPersistWithoutTrayContents() {
@@ -70,6 +71,20 @@ final class AppSettingsAndScreenshotTests: XCTestCase {
 
         XCTAssertEqual(Set(keys).count, GlobalShortcutPreset.allCases.count)
         XCTAssertTrue(definitions.allSatisfy { $0.modifiers != 0 })
+    }
+
+    func testGestureEventTapOnlyObservesRequiredMouseEvents() {
+        let mask = GlobalDragMonitor.monitoredEventMask
+        let contains: (CGEventType) -> Bool = { type in
+            mask & (CGEventMask(1) << type.rawValue) != 0
+        }
+
+        XCTAssertTrue(contains(.leftMouseDown))
+        XCTAssertTrue(contains(.leftMouseDragged))
+        XCTAssertTrue(contains(.leftMouseUp))
+        XCTAssertFalse(contains(.keyDown))
+        XCTAssertFalse(contains(.keyUp))
+        XCTAssertFalse(contains(.rightMouseDown))
     }
 
     private func makeDefaults() -> UserDefaults {

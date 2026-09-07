@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var settings: AppSettings
+    let onRequestInputMonitoring: () -> Void
 
     var body: some View {
         ScrollView {
@@ -13,7 +14,7 @@ struct SettingsView: View {
             }
             .padding(24)
         }
-        .frame(width: 540, height: 500)
+        .frame(width: 540, height: 570)
         .background(Color(nsColor: .windowBackgroundColor))
     }
 
@@ -38,6 +39,10 @@ struct SettingsView: View {
     private var activationSection: some View {
         SettingsGroup(title: "Aparición", systemImage: "cursorarrow.motionlines") {
             VStack(alignment: .leading, spacing: 12) {
+                inputMonitoringRow
+
+                Divider()
+
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Velocidad de la sacudida")
@@ -82,6 +87,71 @@ struct SettingsView: View {
                         .foregroundStyle(.orange)
                 }
             }
+        }
+    }
+
+    private var inputMonitoringRow: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: monitoringSymbol)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(monitoringColor)
+                .frame(width: 32, height: 32)
+                .background(monitoringColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 9))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(monitoringTitle)
+                    .font(.system(size: 13, weight: .medium))
+                Text(monitoringDetail)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 8)
+
+            if settings.gestureMonitoringStatus != .fullAccess {
+                Button("Dar permiso…", action: onRequestInputMonitoring)
+                    .controlSize(.small)
+            }
+        }
+    }
+
+    private var monitoringSymbol: String {
+        switch settings.gestureMonitoringStatus {
+        case .fullAccess: return "checkmark.shield.fill"
+        case .checking: return "ellipsis.circle.fill"
+        case .permissionRequired: return "hand.raised.fill"
+        case .fallback: return "exclamationmark.triangle.fill"
+        }
+    }
+
+    private var monitoringColor: Color {
+        switch settings.gestureMonitoringStatus {
+        case .fullAccess: return .green
+        case .checking: return .secondary
+        case .permissionRequired, .fallback: return .orange
+        }
+    }
+
+    private var monitoringTitle: String {
+        switch settings.gestureMonitoringStatus {
+        case .fullAccess: return "Detección global completa"
+        case .checking: return "Comprobando el permiso…"
+        case .permissionRequired: return "Falta Monitorización de entrada"
+        case .fallback: return "Detección global no disponible"
+        }
+    }
+
+    private var monitoringDetail: String {
+        switch settings.gestureMonitoringStatus {
+        case .fullAccess:
+            return "Bandeja observa pasivamente el ratón durante el arrastre. No escucha el teclado."
+        case .checking:
+            return "macOS está comprobando si puede detectar arrastres iniciados en otras aplicaciones."
+        case .permissionRequired:
+            return "Es necesario para reconocer la sacudida al arrastrar desde Finder y otras apps."
+        case .fallback:
+            return "La app usa un modo limitado. Revisa el permiso y vuelve a intentarlo."
         }
     }
 

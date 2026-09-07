@@ -3,9 +3,9 @@ import SwiftUI
 
 @MainActor
 final class SettingsWindowController: NSWindowController, NSWindowDelegate {
-    init(settings: AppSettings) {
+    init(settings: AppSettings, onRequestInputMonitoring: @escaping () -> Void) {
         let window = NSWindow(
-            contentRect: NSRect(origin: .zero, size: NSSize(width: 540, height: 500)),
+            contentRect: NSRect(origin: .zero, size: NSSize(width: 540, height: 570)),
             styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -15,7 +15,12 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         window.isMovableByWindowBackground = true
         window.isReleasedWhenClosed = false
         window.animationBehavior = .documentWindow
-        window.contentView = NSHostingView(rootView: SettingsView(settings: settings))
+        window.contentView = NSHostingView(
+            rootView: SettingsView(
+                settings: settings,
+                onRequestInputMonitoring: onRequestInputMonitoring
+            )
+        )
         super.init(window: window)
         window.delegate = self
     }

@@ -2,7 +2,7 @@
 
 Bandeja es una utilidad nativa de barra de menús para reunir temporalmente archivos, carpetas e imágenes mientras se trabaja entre Finder y otras aplicaciones. Mantiene una sola bandeja flotante y guarda únicamente referencias en memoria: añadir o cerrar nunca mueve ni elimina los originales.
 
-Versión actual: **0.1.1 (MVP)**.
+Versión actual: **0.1.2 (MVP)**.
 
 ## Requisitos
 
@@ -16,11 +16,12 @@ No hay dependencias de terceros, servidor, cuenta ni almacenamiento persistente.
 
 1. Abre `Bandeja.xcodeproj` en Xcode.
 2. Selecciona el esquema **Bandeja** y el destino **My Mac**.
-3. Pulsa **Run** (`⌘R`). La app aparece como **Bandeja** junto a un icono en la barra de menús; no ocupa espacio en el Dock. El gesto solo funciona mientras la app está abierta y ese acceso está presente.
-4. Empieza a arrastrar uno o más elementos en Finder.
-5. Sin soltar el botón, mueve el cursor horizontalmente de un lado a otro tres veces con rapidez. La bandeja aparecerá cerca del cursor y siempre dentro del área visible de la pantalla.
-6. Suelta los elementos dentro. La bandeja permanece pequeña y enseña una previsualización principal con hasta dos tarjetas detrás para indicar que hay más contenido.
-7. Arrastra esa pila para sacar todos los elementos de una vez, o pulsa la cápsula de cantidad para abrir la cuadrícula y arrastrar uno o varios. Cuando otra aplicación acepta el arrastre, la bandeja se cierra automáticamente; si cancelas, conserva todo.
+3. Pulsa **Run** (`⌘R`). La app aparece como **Bandeja** junto a un icono en la barra de menús; no ocupa espacio en el Dock.
+4. La primera vez, acepta **Monitorización de entrada** cuando macOS lo solicite. Este permiso permite observar pasivamente los eventos del ratón de un arrastre que empezó en Finder u otra app. Bandeja no solicita eventos del teclado ni puede modificar los eventos observados. Si macOS pide reiniciarla, sal y vuelve a abrirla.
+5. Empieza a arrastrar uno o más elementos en Finder.
+6. Sin soltar el botón, mueve el cursor horizontalmente de un lado a otro tres veces con rapidez. La bandeja aparecerá cerca del cursor y siempre dentro del área visible de la pantalla.
+7. Suelta los elementos dentro. La bandeja permanece pequeña y enseña una previsualización principal con hasta dos tarjetas detrás para indicar que hay más contenido.
+8. Arrastra esa pila para sacar todos los elementos de una vez, o pulsa la cápsula de cantidad para abrir la cuadrícula y arrastrar uno o varios. Cuando otra aplicación acepta el arrastre, la bandeja se cierra automáticamente; si cancelas, conserva todo.
 
 También se puede abrir una bandeja vacía desde el icono de barra de menús con **Mostrar bandeja**. Si no recibe nada, se oculta automáticamente; al terminar un arrastre sin depósito también se oculta. La sensibilidad del gesto puede cambiarse entre baja, equilibrada y alta desde ese menú, pero la configuración equilibrada funciona desde el primer inicio.
 
@@ -81,18 +82,18 @@ Las versiones publicadas y sus binarios se encuentran en [GitHub Releases](https
 - **NSPanel** proporciona una ventana flotante no activante, sobre ventanas normales y movible por su cabecera.
 - **NSCollectionView / NSPasteboard** reciben URLs de archivo, carpetas e imágenes y publican de nuevo los elementos mediante drag & drop estándar. La pila compacta ofrece el conjunto completo; la cuadrícula permite una selección individual o múltiple. Los archivos existentes se ofrecen con URL y operación de copia; una imagen sin archivo de origen se conserva en memoria y se ofrece como PNG mediante `NSFilePromiseProvider` solo cuando el usuario la deposita fuera. Una salida aceptada descarta las referencias y cierra el panel; una salida cancelada no cambia el estado.
 - **Quick Look Thumbnailing** solicita a macOS la miniatura nativa de cada URL. Imágenes, PDF, vídeo, documentos y otros formatos compatibles muestran su contenido; un tipo sin generador Quick Look usa como respaldo el icono nativo de Finder.
-- **NSEvent** consulta de forma pasiva la posición global del cursor y el estado del botón izquierdo mientras la app está abierta. Este muestreo continúa durante arrastres pertenecientes a Finder u otras aplicaciones, sin instalar un event tap. El detector exige segmentos horizontales rápidos, distancia acumulada, tres inversiones de dirección, dominancia horizontal y un tiempo de enfriamiento. Solo hay un `NSPanel` y Launch Services prohíbe múltiples instancias de la app.
+- **Core Graphics** instala un monitor pasivo (`listenOnly`) de sesión para tres eventos del ratón: botón izquierdo pulsado, arrastre y liberación. Monitorización de entrada permite recibirlos cuando el arrastre pertenece a Finder u otra aplicación. El monitor nunca modifica ni bloquea eventos y su máscara excluye el teclado. Mientras falta el permiso, un muestreo limitado de posición y botón mantiene una alternativa funcional. El detector exige segmentos horizontales rápidos, distancia acumulada, tres inversiones de dirección, dominancia horizontal y un tiempo de enfriamiento. Solo hay un `NSPanel` y Launch Services prohíbe múltiples instancias de la app.
 - **Carbon RegisterEventHotKey** registra opcionalmente el atajo global seleccionado sin inspeccionar pulsaciones y sin solicitar Accesibilidad.
 - **Spotlight (`NSMetadataQuery`)** detecta opcionalmente capturas nuevas marcadas por macOS, descarta resultados anteriores y muestra una bandeja vacía durante el intervalo elegido. No copia la captura ni la añade automáticamente.
 - **NSWorkspace, Quick Look y NSSharingService** construyen el menú de acciones con las aplicaciones y servicios que el sistema declara compatibles. AirDrop usa el flujo nativo y cancelar el selector conserva la bandeja.
 
 ## Permisos y privacidad
 
-Bandeja no solicita Accesibilidad, Grabación de pantalla, Automatización ni acceso completo al disco. Consulta `NSEvent.mouseLocation` y `NSEvent.pressedMouseButtons`; no intercepta eventos ni observa el teclado. El atajo se registra como combinación concreta con el sistema y la detección de capturas consulta metadatos Spotlight de archivos, no el contenido de la pantalla.
+Bandeja solicita **Monitorización de entrada** para detectar con fiabilidad la sacudida durante arrastres iniciados en otras aplicaciones. Usa un monitor pasivo de Core Graphics limitado a tres eventos del botón izquierdo; no observa el teclado, no altera los eventos y no solicita Accesibilidad, Grabación de pantalla, Automatización ni acceso completo al disco. Si se deniega, el menú y Ajustes lo indican expresamente y la app mantiene un modo de detección limitado junto con **Mostrar bandeja** y el atajo opcional.
 
 Los archivos llegan únicamente porque el usuario los arrastra. El target no usa App Sandbox en este MVP para que las URLs explícitamente depositadas sigan siendo utilizables durante la sesión. No se sube información, no hay analítica y nada de la bandeja se restaura tras reiniciar.
 
-En un Mac administrado, una política de seguridad podría impedir la entrega de eventos globales. En ese caso la app no debe considerarse capaz de detectar el gesto global; **Mostrar bandeja** en el icono de menú queda como alternativa comprensible.
+El permiso se puede conceder desde **Ajustes del sistema → Privacidad y seguridad → Monitorización de entrada**. La app vuelve a comprobarlo al activarse. En un Mac administrado, una política de seguridad podría impedir la entrega de eventos globales; en ese caso muestra el estado limitado y **Mostrar bandeja** queda como alternativa comprensible.
 
 ## Limitaciones conocidas
 

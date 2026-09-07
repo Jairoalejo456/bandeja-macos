@@ -2,6 +2,24 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.1.2] — 2026-09-07
+
+### Mejoras
+
+- Añade una solicitud explícita de Monitorización de entrada para la detección global fiable del gesto.
+- Usa un monitor pasivo de Core Graphics limitado al botón izquierdo y excluye eventos de teclado.
+- Muestra el estado del permiso y una acción para concederlo en la barra de menús y en Ajustes.
+- Cambia automáticamente al modo protegido cuando macOS concede el permiso y conserva un modo limitado si se deniega.
+- Añade una prueba de privacidad para comprobar la máscara exacta de eventos observados.
+
+## [0.1.1] — 2026-09-07
+
+### Correcciones
+
+- Mantiene visible el acceso de Bandeja en la barra de menús.
+- Corrige la aparición inmediata del panel durante un arrastre externo.
+- Reduce falsos positivos con muestreo continuo del botón y el cursor.
+
 ## [0.1.0] — 2026-09-07
 
 Primera versión pública del MVP.
@@ -25,3 +43,5 @@ Primera versión pública del MVP.
 - No incluye historial, nube, cuentas ni persistencia de la bandeja.
 
 [0.1.0]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.0
+[0.1.1]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.1
+[0.1.2]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.2

@@ -19,15 +19,17 @@ Las compilaciones Debug y Release y el análisis estático terminaron correctame
 
 Esta actualización añade Liquid Glass nativo en macOS 26, respaldo de material en macOS 14–15, respeto de Reducir transparencia, Ajustes, atajo global opcional, detector opcional de capturas y doble clic configurable para revelar en Finder. La app nueva se inició como proceso real y permaneció estable. La herramienta de automatización detectó el proceso, pero cerró repetidamente su canal nativo al intentar adjuntarse a la superficie de Accesibilidad; por eso el acabado visual actualizado y los controles nuevos no se presentan como comprobados manualmente en esta pasada.
 
+La versión 0.1.2 añade un monitor pasivo de Core Graphics y solicita Monitorización de entrada para detectar de forma fiable los arrastres que pertenecen a Finder u otra aplicación. La máscara automatizada se comprobó: incluye únicamente pulsación, arrastre y liberación del botón izquierdo, y excluye teclado y botón derecho. La concesión real del permiso depende de una decisión del usuario en macOS y queda pendiente de validación manual después de instalar esta compilación.
+
 La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
-Se ejecutaron **25 pruebas XCTest, 25 correctas, 0 fallos**:
+Se ejecutaron **26 pruebas XCTest, 26 correctas, 0 fallos**:
 
 - 8 del detector: sacudida deliberada, arrastre normal, microtemblor, gesto lento, movimiento vertical dominante, reinicio al soltar y dos pruebas del muestreo global del botón;
 - 9 del estado: referencias sin modificación del original, varios archivos y carpetas, duplicados, entradas inválidas, imágenes en memoria, cierre al quedar vacío, expansión/contracción, salida cancelada y salida aceptada preservando el archivo real;
 - 2 de `NSPasteboard`: varias URLs reales e imagen sin URL;
 - 2 de ventana: colocación en las cuatro esquinas y el centro del área visible, y tamaño compacto idéntico con 1 o 32 elementos con límite desplazable al expandir.
-- 4 de configuración y capturas: valores iniciales prudentes, persistencia independiente del contenido, filtro de capturas recientes y combinaciones distintas de atajos.
+- 5 de configuración, privacidad y capturas: valores iniciales prudentes, persistencia independiente del contenido, filtro de capturas recientes, combinaciones distintas de atajos y máscara del monitor limitada al ratón.
 
 AirDrop estuvo disponible en esta pasada. Se abrió el selector nativo, informó que no había ninguna persona cercana y se canceló; la bandeja conservó sus tres imágenes. No se seleccionó un receptor ni se realizó un envío real.
 
@@ -50,7 +52,7 @@ Usa los tres elementos incluidos en `Docs/QA Fixtures` y cualquier PDF de prueba
 11. Vuelve a reunir uno y varios elementos, abre **AirDrop** desde ese menú y confirma el panel nativo. Cancela una vez y verifica que la bandeja conserva su contenido. Repite con un receptor disponible solo si se desea completar un envío real. En un Mac sin AirDrop, la acción no debe anunciarse como disponible; el resto del menú debe seguir funcionando.
 12. Invoca el gesto cerca de los cuatro bordes. El panel completo debe quedar dentro del área visible, incluida la barra de menús y el Dock.
 13. Sal de la app desde el menú y vuelve a abrirla. Debe iniciar vacía.
-14. Confirma que macOS no solicita permisos especiales. Si una política administrada bloquea eventos globales, documenta esa política, confirma que no se afirma detección y usa **Mostrar bandeja** como alternativa.
+14. En el primer inicio, confirma que macOS solicita **Monitorización de entrada**. Concédelo y, si macOS lo pide, reinicia Bandeja. Abre su menú y confirma **Detección global activa**; en Ajustes debe aparecer **Detección global completa**. Repite tras denegar o desactivar el permiso: ambos lugares deben indicar el modo limitado, el botón **Dar permiso…** debe abrir la ruta de recuperación y **Mostrar bandeja** debe seguir funcionando. Confirma que Bandeja no solicita Accesibilidad, Grabación de pantalla ni Automatización.
 15. Abre **Ajustes…** desde el icono de menú, cambia entre las tres sensibilidades y confirma que el gesto responde según lo esperado sin reiniciar la app.
 16. Activa el atajo global, elige una combinación libre y úsala desde Finder. Debe aparecer la misma bandeja, no una segunda. Prueba también una combinación ocupada: debe mostrarse un aviso y no fingir que quedó activa.
 17. Con “Doble clic para mostrar el archivo en Finder” activo, haz doble clic en la tarjeta compacta y luego en un elemento expandido. Finder debe revelar el archivo. Desactívalo y confirma que el doble clic deja de hacerlo. Una imagen que solo exista en memoria no tiene carpeta que revelar.

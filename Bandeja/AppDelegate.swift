@@ -13,6 +13,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var subscriptions: Set<AnyCancellable> = []
     private var statusItem: NSStatusItem!
     private weak var sensitivityMenu: NSMenu?
+    private weak var gestureStatusMenuItem: NSMenuItem?
+    private weak var requestPermissionMenuItem: NSMenuItem?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -23,7 +25,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 #endif
 
         panelController = TrayPanelController(store: store, settings: settings)
-        settingsWindowController = SettingsWindowController(settings: settings)
         dragMonitor = GlobalDragMonitor(
             sensitivity: settings.shakeSensitivity,
             onShake: { [weak self] cursor in
@@ -31,9 +32,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             },
             onDragEnded: { [weak self] in
                 self?.panelController.dragDidEnd()
+            },
+            onStatusChange: { [weak self] status in
+                self?.handleGestureMonitoringStatus(status)
             }
         )
-        dragMonitor.start()
+        settingsWindowController = SettingsWindowController(
+            settings: settings,
+            onRequestInputMonitoring: { [weak self] in
+                self?.requestInputMonitoringPermission()
+            }
+        )
 
         shortcutMonitor = GlobalShortcutMonitor { [weak self] in
             self?.panelController.showNearCursor()
@@ -51,6 +60,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         observeSettings()
         configureStatusItem()
+        let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        dragMonitor.start(requestPermission: !isRunningTests)
 
 #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
@@ -81,6 +92,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         store.clear()
     }
 
+    func applicationDidBecomeActive(_ notification: Notification) {
+        dragMonitor?.refreshPermissionStatus()
+    }
+
     private func configureStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.isVisible = true
@@ -109,9 +124,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         showItem.target = self
         menu.addItem(showItem)
 
-        let instruction = NSMenuItem(title: "Detección activa · sacude ↔ al arrastrar", action: nil, keyEquivalent: "")
-        instruction.isEnabled = false
-        menu.addItem(instruction)
+        let gestureStatusItem = NSMenuItem(
+            title: "Comprobando detección global…",
+            action: nil,
+            keyEquivalent: ""
+        )
+        gestureStatusItem.isEnabled = false
+        menu.addItem(gestureStatusItem)
+        gestureStatusMenuItem = gestureStatusItem
+
+        let permissionItem = NSMenuItem(
+            title: "Dar permiso de Monitorización de entrada…",
+            action: #selector(requestInputMonitoringPermission),
+            keyEquivalent: ""
+        )
+        permissionItem.target = self
+        menu.addItem(permissionItem)
+        requestPermissionMenuItem = permissionItem
         menu.addItem(.separator())
 
         let settingsItem = NSMenuItem(
@@ -138,13 +167,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         sensitivityMenu = sensitivitySubmenu
         menu.addItem(sensitivityItem)
 
-        let permissionItem = NSMenuItem(
-            title: "Sin Accesibilidad ni grabación de pantalla",
+        let privacyItem = NSMenuItem(
+            title: "Solo observa el ratón · nunca el teclado",
             action: nil,
             keyEquivalent: ""
         )
-        permissionItem.isEnabled = false
-        menu.addItem(permissionItem)
+        privacyItem.isEnabled = false
+        menu.addItem(privacyItem)
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
@@ -157,6 +186,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     func menuWillOpen(_ menu: NSMenu) {
+        dragMonitor.refreshPermissionStatus()
         for item in sensitivityMenu?.items ?? [] {
             item.state = item.title == settings.shakeSensitivity.rawValue ? .on : .off
         }
@@ -167,7 +197,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc private func showSettings() {
+        dragMonitor.refreshPermissionStatus()
         settingsWindowController.show()
+    }
+
+    @objc private func requestInputMonitoringPermission() {
+        dragMonitor.requestInputMonitoringAccess(openSystemSettingsOnFailure: true)
     }
 
     @objc private func changeSensitivity(_ sender: NSMenuItem) {
@@ -226,6 +261,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             settings.setScreenshotStatus("Spotlight no está disponible para detectar capturas.")
         case .stopped, .searching, .monitoring:
             settings.setScreenshotStatus(nil)
+        }
+    }
+
+    private func handleGestureMonitoringStatus(_ status: GestureMonitoringStatus) {
+        settings.setGestureMonitoringStatus(status)
+
+        switch status {
+        case .checking:
+            gestureStatusMenuItem?.title = "Comprobando detección global…"
+            requestPermissionMenuItem?.isHidden = false
+        case .fullAccess:
+            gestureStatusMenuItem?.title = "Detección global activa · sacude ↔ al arrastrar"
+            requestPermissionMenuItem?.isHidden = true
+        case .permissionRequired:
+            gestureStatusMenuItem?.title = "Detección limitada · falta permiso"
+            requestPermissionMenuItem?.isHidden = false
+        case .fallback:
+            gestureStatusMenuItem?.title = "Detección limitada · monitor no disponible"
+            requestPermissionMenuItem?.isHidden = false
         }
     }
 }
