@@ -2,12 +2,14 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var settings: AppSettings
+    @ObservedObject var launchAtLogin: LaunchAtLoginController
     let onRequestInputMonitoring: () -> Void
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 settingsHeader
+                startupSection
                 activationSection
                 screenshotSection
                 filesSection
@@ -16,6 +18,50 @@ struct SettingsView: View {
         }
         .frame(width: 540, height: 570)
         .background(Color(nsColor: .windowBackgroundColor))
+    }
+
+    private var startupSection: some View {
+        SettingsGroup(title: "Sistema", systemImage: "power") {
+            VStack(alignment: .leading, spacing: 8) {
+                Toggle(
+                    "Abrir Bandeja al iniciar sesión",
+                    isOn: Binding(
+                        get: { launchAtLogin.isEnabled },
+                        set: { launchAtLogin.setEnabled($0) }
+                    )
+                )
+                .font(.system(size: 13, weight: .medium))
+                .disabled(launchAtLogin.status == .unavailable)
+
+                Text("Se abre discretamente en la barra de menús cuando inicias tu sesión en el Mac.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 20)
+
+                if launchAtLogin.status == .requiresApproval {
+                    HStack(spacing: 8) {
+                        Label("macOS necesita tu aprobación en Ítems de inicio.", systemImage: "exclamationmark.circle.fill")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.orange)
+                        Spacer()
+                        Button("Abrir Ajustes…") {
+                            launchAtLogin.openSystemSettings()
+                        }
+                        .controlSize(.small)
+                    }
+                } else if launchAtLogin.status == .unavailable {
+                    Label("El inicio automático no está disponible para esta copia de la app.", systemImage: "exclamationmark.triangle.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.orange)
+                }
+
+                if let errorMessage = launchAtLogin.errorMessage {
+                    Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.red)
+                }
+            }
+        }
     }
 
     private var settingsHeader: some View {

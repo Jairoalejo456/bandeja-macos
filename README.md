@@ -2,7 +2,7 @@
 
 Bandeja es una utilidad nativa de barra de menús para reunir temporalmente archivos, carpetas e imágenes mientras se trabaja entre Finder y otras aplicaciones. Mantiene una sola bandeja flotante y guarda únicamente referencias en memoria: añadir o cerrar nunca mueve ni elimina los originales.
 
-Versión actual: **0.1.2 (MVP)**.
+Versión actual: **0.1.3 (MVP)**.
 
 ## Requisitos
 
@@ -27,6 +27,7 @@ También se puede abrir una bandeja vacía desde el icono de barra de menús con
 
 El menú de barra incluye **Ajustes…**. Allí se puede:
 
+- activar o desactivar que Bandeja se abra automáticamente al iniciar la sesión del Mac;
 - cambiar la sensibilidad de la sacudida;
 - activar un atajo global y elegir entre cuatro combinaciones para mostrar la bandeja;
 - activar la detección de capturas guardadas por macOS y elegir entre 1 y 10 segundos de visibilidad;
@@ -83,6 +84,7 @@ Las versiones publicadas y sus binarios se encuentran en [GitHub Releases](https
 - **NSCollectionView / NSPasteboard** reciben URLs de archivo, carpetas e imágenes y publican de nuevo los elementos mediante drag & drop estándar. La pila compacta ofrece el conjunto completo; la cuadrícula permite una selección individual o múltiple. Los archivos existentes se ofrecen con URL y operación de copia; una imagen sin archivo de origen se conserva en memoria y se ofrece como PNG mediante `NSFilePromiseProvider` solo cuando el usuario la deposita fuera. Una salida aceptada descarta las referencias y cierra el panel; una salida cancelada no cambia el estado.
 - **Quick Look Thumbnailing** solicita a macOS la miniatura nativa de cada URL. Imágenes, PDF, vídeo, documentos y otros formatos compatibles muestran su contenido; un tipo sin generador Quick Look usa como respaldo el icono nativo de Finder.
 - **Core Graphics** instala un monitor pasivo (`listenOnly`) de sesión para tres eventos del ratón: botón izquierdo pulsado, arrastre y liberación. Monitorización de entrada permite recibirlos cuando el arrastre pertenece a Finder u otra aplicación. El monitor nunca modifica ni bloquea eventos y su máscara excluye el teclado. Mientras falta el permiso, un muestreo limitado de posición y botón mantiene una alternativa funcional. El detector exige segmentos horizontales rápidos, distancia acumulada, tres inversiones de dirección, dominancia horizontal y un tiempo de enfriamiento. Solo hay un `NSPanel` y Launch Services prohíbe múltiples instancias de la app.
+- **Service Management** registra opcionalmente la aplicación principal como ítem de inicio mediante `SMAppService.mainApp`. El interruptor refleja el estado real de macOS y ofrece acceso al panel nativo de Ítems de inicio cuando el sistema exige aprobación.
 - **Carbon RegisterEventHotKey** registra opcionalmente el atajo global seleccionado sin inspeccionar pulsaciones y sin solicitar Accesibilidad.
 - **Spotlight (`NSMetadataQuery`)** detecta opcionalmente capturas nuevas marcadas por macOS, descarta resultados anteriores y muestra una bandeja vacía durante el intervalo elegido. No copia la captura ni la añade automáticamente.
 - **NSWorkspace, Quick Look y NSSharingService** construyen el menú de acciones con las aplicaciones y servicios que el sistema declara compatibles. AirDrop usa el flujo nativo y cancelar el selector conserva la bandeja.

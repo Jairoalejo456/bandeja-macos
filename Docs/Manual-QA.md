@@ -19,17 +19,17 @@ Las compilaciones Debug y Release y el análisis estático terminaron correctame
 
 Esta actualización añade Liquid Glass nativo en macOS 26, respaldo de material en macOS 14–15, respeto de Reducir transparencia, Ajustes, atajo global opcional, detector opcional de capturas y doble clic configurable para revelar en Finder. La app nueva se inició como proceso real y permaneció estable. La herramienta de automatización detectó el proceso, pero cerró repetidamente su canal nativo al intentar adjuntarse a la superficie de Accesibilidad; por eso el acabado visual actualizado y los controles nuevos no se presentan como comprobados manualmente en esta pasada.
 
-La versión 0.1.2 añade un monitor pasivo de Core Graphics y solicita Monitorización de entrada para detectar de forma fiable los arrastres que pertenecen a Finder u otra aplicación. La máscara automatizada se comprobó: incluye únicamente pulsación, arrastre y liberación del botón izquierdo, y excluye teclado y botón derecho. La concesión real del permiso depende de una decisión del usuario en macOS y queda pendiente de validación manual después de instalar esta compilación.
+La versión 0.1.2 añade un monitor pasivo de Core Graphics y solicita Monitorización de entrada para detectar de forma fiable los arrastres que pertenecen a Finder u otra aplicación. La máscara automatizada se comprobó: incluye únicamente pulsación, arrastre y liberación del botón izquierdo, y excluye teclado y botón derecho. La concesión real del permiso depende de una decisión del usuario en macOS y queda pendiente de validación manual después de instalar esta compilación. La versión 0.1.3 incorpora además el inicio automático mediante el servicio nativo de macOS. Se activó en la aplicación instalada, macOS mostró el aviso nativo de elemento de inicio agregado y el estado continuó activo después de reiniciar la app; luego se desactivó y continuó apagado tras otro reinicio. La comprobación de un arranque de sesión completo sigue incluida en la lista manual.
 
 La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
-Se ejecutaron **26 pruebas XCTest, 26 correctas, 0 fallos**:
+Se ejecutaron **28 pruebas XCTest, 28 correctas, 0 fallos**:
 
 - 8 del detector: sacudida deliberada, arrastre normal, microtemblor, gesto lento, movimiento vertical dominante, reinicio al soltar y dos pruebas del muestreo global del botón;
 - 9 del estado: referencias sin modificación del original, varios archivos y carpetas, duplicados, entradas inválidas, imágenes en memoria, cierre al quedar vacío, expansión/contracción, salida cancelada y salida aceptada preservando el archivo real;
 - 2 de `NSPasteboard`: varias URLs reales e imagen sin URL;
 - 2 de ventana: colocación en las cuatro esquinas y el centro del área visible, y tamaño compacto idéntico con 1 o 32 elementos con límite desplazable al expandir.
-- 5 de configuración, privacidad y capturas: valores iniciales prudentes, persistencia independiente del contenido, filtro de capturas recientes, combinaciones distintas de atajos y máscara del monitor limitada al ratón.
+- 7 de configuración, privacidad e inicio: valores iniciales prudentes, persistencia independiente del contenido, filtro de capturas recientes, combinaciones distintas de atajos, máscara del monitor limitada al ratón y registro/desregistro del ítem de inicio con sus estados de aprobación.
 
 AirDrop estuvo disponible en esta pasada. Se abrió el selector nativo, informó que no había ninguna persona cercana y se canceló; la bandeja conservó sus tres imágenes. No se seleccionó un receptor ni se realizó un envío real.
 
@@ -58,9 +58,10 @@ Usa los tres elementos incluidos en `Docs/QA Fixtures` y cualquier PDF de prueba
 17. Con “Doble clic para mostrar el archivo en Finder” activo, haz doble clic en la tarjeta compacta y luego en un elemento expandido. Finder debe revelar el archivo. Desactívalo y confirma que el doble clic deja de hacerlo. Una imagen que solo exista en memoria no tiene carpeta que revelar.
 18. Activa la detección de capturas con 3 segundos. Toma una captura guardada como archivo: una bandeja vacía debe mostrarse temporalmente y ocultarse si no recibe contenido. Cambia a 1 y 6 segundos y repite. Desactiva la opción y confirma que deja de aparecer. Repite con una captura enviada solo al portapapeles y confirma que no se detecta.
 19. En macOS 26, revisa el vidrio tintado sobre fondos claros y oscuros, los estados hover y el contraste. Activa Reducir transparencia y confirma que la superficie pasa a ser sólida y legible. En macOS 14–15, confirma el material translúcido de respaldo.
+20. En **Ajustes → Sistema**, activa **Abrir Bandeja al iniciar sesión** y confirma que macOS la muestra en **General → Ítems de inicio y extensiones**. Si aparece “requiere aprobación”, usa **Abrir Ajustes…** y apruébala. Cierra la sesión y vuelve a entrar para confirmar el arranque; después desactiva la opción y repite para confirmar que ya no se inicia.
 
 ## Criterio de aceptación
 
-La lógica aislable, la compilación, el análisis, los dos estados previos de interfaz, el menú de accesos y la apertura/cancelación de AirDrop están verificados. La aceptación completa de la actualización debe esperar a que una persona marque correctos los pasos 2, 4, 6, 7, 8, 10, 12, 13 y 15–19 en un entorno con interacción real; completar un envío AirDrop requiere además un receptor cercano.
+La lógica aislable, la compilación, el análisis, los dos estados previos de interfaz, el menú de accesos y la apertura/cancelación de AirDrop están verificados. La aceptación completa de la actualización debe esperar a que una persona marque correctos los pasos 2, 4, 6, 7, 8, 10, 12, 13 y 15–20 en un entorno con interacción real; completar un envío AirDrop requiere además un receptor cercano.
 
 La construcción valida la viabilidad técnica, no la hipótesis de que el gesto resulte preferible para usuarios reales. Esa decisión necesita pruebas posteriores con personas y tareas reales.

@@ -1,4 +1,74 @@
 import Foundation
+import ServiceManagement
+
+enum LaunchAtLoginStatus: Equatable {
+    case disabled
+    case enabled
+    case requiresApproval
+    case unavailable
+}
+
+protocol LaunchAtLoginServicing: AnyObject {
+    var status: SMAppService.Status { get }
+    func register() throws
+    func unregister() throws
+}
+
+extension SMAppService: LaunchAtLoginServicing {}
+
+@MainActor
+final class LaunchAtLoginController: ObservableObject {
+    @Published private(set) var status: LaunchAtLoginStatus = .disabled
+    @Published private(set) var errorMessage: String?
+
+    private let service: any LaunchAtLoginServicing
+
+    var isEnabled: Bool {
+        status == .enabled || status == .requiresApproval
+    }
+
+    init(service: any LaunchAtLoginServicing = SMAppService.mainApp) {
+        self.service = service
+        refresh()
+    }
+
+    func setEnabled(_ shouldEnable: Bool) {
+        errorMessage = nil
+
+        do {
+            if shouldEnable {
+                if service.status != .enabled, service.status != .requiresApproval {
+                    try service.register()
+                }
+            } else if service.status != .notRegistered {
+                try service.unregister()
+            }
+            refresh()
+        } catch {
+            refresh()
+            errorMessage = shouldEnable
+                ? "No se pudo activar el inicio automático."
+                : "No se pudo desactivar el inicio automático."
+        }
+    }
+
+    func refresh() {
+        switch service.status {
+        case .notRegistered, .notFound:
+            status = .disabled
+        case .enabled:
+            status = .enabled
+        case .requiresApproval:
+            status = .requiresApproval
+        @unknown default:
+            status = .unavailable
+        }
+    }
+
+    func openSystemSettings() {
+        SMAppService.openSystemSettingsLoginItems()
+    }
+}
 
 enum GlobalShortcutPreset: String, CaseIterable, Identifiable {
     case controlOptionSpace

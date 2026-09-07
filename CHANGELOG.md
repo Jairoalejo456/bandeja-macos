@@ -2,6 +2,16 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.1.3] — 2026-09-07
+
+### Mejoras
+
+- Añade el interruptor **Abrir Bandeja al iniciar sesión** en Ajustes.
+- Registra o elimina la aplicación principal mediante la API nativa `SMAppService`.
+- Refleja el estado real configurado en macOS y muestra cuándo hace falta aprobación en Ítems de inicio.
+- Permite activar el servicio aunque macOS todavía no lo haya visto y devuelva el estado inicial `notFound`.
+- Incluye dos pruebas automatizadas para activación, desactivación y estados del sistema.
+
 ## [0.1.2] — 2026-09-07
 
 ### Mejoras
@@ -45,3 +55,4 @@ Primera versión pública del MVP.
 [0.1.0]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.0
 [0.1.1]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.1
 [0.1.2]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.2
+[0.1.3]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.3

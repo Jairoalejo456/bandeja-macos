@@ -1,4 +1,5 @@
 import Carbon.HIToolbox
+import ServiceManagement
 import XCTest
 @testable import Bandeja
 
@@ -87,10 +88,61 @@ final class AppSettingsAndScreenshotTests: XCTestCase {
         XCTAssertFalse(contains(.rightMouseDown))
     }
 
+    func testLaunchAtLoginControllerRegistersAndUnregistersMainApp() {
+        let service = FakeLaunchAtLoginService(status: .notRegistered)
+        let controller = LaunchAtLoginController(service: service)
+
+        XCTAssertEqual(controller.status, .disabled)
+        XCTAssertFalse(controller.isEnabled)
+
+        controller.setEnabled(true)
+        XCTAssertEqual(service.registerCallCount, 1)
+        XCTAssertEqual(controller.status, .enabled)
+        XCTAssertTrue(controller.isEnabled)
+
+        controller.setEnabled(false)
+        XCTAssertEqual(service.unregisterCallCount, 1)
+        XCTAssertEqual(controller.status, .disabled)
+        XCTAssertFalse(controller.isEnabled)
+    }
+
+    func testLaunchAtLoginControllerReflectsApprovalAndNeverRegisteredStates() {
+        let service = FakeLaunchAtLoginService(status: .requiresApproval)
+        let controller = LaunchAtLoginController(service: service)
+
+        XCTAssertEqual(controller.status, .requiresApproval)
+        XCTAssertTrue(controller.isEnabled)
+
+        service.status = .notFound
+        controller.refresh()
+        XCTAssertEqual(controller.status, .disabled)
+        XCTAssertFalse(controller.isEnabled)
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "AppSettingsAndScreenshotTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
         return defaults
+    }
+}
+
+private final class FakeLaunchAtLoginService: LaunchAtLoginServicing {
+    var status: SMAppService.Status
+    private(set) var registerCallCount = 0
+    private(set) var unregisterCallCount = 0
+
+    init(status: SMAppService.Status) {
+        self.status = status
+    }
+
+    func register() throws {
+        registerCallCount += 1
+        status = .enabled
+    }
+
+    func unregister() throws {
+        unregisterCallCount += 1
+        status = .notRegistered
     }
 }

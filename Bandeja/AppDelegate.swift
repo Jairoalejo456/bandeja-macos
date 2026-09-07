@@ -9,6 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var dragMonitor: GlobalDragMonitor!
     private var shortcutMonitor: GlobalShortcutMonitor!
     private var screenshotMonitor: ScreenshotMonitor!
+    private var launchAtLoginController: LaunchAtLoginController!
     private var settingsWindowController: SettingsWindowController!
     private var subscriptions: Set<AnyCancellable> = []
     private var statusItem: NSStatusItem!
@@ -37,8 +38,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 self?.handleGestureMonitoringStatus(status)
             }
         )
+        launchAtLoginController = LaunchAtLoginController()
         settingsWindowController = SettingsWindowController(
             settings: settings,
+            launchAtLogin: launchAtLoginController,
             onRequestInputMonitoring: { [weak self] in
                 self?.requestInputMonitoringPermission()
             }
@@ -94,6 +97,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationDidBecomeActive(_ notification: Notification) {
         dragMonitor?.refreshPermissionStatus()
+        launchAtLoginController?.refresh()
     }
 
     private func configureStatusItem() {
@@ -198,6 +202,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func showSettings() {
         dragMonitor.refreshPermissionStatus()
+        launchAtLoginController.refresh()
         settingsWindowController.show()
     }
 

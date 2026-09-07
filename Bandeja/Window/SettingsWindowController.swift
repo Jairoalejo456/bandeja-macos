@@ -3,7 +3,11 @@ import SwiftUI
 
 @MainActor
 final class SettingsWindowController: NSWindowController, NSWindowDelegate {
-    init(settings: AppSettings, onRequestInputMonitoring: @escaping () -> Void) {
+    init(
+        settings: AppSettings,
+        launchAtLogin: LaunchAtLoginController,
+        onRequestInputMonitoring: @escaping () -> Void
+    ) {
         let window = NSWindow(
             contentRect: NSRect(origin: .zero, size: NSSize(width: 540, height: 570)),
             styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
@@ -18,6 +22,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         window.contentView = NSHostingView(
             rootView: SettingsView(
                 settings: settings,
+                launchAtLogin: launchAtLogin,
                 onRequestInputMonitoring: onRequestInputMonitoring
             )
         )
