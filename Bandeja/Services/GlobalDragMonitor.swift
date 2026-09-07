@@ -1,5 +1,47 @@
 import AppKit
 
+enum GlobalDragSampleAction: Equatable {
+    case none
+    case shake(CGPoint)
+    case dragEnded
+}
+
+struct GlobalDragSampleProcessor {
+    private var detector: ShakeDetector
+    private(set) var isLeftButtonPressed = false
+
+    init(configuration: ShakeConfiguration) {
+        detector = ShakeDetector(configuration: configuration)
+    }
+
+    mutating func process(
+        isLeftButtonPressed: Bool,
+        point: CGPoint,
+        timestamp: TimeInterval
+    ) -> GlobalDragSampleAction {
+        if isLeftButtonPressed {
+            if !self.isLeftButtonPressed {
+                self.isLeftButtonPressed = true
+                detector.beginDrag(at: point, timestamp: timestamp)
+                return .none
+            }
+
+            return detector.updateDrag(at: point, timestamp: timestamp) ? .shake(point) : .none
+        }
+
+        guard self.isLeftButtonPressed else { return .none }
+        self.isLeftButtonPressed = false
+        detector.endDrag()
+        return .dragEnded
+    }
+
+    mutating func reset(configuration: ShakeConfiguration) {
+        isLeftButtonPressed = false
+        detector.endDrag()
+        detector.configuration = configuration
+    }
+}
+
 @MainActor
 final class GlobalDragMonitor {
     enum Sensitivity: String, CaseIterable {
@@ -16,9 +58,8 @@ final class GlobalDragMonitor {
         }
     }
 
-    private var detector: ShakeDetector
-    private var globalMonitor: Any?
-    private var localMonitor: Any?
+    private var sampleProcessor: GlobalDragSampleProcessor
+    private var pollingTimer: Timer?
     private let onShake: (CGPoint) -> Void
     private let onDragEnded: () -> Void
     private(set) var sensitivity: Sensitivity
@@ -29,67 +70,59 @@ final class GlobalDragMonitor {
         onDragEnded: @escaping () -> Void = {}
     ) {
         self.sensitivity = sensitivity
-        self.detector = ShakeDetector(configuration: sensitivity.configuration)
+        self.sampleProcessor = GlobalDragSampleProcessor(configuration: sensitivity.configuration)
         self.onShake = onShake
         self.onDragEnded = onDragEnded
     }
 
     func start() {
-        guard globalMonitor == nil, localMonitor == nil else { return }
+        guard pollingTimer == nil else { return }
 
-        let mask: NSEvent.EventTypeMask = [.leftMouseDown, .leftMouseDragged, .leftMouseUp]
-        globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: mask) { [weak self] event in
+        // A passive global NSEvent monitor can stop receiving mouseDragged events while
+        // another app owns an AppKit drag session. Sampling the public global cursor and
+        // button state avoids that gap and does not install an event tap or request
+        // Accessibility/Input Monitoring permission.
+        let timer = Timer(timeInterval: 1.0 / 90.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                self?.handle(event)
+                self?.sampleMouseState()
             }
         }
-        localMonitor = NSEvent.addLocalMonitorForEvents(matching: mask) { [weak self] event in
-            self?.handle(event)
-            return event
-        }
+        pollingTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
+        sampleMouseState()
     }
 
     func stop() {
-        if let globalMonitor {
-            NSEvent.removeMonitor(globalMonitor)
-        }
-        if let localMonitor {
-            NSEvent.removeMonitor(localMonitor)
-        }
-        globalMonitor = nil
-        localMonitor = nil
-        detector.endDrag()
+        pollingTimer?.invalidate()
+        pollingTimer = nil
+        sampleProcessor.reset(configuration: sensitivity.configuration)
     }
 
     func setSensitivity(_ sensitivity: Sensitivity) {
         self.sensitivity = sensitivity
-        detector.endDrag()
-        detector.configuration = sensitivity.configuration
+        sampleProcessor.reset(configuration: sensitivity.configuration)
     }
 
-    private func handle(_ event: NSEvent) {
+    private func sampleMouseState() {
         let point = NSEvent.mouseLocation
-        switch event.type {
-        case .leftMouseDown:
-            detector.beginDrag(at: point, timestamp: event.timestamp)
-        case .leftMouseDragged:
-            if !detector.isDragging {
-                detector.beginDrag(at: point, timestamp: event.timestamp)
-                return
-            }
-            if detector.updateDrag(at: point, timestamp: event.timestamp) {
-                onShake(point)
-            }
-        case .leftMouseUp:
-            detector.endDrag()
-            onDragEnded()
-        default:
+        let isLeftButtonPressed = NSEvent.pressedMouseButtons & 1 == 1
+        let action = sampleProcessor.process(
+            isLeftButtonPressed: isLeftButtonPressed,
+            point: point,
+            timestamp: ProcessInfo.processInfo.systemUptime
+        )
+
+        switch action {
+        case .none:
             break
+        case let .shake(cursor):
+            onShake(cursor)
+        case .dragEnded:
+            onDragEnded()
         }
     }
 
     deinit {
-        if let globalMonitor { NSEvent.removeMonitor(globalMonitor) }
-        if let localMonitor { NSEvent.removeMonitor(localMonitor) }
+        pollingTimer?.invalidate()
     }
 }

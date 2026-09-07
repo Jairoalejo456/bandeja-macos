@@ -1,6 +1,5 @@
 import AppKit
 import Combine
-import QuartzCore
 import SwiftUI
 
 @MainActor
@@ -71,14 +70,14 @@ final class TrayPanelController {
         positionPanel(near: cursor)
 
         if !panel.isVisible {
-            panel.alphaValue = 0
+            // AppKit can defer animator-backed alpha changes while another app owns
+            // the active drag session, leaving a newly ordered panel fully transparent.
+            // Make the drop target visible synchronously: immediacy is more important
+            // than a fade while the user is still holding the file.
+            panel.alphaValue = 1
             panel.orderFrontRegardless()
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = 0.16
-                context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-                panel.animator().alphaValue = 1
-            }
         } else {
+            panel.alphaValue = 1
             panel.orderFrontRegardless()
         }
 

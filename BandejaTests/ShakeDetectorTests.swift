@@ -79,4 +79,50 @@ final class ShakeDetectorTests: XCTestCase {
         XCTAssertFalse(detector.updateDrag(at: CGPoint(x: -10, y: 0), timestamp: 0.3))
         XCTAssertFalse(detector.isDragging)
     }
+
+    func testGlobalSampleProcessorDetectsShakeWhileButtonRemainsPressed() {
+        var processor = GlobalDragSampleProcessor(configuration: .balanced)
+
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: true, point: .zero, timestamp: 0),
+            .none
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: true, point: CGPoint(x: 38, y: 1), timestamp: 0.04),
+            .none
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: true, point: CGPoint(x: -3, y: 0), timestamp: 0.11),
+            .none
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: true, point: CGPoint(x: 39, y: 2), timestamp: 0.18),
+            .none
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: true, point: CGPoint(x: -4, y: 1), timestamp: 0.25),
+            .shake(CGPoint(x: -4, y: 1))
+        )
+    }
+
+    func testGlobalSampleProcessorEndsOnlyOnceWhenButtonIsReleased() {
+        var processor = GlobalDragSampleProcessor(configuration: .balanced)
+
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: false, point: .zero, timestamp: 0),
+            .none
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: true, point: .zero, timestamp: 0.1),
+            .none
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: false, point: .zero, timestamp: 0.2),
+            .dragEnded
+        )
+        XCTAssertEqual(
+            processor.process(isLeftButtonPressed: false, point: .zero, timestamp: 0.3),
+            .none
+        )
+    }
 }

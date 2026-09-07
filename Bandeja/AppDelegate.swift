@@ -82,13 +82,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func configureStatusItem() {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        statusItem.isVisible = true
         if let button = statusItem.button {
-            button.image = NSImage(
+            let image = NSImage(
                 systemSymbolName: "tray.full.fill",
                 accessibilityDescription: "Bandeja"
             )
+            image?.isTemplate = true
+            button.image = image
+            button.imagePosition = .imageLeading
+            button.title = "Bandeja"
+            button.font = .systemFont(ofSize: 12, weight: .semibold)
             button.toolTip = "Bandeja temporal"
+            button.setAccessibilityLabel("Bandeja, utilidad temporal de archivos")
         }
 
         let menu = NSMenu(title: "Bandeja")
@@ -102,7 +109,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         showItem.target = self
         menu.addItem(showItem)
 
-        let instruction = NSMenuItem(title: "Sacude ↔ durante un arrastre", action: nil, keyEquivalent: "")
+        let instruction = NSMenuItem(title: "Detección activa · sacude ↔ al arrastrar", action: nil, keyEquivalent: "")
         instruction.isEnabled = false
         menu.addItem(instruction)
         menu.addItem(.separator())

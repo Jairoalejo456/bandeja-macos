@@ -2,7 +2,7 @@
 
 Bandeja es una utilidad nativa de barra de menús para reunir temporalmente archivos, carpetas e imágenes mientras se trabaja entre Finder y otras aplicaciones. Mantiene una sola bandeja flotante y guarda únicamente referencias en memoria: añadir o cerrar nunca mueve ni elimina los originales.
 
-Versión actual: **0.1.0 (MVP)**.
+Versión actual: **0.1.1 (MVP)**.
 
 ## Requisitos
 
@@ -16,7 +16,7 @@ No hay dependencias de terceros, servidor, cuenta ni almacenamiento persistente.
 
 1. Abre `Bandeja.xcodeproj` en Xcode.
 2. Selecciona el esquema **Bandeja** y el destino **My Mac**.
-3. Pulsa **Run** (`⌘R`). La app aparece como un icono de bandeja en la barra de menús; no ocupa espacio en el Dock.
+3. Pulsa **Run** (`⌘R`). La app aparece como **Bandeja** junto a un icono en la barra de menús; no ocupa espacio en el Dock. El gesto solo funciona mientras la app está abierta y ese acceso está presente.
 4. Empieza a arrastrar uno o más elementos en Finder.
 5. Sin soltar el botón, mueve el cursor horizontalmente de un lado a otro tres veces con rapidez. La bandeja aparecerá cerca del cursor y siempre dentro del área visible de la pantalla.
 6. Suelta los elementos dentro. La bandeja permanece pequeña y enseña una previsualización principal con hasta dos tarjetas detrás para indicar que hay más contenido.
@@ -81,14 +81,14 @@ Las versiones publicadas y sus binarios se encuentran en [GitHub Releases](https
 - **NSPanel** proporciona una ventana flotante no activante, sobre ventanas normales y movible por su cabecera.
 - **NSCollectionView / NSPasteboard** reciben URLs de archivo, carpetas e imágenes y publican de nuevo los elementos mediante drag & drop estándar. La pila compacta ofrece el conjunto completo; la cuadrícula permite una selección individual o múltiple. Los archivos existentes se ofrecen con URL y operación de copia; una imagen sin archivo de origen se conserva en memoria y se ofrece como PNG mediante `NSFilePromiseProvider` solo cuando el usuario la deposita fuera. Una salida aceptada descarta las referencias y cierra el panel; una salida cancelada no cambia el estado.
 - **Quick Look Thumbnailing** solicita a macOS la miniatura nativa de cada URL. Imágenes, PDF, vídeo, documentos y otros formatos compatibles muestran su contenido; un tipo sin generador Quick Look usa como respaldo el icono nativo de Finder.
-- **NSEvent** observa de forma pasiva los eventos de arrastre globales y locales. El detector exige segmentos horizontales rápidos, distancia acumulada, tres inversiones de dirección, dominancia horizontal y un tiempo de enfriamiento. Solo hay un `NSPanel` y Launch Services prohíbe múltiples instancias de la app.
+- **NSEvent** consulta de forma pasiva la posición global del cursor y el estado del botón izquierdo mientras la app está abierta. Este muestreo continúa durante arrastres pertenecientes a Finder u otras aplicaciones, sin instalar un event tap. El detector exige segmentos horizontales rápidos, distancia acumulada, tres inversiones de dirección, dominancia horizontal y un tiempo de enfriamiento. Solo hay un `NSPanel` y Launch Services prohíbe múltiples instancias de la app.
 - **Carbon RegisterEventHotKey** registra opcionalmente el atajo global seleccionado sin inspeccionar pulsaciones y sin solicitar Accesibilidad.
 - **Spotlight (`NSMetadataQuery`)** detecta opcionalmente capturas nuevas marcadas por macOS, descarta resultados anteriores y muestra una bandeja vacía durante el intervalo elegido. No copia la captura ni la añade automáticamente.
 - **NSWorkspace, Quick Look y NSSharingService** construyen el menú de acciones con las aplicaciones y servicios que el sistema declara compatibles. AirDrop usa el flujo nativo y cancelar el selector conserva la bandeja.
 
 ## Permisos y privacidad
 
-Bandeja no solicita Accesibilidad, Grabación de pantalla, Automatización ni acceso completo al disco. Usa el [monitor global de `NSEvent`](https://developer.apple.com/documentation/appkit/nsevent/addglobalmonitorforevents%28matching%3Ahandler%3A%29) solo para eventos de ratón; no observa teclado. El atajo se registra como combinación concreta con el sistema y la detección de capturas consulta metadatos Spotlight de archivos, no el contenido de la pantalla.
+Bandeja no solicita Accesibilidad, Grabación de pantalla, Automatización ni acceso completo al disco. Consulta `NSEvent.mouseLocation` y `NSEvent.pressedMouseButtons`; no intercepta eventos ni observa el teclado. El atajo se registra como combinación concreta con el sistema y la detección de capturas consulta metadatos Spotlight de archivos, no el contenido de la pantalla.
 
 Los archivos llegan únicamente porque el usuario los arrastra. El target no usa App Sandbox en este MVP para que las URLs explícitamente depositadas sigan siendo utilizables durante la sesión. No se sube información, no hay analítica y nada de la bandeja se restaura tras reiniciar.
 

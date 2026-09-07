@@ -19,9 +19,11 @@ Las compilaciones Debug y Release y el análisis estático terminaron correctame
 
 Esta actualización añade Liquid Glass nativo en macOS 26, respaldo de material en macOS 14–15, respeto de Reducir transparencia, Ajustes, atajo global opcional, detector opcional de capturas y doble clic configurable para revelar en Finder. La app nueva se inició como proceso real y permaneció estable. La herramienta de automatización detectó el proceso, pero cerró repetidamente su canal nativo al intentar adjuntarse a la superficie de Accesibilidad; por eso el acabado visual actualizado y los controles nuevos no se presentan como comprobados manualmente en esta pasada.
 
-Se ejecutaron **23 pruebas XCTest, 23 correctas, 0 fallos**:
+La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
-- 6 del detector: sacudida deliberada, arrastre normal, microtemblor, gesto lento, movimiento vertical dominante y reinicio al soltar;
+Se ejecutaron **25 pruebas XCTest, 25 correctas, 0 fallos**:
+
+- 8 del detector: sacudida deliberada, arrastre normal, microtemblor, gesto lento, movimiento vertical dominante, reinicio al soltar y dos pruebas del muestreo global del botón;
 - 9 del estado: referencias sin modificación del original, varios archivos y carpetas, duplicados, entradas inválidas, imágenes en memoria, cierre al quedar vacío, expansión/contracción, salida cancelada y salida aceptada preservando el archivo real;
 - 2 de `NSPasteboard`: varias URLs reales e imagen sin URL;
 - 2 de ventana: colocación en las cuatro esquinas y el centro del área visible, y tamaño compacto idéntico con 1 o 32 elementos con límite desplazable al expandir.
@@ -35,7 +37,7 @@ La herramienta de automatización disponible no puede sostener un arrastre mient
 
 Usa los tres elementos incluidos en `Docs/QA Fixtures` y cualquier PDF de prueba. Para comprobar salida hacia Finder sin confundir origen y destino, crea manualmente una carpeta vacía fuera de `QA Fixtures`.
 
-1. Inicia Bandeja con `⌘R` y confirma el icono en la barra de menús.
+1. Inicia Bandeja con `⌘R` y confirma el texto **Bandeja** junto a su icono en la barra de menús.
 2. Arrastra `archivo-prueba.txt`, haz tres inversiones horizontales rápidas sin soltar y confirma que aparece el panel.
 3. Repite un arrastre recto y luego uno con correcciones normales; confirma que no aparece. Si hay falsos positivos, usa sensibilidad **Baja** y registra el patrón.
 4. Deposita por separado el TXT, `imagen-prueba.svg`, un PDF y `carpeta-prueba`; luego deposítalos juntos. Confirma una vista previa real para la imagen y la primera página del PDF, y un icono nativo para cualquier formato que Quick Look no pueda representar. La bandeja debe mantener el mismo tamaño compacto y mostrar visualmente la pila.

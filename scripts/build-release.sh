@@ -35,8 +35,13 @@ version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$stage
 archive="$output_directory/Bandeja-$version-macOS-universal.zip"
 staged_archive="$staging_directory/Bandeja-$version-macOS-universal.zip"
 ditto -c -k --keepParent "$staged_app" "$staged_archive"
+
+rm -rf "$app_destination"
+rm -f "$archive"
 ditto "$staged_app" "$app_destination"
 ditto "$staged_archive" "$archive"
+xattr -cr "$app_destination"
+codesign --verify --deep --strict "$app_destination"
 
 echo "Creado: $archive"
 lipo -archs "$staged_app/Contents/MacOS/Bandeja"
