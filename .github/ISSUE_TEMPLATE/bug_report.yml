@@ -1,0 +1,47 @@
+name: Reportar un error
+description: Comunica un comportamiento reproducible de Bandeja.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: No adjuntes archivos personales, capturas con datos privados ni credenciales.
+  - type: input
+    id: version
+    attributes:
+      label: Versión de Bandeja
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: Versión de macOS y modelo de Mac
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      placeholder: Describe el arrastre, gesto o acción exacta.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Resultado esperado
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Resultado observado
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacidad
+      options:
+        - label: Confirmo que eliminé datos privados de los archivos y capturas adjuntos.
+          required: true

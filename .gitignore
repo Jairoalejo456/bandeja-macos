@@ -1,0 +1,12 @@
+.DS_Store
+.build/
+Derived*/
+build*/
+dist/
+*.xcuserstate
+xcuserdata/
+*.xcresult
+*.log
+.swiftpm/
+.idea/
+.vscode/

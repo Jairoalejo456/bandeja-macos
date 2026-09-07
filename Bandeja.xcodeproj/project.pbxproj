@@ -1,0 +1,462 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		110000000000000000000001 /* BandejaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000001 /* BandejaApp.swift */; };
+		110000000000000000000002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000002 /* AppDelegate.swift */; };
+		110000000000000000000003 /* TrayItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000003 /* TrayItem.swift */; };
+		110000000000000000000004 /* TrayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000004 /* TrayStore.swift */; };
+		110000000000000000000005 /* ShakeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000005 /* ShakeDetector.swift */; };
+		110000000000000000000006 /* GlobalDragMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000006 /* GlobalDragMonitor.swift */; };
+		110000000000000000000007 /* AirDropService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000007 /* AirDropService.swift */; };
+		110000000000000000000008 /* WindowDragHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000008 /* WindowDragHandle.swift */; };
+		110000000000000000000009 /* TrayCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000009 /* TrayCollectionView.swift */; };
+		11000000000000000000000A /* TrayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000000A /* TrayView.swift */; };
+		11000000000000000000000B /* TrayPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000000B /* TrayPanelController.swift */; };
+		11000000000000000000000C /* ShakeDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000000D /* ShakeDetectorTests.swift */; };
+		11000000000000000000000D /* TrayStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000000E /* TrayStoreTests.swift */; };
+		11000000000000000000000E /* PanelPositionerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000000F /* PanelPositionerTests.swift */; };
+		11000000000000000000000F /* TrayPasteboardImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000012 /* TrayPasteboardImporter.swift */; };
+		110000000000000000000010 /* TrayPasteboardImporterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000013 /* TrayPasteboardImporterTests.swift */; };
+		110000000000000000000011 /* TrayAccessoryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000014 /* TrayAccessoryViews.swift */; };
+		110000000000000000000012 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000015 /* AppSettings.swift */; };
+		110000000000000000000013 /* GlobalShortcutMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000016 /* GlobalShortcutMonitor.swift */; };
+		110000000000000000000014 /* ScreenshotMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000017 /* ScreenshotMonitor.swift */; };
+		110000000000000000000015 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000018 /* SettingsView.swift */; };
+		110000000000000000000016 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000019 /* SettingsWindowController.swift */; };
+		110000000000000000000017 /* AppSettingsAndScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000001A /* AppSettingsAndScreenshotTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		140000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B00000000000000000000001;
+			remoteInfo = Bandeja;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		120000000000000000000001 /* BandejaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandejaApp.swift; sourceTree = "<group>"; };
+		120000000000000000000002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		120000000000000000000003 /* TrayItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayItem.swift; sourceTree = "<group>"; };
+		120000000000000000000004 /* TrayStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayStore.swift; sourceTree = "<group>"; };
+		120000000000000000000005 /* ShakeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetector.swift; sourceTree = "<group>"; };
+		120000000000000000000006 /* GlobalDragMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDragMonitor.swift; sourceTree = "<group>"; };
+		120000000000000000000007 /* AirDropService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirDropService.swift; sourceTree = "<group>"; };
+		120000000000000000000008 /* WindowDragHandle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowDragHandle.swift; sourceTree = "<group>"; };
+		120000000000000000000009 /* TrayCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayCollectionView.swift; sourceTree = "<group>"; };
+		12000000000000000000000A /* TrayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayView.swift; sourceTree = "<group>"; };
+		12000000000000000000000B /* TrayPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayPanelController.swift; sourceTree = "<group>"; };
+		12000000000000000000000C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		12000000000000000000000D /* ShakeDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetectorTests.swift; sourceTree = "<group>"; };
+		12000000000000000000000E /* TrayStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayStoreTests.swift; sourceTree = "<group>"; };
+		12000000000000000000000F /* PanelPositionerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelPositionerTests.swift; sourceTree = "<group>"; };
+		120000000000000000000010 /* Bandeja.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bandeja.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		120000000000000000000011 /* BandejaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BandejaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		120000000000000000000012 /* TrayPasteboardImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayPasteboardImporter.swift; sourceTree = "<group>"; };
+		120000000000000000000013 /* TrayPasteboardImporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayPasteboardImporterTests.swift; sourceTree = "<group>"; };
+		120000000000000000000014 /* TrayAccessoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayAccessoryViews.swift; sourceTree = "<group>"; };
+		120000000000000000000015 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		120000000000000000000016 /* GlobalShortcutMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalShortcutMonitor.swift; sourceTree = "<group>"; };
+		120000000000000000000017 /* ScreenshotMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotMonitor.swift; sourceTree = "<group>"; };
+		120000000000000000000018 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		120000000000000000000019 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
+		12000000000000000000001A /* AppSettingsAndScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsAndScreenshotTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C00000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C00000000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A00000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				130000000000000000000001 /* Bandeja */,
+				130000000000000000000006 /* BandejaTests */,
+				A00000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A00000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				120000000000000000000010 /* Bandeja.app */,
+				120000000000000000000011 /* BandejaTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		130000000000000000000001 /* Bandeja */ = {
+			isa = PBXGroup;
+			children = (
+				120000000000000000000001 /* BandejaApp.swift */,
+				120000000000000000000002 /* AppDelegate.swift */,
+				130000000000000000000002 /* Models */,
+				130000000000000000000003 /* Services */,
+				130000000000000000000004 /* Views */,
+				130000000000000000000005 /* Window */,
+				12000000000000000000000C /* Info.plist */,
+			);
+			path = Bandeja;
+			sourceTree = "<group>";
+		};
+		130000000000000000000002 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				120000000000000000000003 /* TrayItem.swift */,
+				120000000000000000000004 /* TrayStore.swift */,
+				120000000000000000000015 /* AppSettings.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		130000000000000000000003 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				120000000000000000000005 /* ShakeDetector.swift */,
+				120000000000000000000006 /* GlobalDragMonitor.swift */,
+				120000000000000000000007 /* AirDropService.swift */,
+				120000000000000000000012 /* TrayPasteboardImporter.swift */,
+				120000000000000000000016 /* GlobalShortcutMonitor.swift */,
+				120000000000000000000017 /* ScreenshotMonitor.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		130000000000000000000004 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				120000000000000000000008 /* WindowDragHandle.swift */,
+				120000000000000000000009 /* TrayCollectionView.swift */,
+				12000000000000000000000A /* TrayView.swift */,
+				120000000000000000000014 /* TrayAccessoryViews.swift */,
+				120000000000000000000018 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		130000000000000000000005 /* Window */ = {
+			isa = PBXGroup;
+			children = (
+				12000000000000000000000B /* TrayPanelController.swift */,
+				120000000000000000000019 /* SettingsWindowController.swift */,
+			);
+			path = Window;
+			sourceTree = "<group>";
+		};
+		130000000000000000000006 /* BandejaTests */ = {
+			isa = PBXGroup;
+			children = (
+				12000000000000000000000D /* ShakeDetectorTests.swift */,
+				12000000000000000000000E /* TrayStoreTests.swift */,
+				12000000000000000000000F /* PanelPositionerTests.swift */,
+				120000000000000000000013 /* TrayPasteboardImporterTests.swift */,
+				12000000000000000000001A /* AppSettingsAndScreenshotTests.swift */,
+			);
+			path = BandejaTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B00000000000000000000001 /* Bandeja */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E00000000000000000000002 /* Build configuration list for PBXNativeTarget "Bandeja" */;
+			buildPhases = (
+				C00000000000000000000002 /* Sources */,
+				C00000000000000000000001 /* Frameworks */,
+				C00000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Bandeja;
+			productName = Bandeja;
+			productReference = 120000000000000000000010 /* Bandeja.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B00000000000000000000002 /* BandejaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E00000000000000000000003 /* Build configuration list for PBXNativeTarget "BandejaTests" */;
+			buildPhases = (
+				C00000000000000000000005 /* Sources */,
+				C00000000000000000000004 /* Frameworks */,
+				C00000000000000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				140000000000000000000002 /* PBXTargetDependency */,
+			);
+			name = BandejaTests;
+			productName = BandejaTests;
+			productReference = 120000000000000000000011 /* BandejaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A00000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2660;
+				LastUpgradeCheck = 2660;
+				TargetAttributes = {
+					B00000000000000000000001 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					B00000000000000000000002 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = B00000000000000000000001;
+					};
+				};
+			};
+			buildConfigurationList = E00000000000000000000001 /* Build configuration list for PBXProject "Bandeja" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = es;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				es,
+				Base,
+			);
+			mainGroup = A00000000000000000000002;
+			productRefGroup = A00000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B00000000000000000000001 /* Bandeja */,
+				B00000000000000000000002 /* BandejaTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C00000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C00000000000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C00000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				110000000000000000000001 /* BandejaApp.swift in Sources */,
+				110000000000000000000002 /* AppDelegate.swift in Sources */,
+				110000000000000000000003 /* TrayItem.swift in Sources */,
+				110000000000000000000004 /* TrayStore.swift in Sources */,
+				110000000000000000000005 /* ShakeDetector.swift in Sources */,
+				110000000000000000000006 /* GlobalDragMonitor.swift in Sources */,
+				110000000000000000000007 /* AirDropService.swift in Sources */,
+				110000000000000000000008 /* WindowDragHandle.swift in Sources */,
+				110000000000000000000009 /* TrayCollectionView.swift in Sources */,
+				11000000000000000000000A /* TrayView.swift in Sources */,
+				110000000000000000000011 /* TrayAccessoryViews.swift in Sources */,
+				11000000000000000000000B /* TrayPanelController.swift in Sources */,
+				11000000000000000000000F /* TrayPasteboardImporter.swift in Sources */,
+				110000000000000000000012 /* AppSettings.swift in Sources */,
+				110000000000000000000013 /* GlobalShortcutMonitor.swift in Sources */,
+				110000000000000000000014 /* ScreenshotMonitor.swift in Sources */,
+				110000000000000000000015 /* SettingsView.swift in Sources */,
+				110000000000000000000016 /* SettingsWindowController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C00000000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				11000000000000000000000C /* ShakeDetectorTests.swift in Sources */,
+				11000000000000000000000D /* TrayStoreTests.swift in Sources */,
+				11000000000000000000000E /* PanelPositionerTests.swift in Sources */,
+				110000000000000000000010 /* TrayPasteboardImporterTests.swift in Sources */,
+				110000000000000000000017 /* AppSettingsAndScreenshotTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		140000000000000000000002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B00000000000000000000001 /* Bandeja */;
+			targetProxy = 140000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		D00000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		D00000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		D00000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Bandeja/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D00000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Bandeja/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		D00000000000000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Bandeja.app/Contents/MacOS/Bandeja";
+			};
+			name = Debug;
+		};
+		D00000000000000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Bandeja.app/Contents/MacOS/Bandeja";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E00000000000000000000001 /* Build configuration list for PBXProject "Bandeja" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D00000000000000000000001 /* Debug */,
+				D00000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E00000000000000000000002 /* Build configuration list for PBXNativeTarget "Bandeja" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D00000000000000000000003 /* Debug */,
+				D00000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E00000000000000000000003 /* Build configuration list for PBXNativeTarget "BandejaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D00000000000000000000005 /* Debug */,
+				D00000000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A00000000000000000000001 /* Project object */;
+}
