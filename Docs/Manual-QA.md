@@ -23,6 +23,8 @@ La versión 0.1.2 añade un monitor pasivo de Core Graphics y solicita Monitoriz
 
 Para la versión 0.1.4 se cerraron temporalmente Dropover y sus procesos auxiliares. Bandeja respondió durante 12 movimientos consecutivos; después se movió con una trayectoria horizontal de varias inversiones y terminó exactamente 100 × 100 puntos respecto a su posición inicial, demostrando que su propio gesto ya no reactiva el detector global. Con Finder activo, el botón de cierre respondió al primer clic y el archivo original permaneció intacto. Dropover quedó cerrado, no desinstalado.
 
+Después de instalar la compilación final 0.1.4, Bandeja se añadió a **Privacidad y seguridad → Monitorización de entrada**, el interruptor quedó activo y macOS reinició la aplicación. Se ejecutó entonces una integración Finder → Bandeja con una imagen JPEG real: el botón izquierdo permaneció pulsado, se enviaron cinco inversiones horizontales rápidas y el panel apareció antes de soltar. La imagen se depositó en la bandeja y quedó expuesta como **1 imagen**. Con Finder nuevamente activo, la X cerró el panel al primer clic. La huella SHA-256 del original fue idéntica antes y después (`c444d824…c2fedb6`) y WindowServer confirmó cero paneles flotantes visibles después del cierre.
+
 La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
 Se ejecutaron **29 pruebas XCTest, 29 correctas, 0 fallos**:
@@ -35,7 +37,7 @@ Se ejecutaron **29 pruebas XCTest, 29 correctas, 0 fallos**:
 
 AirDrop estuvo disponible en esta pasada. Se abrió el selector nativo, informó que no había ninguna persona cercana y se canceló; la bandeja conservó sus tres imágenes. No se seleccionó un receptor ni se realizó un envío real.
 
-La herramienta de automatización disponible no puede sostener un arrastre mientras describe una trayectoria de varias inversiones ni completar de forma fiable un drag entre dos procesos. Por ello, los recorridos Finder ↔ Bandeja, la sacudida global real y el movimiento manual del panel requieren la pasada práctica siguiente antes de aceptar el MVP. La implementación no se presenta como verificada en esos puntos.
+La entrada Finder → Bandeja y la detección global quedan comprobadas a nivel de integración mediante eventos de ratón del sistema y un archivo real. Esta automatización valida el recorrido técnico completo, pero no sustituye una pasada humana para juzgar la sensación del gesto, los falsos positivos durante el uso cotidiano ni la salida Bandeja → Finder. Esos recorridos y las demás interacciones dependientes de aplicaciones externas permanecen en el checklist práctico siguiente.
 
 ## Checklist práctico pendiente
 
@@ -66,6 +68,6 @@ Usa los tres elementos incluidos en `Docs/QA Fixtures` y cualquier PDF de prueba
 
 ## Criterio de aceptación
 
-La lógica aislable, la compilación, el análisis, los dos estados previos de interfaz, el menú de accesos y la apertura/cancelación de AirDrop están verificados. La aceptación completa de la actualización debe esperar a que una persona marque correctos los pasos 2, 4, 6, 7, 8, 10, 12, 13 y 15–20 en un entorno con interacción real; completar un envío AirDrop requiere además un receptor cercano.
+La lógica aislable, la compilación, el análisis, la detección global con permiso concedido, la entrada Finder → Bandeja, el cierre con Finder activo, los dos estados previos de interfaz, el menú de accesos y la apertura/cancelación de AirDrop están verificados. La aceptación completa de la actualización debe esperar a que una persona evalúe la naturalidad del paso 2 y marque correctos los pasos 4, 6, 7, 8, 10, 12, 13 y 15–20; completar un envío AirDrop requiere además un receptor cercano.
 
 La construcción valida la viabilidad técnica, no la hipótesis de que el gesto resulte preferible para usuarios reales. Esa decisión necesita pruebas posteriores con personas y tareas reales.
