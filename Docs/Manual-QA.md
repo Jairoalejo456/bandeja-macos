@@ -29,15 +29,18 @@ La versión 0.1.5 parte de una reproducción en vivo del segundo bloqueo informa
 
 Después de compilar e instalar la corrección final 0.1.5, se abrió la bandeja desde el menú con otra aplicación al frente. El panel vacío se renderizó correctamente con 264 × 180 puntos, nivel flotante 3 y fondo Liquid Glass visible. Un clic físico sobre la X cerró el panel al primer intento y WindowServer confirmó que no quedó ninguna ventana invisible. La primera variante de la corrección, que eliminaba todas las opciones de tamaño del alojamiento SwiftUI, se descartó durante esta comprobación porque también ocultaba el contenido; la versión final conserva solo el tamaño visual intrínseco y excluye los mínimos y máximos automáticos.
 
+Para la versión 0.1.6 se reprodujo el recorte con la imagen vertical original de 1837 × 2281 píxeles. La nueva tarjeta compacta la dibujó completa, centrada y con su relación de aspecto intacta sobre el fondo neutro; también se comprobó visualmente una pila con dos elementos. El receptor central registra explícitamente URLs de archivo, PNG y TIFF, y la cuadrícula desplegada incorpora el mismo flujo de importación. La automatización de geometría y registro pasó, pero el depósito físico exactamente en el centro debe confirmarse también con un arrastre humano: el intento automatizado quedó interferido por Stage Manager y abrió la aplicación asociada al archivo en vez de producir un drag fiable.
+
 La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
-Se ejecutaron **31 pruebas XCTest, 31 correctas, 0 fallos**:
+Se ejecutaron **34 pruebas XCTest, 34 correctas, 0 fallos**:
 
 - 9 del detector: sacudida deliberada, arrastre normal, microtemblor, gesto lento, movimiento vertical dominante, reinicio al soltar, dos pruebas del muestreo global del botón y exclusión completa de los clics que empiezan dentro de la bandeja;
 - 9 del estado: referencias sin modificación del original, varios archivos y carpetas, duplicados, entradas inválidas, imágenes en memoria, cierre al quedar vacío, expansión/contracción, salida cancelada y salida aceptada preservando el archivo real;
 - 2 de `NSPasteboard`: varias URLs reales e imagen sin URL;
 - 4 de ventana: colocación en las cuatro esquinas y el centro del área visible, tamaño compacto idéntico con 1 o 32 elementos, capacidad del panel sin bordes para recibir el primer clic y ausencia de un tamaño mínimo residual impuesto por SwiftUI.
 - 7 de configuración, privacidad e inicio: valores iniciales prudentes, persistencia independiente del contenido, filtro de capturas recientes, combinaciones distintas de atajos, máscara del monitor limitada al ratón y registro/desregistro del ítem de inicio con sus estados de aprobación.
+- 3 de interacción compacta: ajuste completo de imágenes verticales y horizontales y registro de la zona central como destino de archivos e imágenes.
 
 AirDrop estuvo disponible en esta pasada. Se abrió el selector nativo, informó que no había ninguna persona cercana y se canceló; la bandeja conservó sus tres imágenes. No se seleccionó un receptor ni se realizó un envío real.
 
@@ -50,7 +53,7 @@ Usa los tres elementos incluidos en `Docs/QA Fixtures` y cualquier PDF de prueba
 1. Inicia Bandeja con `⌘R` y confirma el texto **Bandeja** junto a su icono en la barra de menús.
 2. Arrastra `archivo-prueba.txt`, haz tres inversiones horizontales rápidas sin soltar y confirma que aparece el panel.
 3. Repite un arrastre recto y luego uno con correcciones normales; confirma que no aparece. Si hay falsos positivos, usa sensibilidad **Baja** y registra el patrón.
-4. Deposita por separado el TXT, `imagen-prueba.svg`, un PDF y `carpeta-prueba`; luego deposítalos juntos. Confirma una vista previa real para la imagen y la primera página del PDF, y un icono nativo para cualquier formato que Quick Look no pueda representar. La bandeja debe mantener el mismo tamaño compacto y mostrar visualmente la pila.
+4. Deposita por separado el TXT, `imagen-prueba.svg`, un PDF y `carpeta-prueba`; luego deposítalos juntos. Suelta al menos uno exactamente sobre el centro de la miniatura compacta y otro sobre la cuadrícula desplegada. Confirma una vista previa completa para la imagen, sin zoom ni recorte, la primera página del PDF y un icono nativo para cualquier formato que Quick Look no pueda representar. La bandeja debe mantener el mismo tamaño compacto y mostrar visualmente la pila.
 5. Calcula o anota tamaño y fecha de modificación de los originales antes y después. Cierra con la **X**. Confirma que los originales y el contenido de la carpeta siguen idénticos.
 6. Desde la vista compacta, arrastra la pila a la carpeta de destino y confirma que salen todos los elementos. Reúne contenido otra vez, abre la cápsula y arrastra un elemento; repite con `⌘`-clic para varios. Confirma que Finder completa la operación estándar, conserva el origen y que la bandeja desaparece después de cada entrega aceptada. Cancela otro arrastre y confirma que la bandeja permanece.
 7. Con varios elementos reunidos, arrastra la franja superior a cada esquina y a otra pantalla si existe. Confirma que los elementos no cambian.

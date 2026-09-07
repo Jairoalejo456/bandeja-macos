@@ -30,6 +30,7 @@
 		110000000000000000000015 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000018 /* SettingsView.swift */; };
 		110000000000000000000016 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000019 /* SettingsWindowController.swift */; };
 		110000000000000000000017 /* AppSettingsAndScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000001A /* AppSettingsAndScreenshotTests.swift */; };
+		110000000000000000000018 /* TrayInteractionGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000001B /* TrayInteractionGeometryTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 		120000000000000000000018 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		120000000000000000000019 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		12000000000000000000001A /* AppSettingsAndScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsAndScreenshotTests.swift; sourceTree = "<group>"; };
+		12000000000000000000001B /* TrayInteractionGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayInteractionGeometryTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -173,6 +175,7 @@
 				12000000000000000000000F /* PanelPositionerTests.swift */,
 				120000000000000000000013 /* TrayPasteboardImporterTests.swift */,
 				12000000000000000000001A /* AppSettingsAndScreenshotTests.swift */,
+				12000000000000000000001B /* TrayInteractionGeometryTests.swift */,
 			);
 			path = BandejaTests;
 			sourceTree = "<group>";
@@ -305,6 +308,7 @@
 				11000000000000000000000E /* PanelPositionerTests.swift in Sources */,
 				110000000000000000000010 /* TrayPasteboardImporterTests.swift in Sources */,
 				110000000000000000000017 /* AppSettingsAndScreenshotTests.swift in Sources */,
+				110000000000000000000018 /* TrayInteractionGeometryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -357,7 +361,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -366,7 +370,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.5;
+				MARKETING_VERSION = 0.1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -379,7 +383,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -388,7 +392,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.5;
+				MARKETING_VERSION = 0.1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

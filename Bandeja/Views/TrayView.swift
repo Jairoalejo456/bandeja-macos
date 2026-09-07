@@ -110,6 +110,7 @@ struct TrayView: View {
             }
 
             CompactDragSourceView(
+                store: store,
                 items: store.items,
                 onCompleted: onExternalDragCompleted,
                 onDoubleClick: revealFrontItemInFinder

@@ -2,6 +2,15 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.1.6] — 2026-09-07
+
+### Correcciones
+
+- Muestra la imagen completa en la tarjeta compacta con ajuste proporcional, sin ampliarla ni recortar sus bordes.
+- Convierte la previsualización central compacta en un destino real para archivos, carpetas e imágenes, además de conservar su función de arrastre de salida.
+- Permite depositar nuevos elementos directamente sobre la cuadrícula cuando la bandeja está desplegada.
+- Añade pruebas de geometría para imágenes verticales y horizontales y de los tipos aceptados por la zona central.
+
 ## [0.1.5] — 2026-09-07
 
 ### Correcciones
@@ -79,3 +88,4 @@ Primera versión pública del MVP.
 [0.1.3]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.3
 [0.1.4]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.4
 [0.1.5]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.5
+[0.1.6]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.6

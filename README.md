@@ -2,7 +2,7 @@
 
 Bandeja es una utilidad nativa de barra de menús para reunir temporalmente archivos, carpetas e imágenes mientras se trabaja entre Finder y otras aplicaciones. Mantiene una sola bandeja flotante y guarda únicamente referencias en memoria: añadir o cerrar nunca mueve ni elimina los originales.
 
-Versión actual: **0.1.5 (MVP)**.
+Versión actual: **0.1.6 (MVP)**.
 
 ## Requisitos
 
@@ -20,7 +20,7 @@ No hay dependencias de terceros, servidor, cuenta ni almacenamiento persistente.
 4. La primera vez, acepta **Monitorización de entrada** cuando macOS lo solicite. Este permiso permite observar pasivamente los eventos del ratón de un arrastre que empezó en Finder u otra app. Bandeja no solicita eventos del teclado ni puede modificar los eventos observados. Si macOS pide reiniciarla, sal y vuelve a abrirla.
 5. Empieza a arrastrar uno o más elementos en Finder.
 6. Sin soltar el botón, mueve el cursor horizontalmente de un lado a otro tres veces con rapidez. La bandeja aparecerá cerca del cursor y siempre dentro del área visible de la pantalla.
-7. Suelta los elementos dentro. La bandeja permanece pequeña y enseña una previsualización principal con hasta dos tarjetas detrás para indicar que hay más contenido.
+7. Suelta los elementos en cualquier punto de la bandeja, incluida la previsualización central. La bandeja permanece pequeña y enseña la imagen o miniatura completa, respetando su proporción, con hasta dos tarjetas detrás para indicar que hay más contenido.
 8. Arrastra esa pila para sacar todos los elementos de una vez, o pulsa la cápsula de cantidad para abrir la cuadrícula y arrastrar uno o varios. Cuando otra aplicación acepta el arrastre, la bandeja se cierra automáticamente; si cancelas, conserva todo.
 
 También se puede abrir una bandeja vacía desde el icono de barra de menús con **Mostrar bandeja**. Si no recibe nada, se oculta automáticamente; al terminar un arrastre sin depósito también se oculta. La sensibilidad del gesto puede cambiarse entre baja, equilibrada y alta desde ese menú, pero la configuración equilibrada funciona desde el primer inicio.

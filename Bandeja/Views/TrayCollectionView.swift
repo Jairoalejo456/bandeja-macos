@@ -39,6 +39,7 @@ struct TrayCollectionView: NSViewRepresentable {
         }
         collectionView.setDraggingSourceOperationMask(.copy, forLocal: false)
         collectionView.setDraggingSourceOperationMask(.copy, forLocal: true)
+        collectionView.registerForDraggedTypes([.fileURL, .png, .tiff])
 
         let scrollView = NSScrollView()
         scrollView.drawsBackground = false
@@ -137,6 +138,38 @@ struct TrayCollectionView: NSViewRepresentable {
             if !operation.isEmpty {
                 onExternalDragCompleted(operation)
             }
+        }
+
+        func collectionView(
+            _ collectionView: NSCollectionView,
+            validateDrop draggingInfo: NSDraggingInfo,
+            proposedIndexPath: AutoreleasingUnsafeMutablePointer<NSIndexPath>,
+            dropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation>
+        ) -> NSDragOperation {
+            guard !isInternalDrag(draggingInfo, in: collectionView) else {
+                store.isDropTargeted = false
+                return []
+            }
+
+            store.isDropTargeted = TrayPasteboardImporter.canImport(from: draggingInfo.draggingPasteboard)
+            dropOperation.pointee = .on
+            return store.isDropTargeted ? .copy : []
+        }
+
+        func collectionView(
+            _ collectionView: NSCollectionView,
+            acceptDrop draggingInfo: NSDraggingInfo,
+            indexPath: IndexPath,
+            dropOperation: NSCollectionView.DropOperation
+        ) -> Bool {
+            defer { store.isDropTargeted = false }
+            guard !isInternalDrag(draggingInfo, in: collectionView) else { return false }
+            return TrayPasteboardImporter.importItems(from: draggingInfo.draggingPasteboard, into: store) > 0
+        }
+
+        private func isInternalDrag(_ draggingInfo: NSDraggingInfo, in collectionView: NSCollectionView) -> Bool {
+            guard let sourceView = draggingInfo.draggingSource as? NSView else { return false }
+            return sourceView.window === collectionView.window
         }
     }
 }

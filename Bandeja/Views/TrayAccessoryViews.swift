@@ -9,8 +9,6 @@ struct NativeThumbnailView: NSViewRepresentable {
 
     func makeNSView(context: Context) -> PreviewImageView {
         let imageView = PreviewImageView()
-        imageView.imageScaling = .scaleProportionallyUpOrDown
-        imageView.imageAlignment = .alignCenter
         imageView.wantsLayer = true
         imageView.layer?.cornerRadius = 10
         imageView.layer?.masksToBounds = true
@@ -32,11 +30,48 @@ struct NativeThumbnailView: NSViewRepresentable {
     }
 }
 
-final class PreviewImageView: NSImageView {
+enum AspectFitLayout {
+    static func rect(for contentSize: CGSize, in bounds: CGRect) -> CGRect {
+        guard contentSize.width > 0,
+              contentSize.height > 0,
+              bounds.width > 0,
+              bounds.height > 0 else { return .zero }
+
+        let scale = min(bounds.width / contentSize.width, bounds.height / contentSize.height)
+        let fittedSize = CGSize(width: contentSize.width * scale, height: contentSize.height * scale)
+        return CGRect(
+            x: bounds.midX - fittedSize.width / 2,
+            y: bounds.midY - fittedSize.height / 2,
+            width: fittedSize.width,
+            height: fittedSize.height
+        )
+    }
+}
+
+final class PreviewImageView: NSView {
     var representedID: UUID?
+    var image: NSImage? {
+        didSet { needsDisplay = true }
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        guard let image else { return }
+
+        let destination = AspectFitLayout.rect(for: image.size, in: bounds.insetBy(dx: 3, dy: 3))
+        image.draw(
+            in: destination,
+            from: .zero,
+            operation: .sourceOver,
+            fraction: 1,
+            respectFlipped: true,
+            hints: [.interpolation: NSImageInterpolation.high]
+        )
+    }
 }
 
 struct CompactDragSourceView: NSViewRepresentable {
+    @ObservedObject var store: TrayStore
     let items: [TrayItem]
     let onCompleted: (NSDragOperation) -> Void
     let onDoubleClick: () -> Void
@@ -48,6 +83,7 @@ struct CompactDragSourceView: NSViewRepresentable {
     }
 
     func updateNSView(_ view: CompactDragSourceNSView, context: Context) {
+        view.store = store
         view.items = items
         view.onCompleted = onCompleted
         view.onDoubleClick = onDoubleClick
@@ -55,6 +91,7 @@ struct CompactDragSourceView: NSViewRepresentable {
 }
 
 final class CompactDragSourceNSView: NSView, NSDraggingSource {
+    weak var store: TrayStore?
     var items: [TrayItem] = []
     var onCompleted: ((NSDragOperation) -> Void)?
     var onDoubleClick: (() -> Void)?
@@ -62,6 +99,43 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
     private var initialLocation: NSPoint?
     private var beganDragging = false
     private var promiseDelegates: [ImagePromiseDelegate] = []
+
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        registerForDraggedTypes([.fileURL, .png, .tiff])
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        registerForDraggedTypes([.fileURL, .png, .tiff])
+    }
+
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        validatedOperation(for: sender)
+    }
+
+    override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
+        validatedOperation(for: sender)
+    }
+
+    override func draggingExited(_ sender: NSDraggingInfo?) {
+        store?.isDropTargeted = false
+    }
+
+    override func draggingEnded(_ sender: NSDraggingInfo) {
+        store?.isDropTargeted = false
+    }
+
+    override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        !validatedOperation(for: sender).isEmpty
+    }
+
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        guard let store else { return false }
+        defer { store.isDropTargeted = false }
+        guard !isInternalDrag(sender) else { return false }
+        return TrayPasteboardImporter.importItems(from: sender.draggingPasteboard, into: store) > 0
+    }
 
     override func mouseDown(with event: NSEvent) {
         initialLocation = convert(event.locationInWindow, from: nil)
@@ -93,6 +167,20 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
         sourceOperationMaskFor context: NSDraggingContext
     ) -> NSDragOperation {
         .copy
+    }
+
+    private func validatedOperation(for sender: NSDraggingInfo) -> NSDragOperation {
+        guard let store, !isInternalDrag(sender) else {
+            store?.isDropTargeted = false
+            return []
+        }
+        store.isDropTargeted = TrayPasteboardImporter.canImport(from: sender.draggingPasteboard)
+        return store.isDropTargeted ? .copy : []
+    }
+
+    private func isInternalDrag(_ sender: NSDraggingInfo) -> Bool {
+        guard let sourceView = sender.draggingSource as? NSView else { return false }
+        return sourceView.window === window
     }
 
     func ignoreModifierKeys(for session: NSDraggingSession) -> Bool {
