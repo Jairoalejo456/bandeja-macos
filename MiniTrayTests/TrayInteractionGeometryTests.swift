@@ -35,4 +35,17 @@ final class TrayInteractionGeometryTests: XCTestCase {
         XCTAssertTrue(view.registeredDraggedTypes.contains(.png))
         XCTAssertTrue(view.registeredDraggedTypes.contains(.tiff))
     }
+
+    @MainActor
+    func testExpandedCollectionAcceptsTheFirstMouseForImmediateDragging() {
+        let collection = DoubleClickCollectionView(frame: CGRect(x: 0, y: 0, width: 480, height: 232))
+        let background = FirstMouseView()
+        let image = FirstMouseImageView()
+        let label = FirstMouseTextField(labelWithString: "Archivo")
+
+        XCTAssertTrue(collection.acceptsFirstMouse(for: nil))
+        XCTAssertTrue(background.acceptsFirstMouse(for: nil))
+        XCTAssertTrue(image.acceptsFirstMouse(for: nil))
+        XCTAssertTrue(label.acceptsFirstMouse(for: nil))
+    }
 }

@@ -66,6 +66,34 @@ final class AppSettingsAndScreenshotTests: XCTestCase {
         ))
     }
 
+    func testInitialScreenshotGatherIncludesOnlyCapturesCreatedAfterMonitoringStarted() {
+        let startedAt = Date(timeIntervalSince1970: 1_000)
+        let now = startedAt.addingTimeInterval(12)
+        let fileURL = URL(fileURLWithPath: "/tmp/capture-created-during-gather.png")
+
+        XCTAssertTrue(ScreenshotCandidateFilter.shouldHandleInitialCandidate(
+            isScreenCapture: true,
+            url: fileURL,
+            creationDate: startedAt.addingTimeInterval(4),
+            monitoringStartedAt: startedAt,
+            now: now
+        ))
+        XCTAssertFalse(ScreenshotCandidateFilter.shouldHandleInitialCandidate(
+            isScreenCapture: true,
+            url: fileURL,
+            creationDate: startedAt.addingTimeInterval(-10),
+            monitoringStartedAt: startedAt,
+            now: now
+        ))
+        XCTAssertFalse(ScreenshotCandidateFilter.shouldHandleInitialCandidate(
+            isScreenCapture: true,
+            url: fileURL,
+            creationDate: nil,
+            monitoringStartedAt: startedAt,
+            now: now
+        ))
+    }
+
     func testShortcutPresetsMapToDistinctKeyCombinations() {
         let definitions = GlobalShortcutPreset.allCases.map(GlobalShortcutMonitor.definition)
         let keys = definitions.map { "\($0.keyCode)-\($0.modifiers)" }

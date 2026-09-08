@@ -2,6 +2,21 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.2.5] — 2026-09-08
+
+### Correcciones de la auditoría final
+
+- Detecta una captura creada justo después de arrancar el monitor, incluso si Spotlight la entrega dentro de su recopilación inicial, sin confundir capturas antiguas con nuevas.
+- Permite iniciar al primer intento un arrastre desde cualquier parte de una celda de la cuadrícula expandida aunque Finder u otra aplicación tenga el foco.
+- Conserva la salida mediante promesa de archivo para imágenes que solo existen en memoria y verifica que los datos escritos sean idénticos al original.
+
+### Verificación
+
+- Ejecuta 46 pruebas XCTest sin fallos y el análisis estático de Release sin advertencias funcionales.
+- Comprueba con arrastres reales Finder → MiniTray → Finder los gestos horizontal, vertical y diagonal, el depósito central, la pila múltiple, la cuadrícula, el movimiento, la cancelación y el cierre automático.
+- Abre y cancela los flujos nativos de Quick Look y AirDrop conservando el contenido.
+- Verifica el atajo global, el doble clic configurable y la detección temporal de una captura real.
+
 ## [0.2.4] — 2026-09-08
 
 ### Apariencia

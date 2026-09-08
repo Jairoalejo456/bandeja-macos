@@ -1,94 +1,42 @@
-# Verificación del MVP
+# Verificación manual de MiniTray
 
-Fecha de la pasada incluida: 7 de septiembre de 2026. Entorno: Mac Apple Silicon, macOS 26.6.2 (25G83), Xcode 26.6 (17F113), Swift 6.3.3.
+La auditoría ejecutada del MVP 0.2.5 y sus resultados están documentados en [Final-Audit-0.2.5.md](Final-Audit-0.2.5.md). Esta lista permite repetir la aceptación en otro Mac o después de cambios futuros.
 
-## Resultado ejecutado
+Usa los elementos de `Docs/QA Fixtures`, una imagen raster y un PDF. Para probar la salida, crea una carpeta de destino vacía fuera de los fixtures y anota antes las fechas, tamaños o huellas de los originales.
 
-Las compilaciones Debug y Release y el análisis estático terminaron correctamente para esta actualización. La entrega Release es universal arm64/x86_64, tiene firma ad hoc local válida, exige macOS 14.0 o posterior y se abrió como proceso `.app` real (`com.jairo.bandeja`). La inspección de la versión anterior ya había confirmado:
+## Flujo principal
 
-- panel único y flotante, con estado vacío;
-- visualización simultánea de una imagen JPEG, un PDF, un TXT y una carpeta;
-- miniatura real de la imagen, primera página del PDF, vista previa del TXT e icono nativo de la carpeta;
-- estado compacto de tamaño fijo con una previsualización principal, tarjetas posteriores y cápsula de cantidad;
-- expansión a una cuadrícula con todos los nombres y regreso al tamaño compacto sin perder contenido;
-- cabecera sin título ni basurero, con la X como único descarte visible;
-- menú nativo expuesto a Accesibilidad con Abrir con, Mostrar en Finder, Vista rápida, AirDrop, Mail, Mensajes y los demás servicios disponibles;
-- apertura real de Vista rápida con la primera imagen y navegación preparada para los tres elementos;
-- presentación real del selector nativo de AirDrop con tres imágenes preparadas, cancelación sin envío y conservación de los tres elementos;
-- arranque inicial con contenido vacío.
+1. Abre MiniTray y confirma que solo aparece su logotipo en la barra de menús y que no restaura contenido anterior.
+2. Arrastra un archivo desde Finder. Sin soltar, haz tres cambios rápidos de dirección en horizontal, vertical y diagonal. En cada caso debe aparecer la misma bandeja cerca del cursor y dentro de la pantalla.
+3. Haz un arrastre recto, selecciona texto y mueve un objeto no exportable dentro de otra aplicación. La bandeja no debe aparecer.
+4. Deposita un archivo, varios archivos, una carpeta, una imagen y un PDF; suelta al menos uno en el centro exacto. Todas las zonas internas deben aceptar el contenido.
+5. Comprueba miniatura proporcional de la imagen, primera página del PDF, vistas nativas para formatos compatibles e iconos de Finder como respaldo.
+6. Confirma que la pila compacta mantiene 236 × 236 puntos sin importar la cantidad. Pulsa una vez la cápsula, revisa todos los elementos en la cuadrícula y vuelve con Atrás.
+7. Arrastra la cabecera a diferentes zonas y bordes. La bandeja debe responder al primer intento, quedar visible y conservar todo.
+8. Con contenido existente, repite el gesto con otro archivo. No debe aparecer una segunda bandeja ni perderse el contenido anterior.
+9. Arrastra la pila compacta a Finder y luego un elemento o selección desde la cuadrícula. La entrega debe comenzar al primer intento y la bandeja debe cerrarse cuando el destino la acepte.
+10. Cancela otra salida. La bandeja debe recuperar sus controles y conservar el contenido.
+11. Pulsa X con otra aplicación activa. Debe responder al primer clic, cerrar el panel y olvidar las referencias sin alterar los originales.
+12. Verifica que todos los originales mantienen su ubicación, tamaño, fecha o huella después de depositar, sacar, cancelar y cerrar.
 
-Esta actualización añade Liquid Glass nativo en macOS 26, respaldo de material en macOS 14–15, respeto de Reducir transparencia, Ajustes, atajo global opcional, detector opcional de capturas y doble clic configurable para revelar en Finder. La app nueva se inició como proceso real y permaneció estable. La herramienta de automatización detectó el proceso, pero cerró repetidamente su canal nativo al intentar adjuntarse a la superficie de Accesibilidad; por eso el acabado visual actualizado y los controles nuevos no se presentan como comprobados manualmente en esta pasada.
+## Acciones y ajustes
 
-La versión 0.1.2 añade un monitor pasivo de Core Graphics y solicita Monitorización de entrada para detectar de forma fiable los arrastres que pertenecen a Finder u otra aplicación. La máscara automatizada se comprobó: incluye únicamente pulsación, arrastre y liberación del botón izquierdo, y excluye teclado y botón derecho. La concesión real del permiso depende de una decisión del usuario en macOS y queda pendiente de validación manual después de instalar esta compilación. La versión 0.1.3 incorpora además el inicio automático mediante el servicio nativo de macOS. Se activó en la aplicación instalada, macOS mostró el aviso nativo de elemento de inicio agregado y el estado continuó activo después de reiniciar la app; luego se desactivó y continuó apagado tras otro reinicio. La comprobación de un arranque de sesión completo sigue incluida en la lista manual.
+13. Abre el menú de acciones y prueba Abrir con, Mostrar en Finder y Vista rápida.
+14. Abre AirDrop con uno y varios elementos. Cancela una vez y confirma que el contenido permanece. Si hay receptor disponible y se autoriza, completa un envío.
+15. Activa el doble clic para revelar en Finder y pruébalo en vista compacta y expandida; desactívalo y confirma que deja de actuar.
+16. Activa un atajo global libre y comprueba que abre la misma bandeja desde Finder. Si la combinación está ocupada, MiniTray debe informar el conflicto.
+17. Activa la detección de capturas, prueba varios intervalos y toma una captura guardada. La bandeja vacía debe aparecer y ocultarse tras el intervalo si no recibe nada. Una captura solo al portapapeles no debe activarla.
+18. Cambia entre las tres sensibilidades sin reiniciar y comprueba que el gesto sigue siendo deliberado.
+19. Activa y desactiva Abrir al iniciar sesión; revisa su estado en General → Ítems de inicio. Para aceptación completa, cierra sesión y verifica ambos estados.
 
-Para la versión 0.1.4 se cerraron temporalmente Dropover y sus procesos auxiliares. MiniTray respondió durante 12 movimientos consecutivos; después se movió con una trayectoria horizontal de varias inversiones y terminó exactamente 100 × 100 puntos respecto a su posición inicial, demostrando que su propio gesto ya no reactiva el detector global. Con Finder activo, el botón de cierre respondió al primer clic y el archivo original permaneció intacto. Dropover quedó cerrado, no desinstalado.
+## Sistema y apariencia
 
-Después de instalar la compilación final 0.1.4, MiniTray se añadió a **Privacidad y seguridad → Monitorización de entrada**, el interruptor quedó activo y macOS reinició la aplicación. Se ejecutó entonces una integración Finder → MiniTray con una imagen JPEG real: el botón izquierdo permaneció pulsado, se enviaron cinco inversiones horizontales rápidas y el panel apareció antes de soltar. La imagen se depositó en la bandeja y quedó expuesta como **1 imagen**. Con Finder nuevamente activo, la X cerró el panel al primer clic. La huella SHA-256 del original fue idéntica antes y después (`c444d824…c2fedb6`) y WindowServer confirmó cero paneles flotantes visibles después del cierre.
+20. Concede Monitorización de entrada y comprueba el estado global activo. Desactívalo temporalmente y verifica el mensaje de modo limitado, el acceso para recuperarlo y la apertura manual; luego restáuralo.
+21. En macOS 26 revisa Liquid Glass sobre fondos claros y oscuros. No debe existir un rectángulo exterior, el icono vacío debe estar centrado y el contenido no debe atenuarse al cambiar de foco.
+22. Activa Reducir transparencia y Reducir movimiento. La bandeja debe conservar contraste y usar transiciones breves sin desincronizar sus zonas de clic.
+23. En macOS 14 o 15 confirma el material translúcido de respaldo y repite el flujo principal.
+24. Si Dropover está instalado, repite movimiento y cierre con Dropover cerrado para descartar superposición entre utilidades.
 
-La versión 0.1.5 parte de una reproducción en vivo del segundo bloqueo informado. El proceso permanecía sano y la bandeja todavía aceptaba nuevos archivos, pero los clics físicos no llegaban a la X, la cápsula ni la zona de movimiento. WindowServer mostró la causa: aunque SwiftUI dibujaba la bandeja compacta de 264 puntos, `NSHostingView` conservaba el ancho mínimo de 520 puntos de la cuadrícula expandida. La corrección elimina esa restricción residual, sincroniza el marco sin animaciones interrumpibles y permite que el panel sin bordes reciba el primer clic sin convertirse en ventana principal.
+## Registro de la pasada
 
-Después de compilar e instalar la corrección final 0.1.5, se abrió la bandeja desde el menú con otra aplicación al frente. El panel vacío se renderizó correctamente con 264 × 180 puntos, nivel flotante 3 y fondo Liquid Glass visible. Un clic físico sobre la X cerró el panel al primer intento y WindowServer confirmó que no quedó ninguna ventana invisible. La primera variante de la corrección, que eliminaba todas las opciones de tamaño del alojamiento SwiftUI, se descartó durante esta comprobación porque también ocultaba el contenido; la versión final conserva solo el tamaño visual intrínseco y excluye los mínimos y máximos automáticos.
-
-Para la versión 0.1.6 se reprodujo el recorte con la imagen vertical original de 1837 × 2281 píxeles. La nueva tarjeta compacta la dibujó completa, centrada y con su relación de aspecto intacta sobre el fondo neutro; también se comprobó visualmente una pila con dos elementos. El receptor central registra explícitamente URLs de archivo, PNG y TIFF, y la cuadrícula desplegada incorpora el mismo flujo de importación. La automatización de geometría y registro pasó, pero el depósito físico exactamente en el centro debe confirmarse también con un arrastre humano: el intento automatizado quedó interferido por Stage Manager y abrió la aplicación asociada al archivo en vez de producir un drag fiable.
-
-Para la versión 0.1.7 se reprodujo el fallo de navegación con dos imágenes reales. WindowServer mostraba que el primer clic sí ampliaba el panel de 264 × 264 a 520 × 248 puntos, pero SwiftUI conservaba la jerarquía compacta anterior dentro del marco grande. La corrección reconstruye la raíz visual con el mismo estado que utiliza AppKit para dimensionar la ventana. En la comprobación práctica, un solo clic mostró ambas imágenes simultáneamente, **Atrás** restauró la pila de 264 × 264 y un segundo ciclo volvió a completar ambos cambios sin recortes ni bloqueo.
-
-Para la versión 0.1.8 se retiró el trazo blanco translúcido de medio punto que rodeaba la superficie en reposo. La vista compacta se comprobó sobre un fondo claro, donde el contorno gris resultaba más visible: el panel conserva el vidrio oscuro, las esquinas redondeadas y la sombra de profundidad, pero ya no añade ese recuadro claro. El contorno de acento sigue apareciendo solamente al recibir un arrastre válido.
-
-Para la versión 0.2.0 se redujo el panel compacto de 264 × 264 a 236 × 236 puntos y el detalle de 520 a 480 puntos de ancho. Con dos imágenes reales se comprobó visualmente la previsualización completa, una pulsación para abrir el detalle de 480 × 232, **Atrás** para recuperar exactamente 236 × 236 y la X para dejar cero ventanas visibles al primer clic. También se movió el panel mediante la cabecera de 900,551 a 442,237 sin perder el contenido ni desincronizar su marco. La barra de menús mostró únicamente el símbolo de bandeja, sin título. Durante la validación se descubrió y descartó una primera técnica de animación que interfería con la composición de Liquid Glass; la entrega usa cambios visuales temporizados dentro de SwiftUI y mantiene estático el marco real de AppKit. Dropover permaneció cerrado.
-
-La versión 0.2.2 reemplaza la dominancia horizontal por detección vectorial y valida automáticamente sacudidas horizontales, verticales y diagonales. También incorpora una compuerta de contenido: el portapapeles de arrastre debe haber cambiado después de iniciar la pulsación y contener archivos o imágenes compatibles. Esto rechaza tanto una selección ordinaria con datos antiguos como un portapapeles nuevo sin contenido importable. Como comprobación integrada, se inició un arrastre real sobre `archivo-prueba.txt` en Finder y se inyectó una trayectoria vertical de cuatro tramos en el nivel HID: Finder publicó un portapapeles nuevo con `public.file-url` y MiniTray mostró un único panel visible de 236 × 158 puntos antes de soltar. La misma trayectoria sobre una zona vacía mantuvo sin cambios el portapapeles y produjo cero paneles. La ejecución humana en los tres ejes y la comprobación dentro de Canva siguen indicadas en el checklist manual y no se presentan como verificadas.
-
-Para la versión 0.2.3 se redujo el tinte carbón del Liquid Glass de 76 % a 30 % y se retiró la atenuación deliberada de miniaturas y controles durante un arrastre de salida. La bandeja compacta con una imagen se revisó visualmente sobre el escritorio y dejó percibir el fondo a través del vidrio sin añadir un contorno gris. Después de activar Finder, WindowServer mantuvo el panel visible en el nivel 9, con opacidad 1 y tamaño 236 × 236 puntos; ya no vuelve al nivel flotante 3 mientras permanece abierto.
-
-Para la versión 0.2.4 se reprodujo sobre un fondo claro y oscuro el rectángulo de sombra que sobresalía de la superficie compacta. La sombra de SwiftUI se retiró y toda la composición se recortó al mismo radio continuo de 20 puntos que usa Liquid Glass. En la captura posterior, el panel siguió midiendo 236 × 158 puntos y el vidrio terminó en sus cuatro esquinas sin fondo cuadrado exterior. El icono vacío se desplazó 23 puntos hacia arriba para quedar centrado respecto de toda la superficie, no solo del espacio inferior a la cabecera.
-
-La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
-
-Se ejecutaron **43 pruebas XCTest, 43 correctas, 0 fallos**:
-
-- 14 del detector y la compuerta de arrastre: sacudidas horizontal, vertical y diagonal, arrastre normal, trayectoria curva, microtemblor, gesto lento, reinicio al soltar, muestreo global del botón, exclusión de clics internos, rechazo de contenido antiguo o no importable y aceptación de un arrastre fresco válido;
-- 10 del estado: referencias sin modificación del original, varios archivos y carpetas, duplicados, entradas inválidas, imágenes en memoria, cierre al quedar vacío, expansión/contracción, salida cancelada, restauración visual y salida aceptada preservando el archivo real;
-- 2 de `NSPasteboard`: varias URLs reales e imagen sin URL;
-- 7 de ventana y movimiento: colocación en las cuatro esquinas y el centro del área visible, tamaño compacto idéntico con 1 o 32 elementos, capacidad del panel sin bordes para recibir el primer clic, ausencia de un tamaño mínimo residual impuesto por SwiftUI, sincronización repetida entre el estado visual y el marco, duraciones reducidas con **Reducir movimiento** y elevación temporal durante la recepción externa.
-- 7 de configuración, privacidad e inicio: valores iniciales prudentes, persistencia independiente del contenido, filtro de capturas recientes, combinaciones distintas de atajos, máscara del monitor limitada al ratón y registro/desregistro del ítem de inicio con sus estados de aprobación.
-- 3 de interacción compacta: ajuste completo de imágenes verticales y horizontales y registro de la zona central como destino de archivos e imágenes.
-
-AirDrop estuvo disponible en esta pasada. Se abrió el selector nativo, informó que no había ninguna persona cercana y se canceló; la bandeja conservó sus tres imágenes. No se seleccionó un receptor ni se realizó un envío real.
-
-La entrada Finder → MiniTray y la detección global quedan comprobadas a nivel de integración mediante eventos de ratón del sistema y un archivo real. Esta automatización valida el recorrido técnico completo, pero no sustituye una pasada humana para juzgar la sensación del gesto, los falsos positivos durante el uso cotidiano ni la salida MiniTray → Finder. Esos recorridos y las demás interacciones dependientes de aplicaciones externas permanecen en el checklist práctico siguiente.
-
-## Checklist práctico pendiente
-
-Usa los tres elementos incluidos en `Docs/QA Fixtures` y cualquier PDF de prueba. Para comprobar salida hacia Finder sin confundir origen y destino, crea manualmente una carpeta vacía fuera de `QA Fixtures`.
-
-1. Inicia MiniTray con `⌘R` y confirma que la barra de menús muestra únicamente el logotipo de bandeja, sin el texto **MiniTray**.
-2. Arrastra `archivo-prueba.txt` y haz tres inversiones rápidas sin soltar: primero de izquierda a derecha, luego de arriba abajo y finalmente en diagonal. El panel debe aparecer en los tres casos.
-3. Repite un arrastre recto y luego uno con correcciones normales; confirma que no aparece. En Canva, selecciona texto y mueve un objeto dentro del lienzo sin iniciar un arrastre exportable: MiniTray tampoco debe aparecer. Si hay falsos positivos, usa sensibilidad **Baja** y registra el patrón.
-4. Deposita por separado el TXT, `imagen-prueba.svg`, un PDF y `carpeta-prueba`; luego deposítalos juntos. Suelta al menos uno exactamente sobre el centro de la miniatura compacta y otro sobre la cuadrícula desplegada. Confirma una vista previa completa para la imagen, sin zoom ni recorte, la primera página del PDF y un icono nativo para cualquier formato que Quick Look no pueda representar. La bandeja debe mantener el mismo tamaño compacto y mostrar visualmente la pila.
-5. Calcula o anota tamaño y fecha de modificación de los originales antes y después. Cierra con la **X**. Confirma que los originales y el contenido de la carpeta siguen idénticos.
-6. Desde la vista compacta, arrastra la pila a la carpeta de destino y confirma que salen todos los elementos. Reúne contenido otra vez, abre la cápsula y arrastra un elemento; repite con `⌘`-clic para varios. Confirma que Finder completa la operación estándar, conserva el origen y que la bandeja desaparece después de cada entrega aceptada. Cancela otro arrastre y confirma que la bandeja permanece.
-7. Con varios elementos reunidos, arrastra la franja superior a cada esquina y a otra pantalla si existe. Confirma que los elementos no cambian.
-8. Con contenido existente, inicia otro arrastre y sacude. Debe reaparecer o reposicionarse el mismo panel; el contador y los elementos previos deben conservarse.
-9. Confirma que no existen botones para quitar ni vaciar. Pulsa la **X** y verifica que el panel desaparece, que las referencias se descartan y que los archivos originales permanecen intactos.
-10. Abre el menú de la flecha y prueba **Abrir con**, **Mostrar en Finder** y **Vista rápida** con archivos no sensibles. Confirma que cada acción utiliza la experiencia nativa correspondiente.
-11. Vuelve a reunir uno y varios elementos, abre **AirDrop** desde ese menú y confirma el panel nativo. Cancela una vez y verifica que la bandeja conserva su contenido. Repite con un receptor disponible solo si se desea completar un envío real. En un Mac sin AirDrop, la acción no debe anunciarse como disponible; el resto del menú debe seguir funcionando.
-12. Invoca el gesto cerca de los cuatro bordes. El panel completo debe quedar dentro del área visible, incluida la barra de menús y el Dock.
-13. Sal de la app desde el menú y vuelve a abrirla. Debe iniciar vacía.
-14. En el primer inicio, confirma que macOS solicita **Monitorización de entrada**. Concédelo y, si macOS lo pide, reinicia MiniTray. Abre su menú y confirma **Detección global activa**; en Ajustes debe aparecer **Detección global completa**. Repite tras denegar o desactivar el permiso: ambos lugares deben indicar el modo limitado, el botón **Dar permiso…** debe abrir la ruta de recuperación y **Mostrar bandeja** debe seguir funcionando. Confirma que MiniTray no solicita Accesibilidad, Grabación de pantalla ni Automatización.
-15. Abre **Ajustes…** desde el icono de menú, cambia entre las tres sensibilidades y confirma que el gesto responde según lo esperado sin reiniciar la app.
-16. Activa el atajo global, elige una combinación libre y úsala desde Finder. Debe aparecer la misma bandeja, no una segunda. Prueba también una combinación ocupada: debe mostrarse un aviso y no fingir que quedó activa.
-17. Con “Doble clic para mostrar el archivo en Finder” activo, haz doble clic en la tarjeta compacta y luego en un elemento expandido. Finder debe revelar el archivo. Desactívalo y confirma que el doble clic deja de hacerlo. Una imagen que solo exista en memoria no tiene carpeta que revelar.
-18. Activa la detección de capturas con 3 segundos. Toma una captura guardada como archivo: una bandeja vacía debe mostrarse temporalmente y ocultarse si no recibe contenido. Cambia a 1 y 6 segundos y repite. Desactiva la opción y confirma que deja de aparecer. Repite con una captura enviada solo al portapapeles y confirma que no se detecta.
-19. En macOS 26, revisa el vidrio tintado sobre fondos claros y oscuros, los estados hover y el contraste. Activa Reducir transparencia y confirma que la superficie pasa a ser sólida y legible. En macOS 14–15, confirma el material translúcido de respaldo.
-20. En **Ajustes → Sistema**, activa **Abrir MiniTray al iniciar sesión** y confirma que macOS la muestra en **General → Ítems de inicio y extensiones**. Si aparece “requiere aprobación”, usa **Abrir Ajustes…** y apruébala. Cierra la sesión y vuelve a entrar para confirmar el arranque; después desactiva la opción y repite para confirmar que ya no se inicia.
-21. Con otra aplicación activa, mueve la bandeja repetidas veces desde la cabecera y ciérrala con un solo clic. Repite dibujando una pequeña trayectoria de ida y vuelta al moverla: la detección global no debe reposicionar ni bloquear el panel. Si Dropover está instalado, repite primero con Dropover cerrado para descartar superposición entre ambas utilidades.
-22. Desde el icono de la barra de menús, pulsa **Mostrar bandeja** sin tener archivos. La bandeja debe permanecer visible durante su intervalo normal, no desaparecer al terminar el mismo clic que abrió el menú.
-23. Activa **Reducir movimiento** en macOS y repite apertura, depósito, expansión, cancelación y cierre. Las transiciones deben ser más breves y no deben cambiar la escala del contenido. Desactívalo y confirma que vuelve el movimiento sutil.
-24. Inicia un arrastre sobre Finder y sobre un diálogo nativo de Abrir/Guardar. La bandeja debe mantenerse por encima antes, durante y después del arrastre, hasta que se cierre o quede vacía.
-
-## Criterio de aceptación
-
-La lógica aislable, la compilación, el análisis, la detección global con permiso concedido, la entrada Finder → MiniTray, el cierre con Finder activo, los dos estados previos de interfaz, el menú de accesos y la apertura/cancelación de AirDrop están verificados. La aceptación completa de la actualización debe esperar a que una persona evalúe la naturalidad del paso 2 y marque correctos los pasos 4, 6, 7, 8, 10, 12, 13 y 15–20; completar un envío AirDrop requiere además un receptor cercano.
-
-La construcción valida la viabilidad técnica, no la hipótesis de que el gesto resulte preferible para usuarios reales. Esa decisión necesita pruebas posteriores con personas y tareas reales.
+Anota versión de MiniTray, versión de macOS, modelo del Mac, resultado por paso, archivos usados, capturas relevantes y cualquier diferencia reproducible. No declares verificados AirDrop a un receptor, un ciclo completo de inicio de sesión ni compatibilidad con otra versión de macOS si no se ejecutaron realmente.

@@ -40,4 +40,27 @@ final class TrayPasteboardImporterTests: XCTestCase {
         XCTAssertEqual(store.items.count, 1)
         XCTAssertNil(store.items.first?.fileURL)
     }
+
+    func testMemoryImagePromiseWritesTheOriginalData() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MiniTrayPromise-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let expectedData = Data("temporary-image-data".utf8)
+        let destination = directory.appendingPathComponent("Imagen.png")
+        let delegate = ImagePromiseDelegate(data: expectedData, fileName: destination.lastPathComponent)
+        let provider = NSFilePromiseProvider(fileType: "public.png", delegate: delegate)
+        let completed = expectation(description: "La promesa de imagen termina")
+        var writeError: Error?
+
+        delegate.filePromiseProvider(provider, writePromiseTo: destination) { error in
+            writeError = error
+            completed.fulfill()
+        }
+
+        wait(for: [completed], timeout: 1)
+        XCTAssertNil(writeError)
+        XCTAssertEqual(try Data(contentsOf: destination), expectedData)
+    }
 }

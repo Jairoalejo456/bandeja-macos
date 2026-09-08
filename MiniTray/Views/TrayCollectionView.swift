@@ -186,8 +186,12 @@ struct TrayCollectionView: NSViewRepresentable {
     }
 }
 
-private final class DoubleClickCollectionView: NSCollectionView {
+final class DoubleClickCollectionView: NSCollectionView {
     var onDoubleClick: ((IndexPath) -> Void)?
+
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
 
     override func mouseUp(with event: NSEvent) {
         super.mouseUp(with: event)
@@ -201,9 +205,9 @@ private final class DoubleClickCollectionView: NSCollectionView {
 private final class TrayCollectionViewItem: NSCollectionViewItem {
     static let identifier = NSUserInterfaceItemIdentifier("TrayCollectionViewItem")
 
-    private let previewBackground = NSView()
-    private let iconView = NSImageView()
-    private let nameField = NSTextField(labelWithString: "")
+    private let previewBackground = FirstMouseView()
+    private let iconView = FirstMouseImageView()
+    private let nameField = FirstMouseTextField(labelWithString: "")
     private var representedID: UUID?
 
     override func loadView() {
@@ -329,6 +333,24 @@ final class NativeThumbnailLoader {
     }
 }
 
+final class FirstMouseView: NSView {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
+}
+
+final class FirstMouseImageView: NSImageView {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
+}
+
+final class FirstMouseTextField: NSTextField {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
+}
+
 private final class HoverCellView: NSView {
     var isItemSelected = false {
         didSet { updateBackground() }
@@ -338,6 +360,10 @@ private final class HoverCellView: NSView {
         didSet { updateBackground() }
     }
     private var trackingAreaReference: NSTrackingArea?
+
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
 
     override func updateTrackingAreas() {
         super.updateTrackingAreas()

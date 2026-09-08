@@ -6,7 +6,7 @@
 
 MiniTray es una utilidad nativa de barra de menús para reunir temporalmente archivos, carpetas e imágenes mientras se trabaja entre Finder y otras aplicaciones. Mantiene una sola bandeja flotante y guarda únicamente referencias en memoria: añadir o cerrar nunca mueve ni elimina los originales.
 
-Versión actual: **0.2.4 (MVP)**.
+Versión actual: **0.2.5 (MVP auditado)**.
 
 ## Requisitos
 
@@ -113,7 +113,7 @@ El permiso se puede conceder desde **Ajustes del sistema → Privacidad y seguri
 - No hay historial, múltiples bandejas, sincronización, enlaces, compresión, extensiones de Finder, cuentas ni pagos.
 - La app está construida para desarrollo local. Distribuirla fuera de Xcode requiere firma, notarización y los permisos de cuenta de Apple correspondientes, que no se realizaron.
 
-La matriz de aceptación y los pasos de comprobación práctica están en [Docs/Manual-QA.md](Docs/Manual-QA.md). Las referencias y decisiones visuales están resumidas en [Docs/Visual-Research.md](Docs/Visual-Research.md).
+El resultado de la auditoría final está en [Docs/Final-Audit-0.2.5.md](Docs/Final-Audit-0.2.5.md), la guía de repetición manual en [Docs/Manual-QA.md](Docs/Manual-QA.md) y las referencias visuales en [Docs/Visual-Research.md](Docs/Visual-Research.md).
 
 ## Contribuir y reportar problemas
 
