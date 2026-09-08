@@ -2,6 +2,15 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.2.4] — 2026-09-08
+
+### Apariencia
+
+- Recorta la composición completa de Liquid Glass al contorno redondeado de la bandeja.
+- Elimina la sombra de SwiftUI que se rasterizaba como un rectángulo oscuro alrededor de la ventana transparente.
+- Centra visualmente el icono de bandeja vacía respecto de toda la superficie, compensando el espacio ocupado por la cabecera.
+- Conserva el vidrio nativo, el tinte carbón y los controles circulares sin recuperar bordes o fondos cuadrados.
+
 ## [0.2.3] — 2026-09-08
 
 ### Liquid Glass

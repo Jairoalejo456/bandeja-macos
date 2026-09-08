@@ -41,6 +41,8 @@ La versión 0.2.2 reemplaza la dominancia horizontal por detección vectorial y 
 
 Para la versión 0.2.3 se redujo el tinte carbón del Liquid Glass de 76 % a 30 % y se retiró la atenuación deliberada de miniaturas y controles durante un arrastre de salida. La bandeja compacta con una imagen se revisó visualmente sobre el escritorio y dejó percibir el fondo a través del vidrio sin añadir un contorno gris. Después de activar Finder, WindowServer mantuvo el panel visible en el nivel 9, con opacidad 1 y tamaño 236 × 236 puntos; ya no vuelve al nivel flotante 3 mientras permanece abierto.
 
+Para la versión 0.2.4 se reprodujo sobre un fondo claro y oscuro el rectángulo de sombra que sobresalía de la superficie compacta. La sombra de SwiftUI se retiró y toda la composición se recortó al mismo radio continuo de 20 puntos que usa Liquid Glass. En la captura posterior, el panel siguió midiendo 236 × 158 puntos y el vidrio terminó en sus cuatro esquinas sin fondo cuadrado exterior. El icono vacío se desplazó 23 puntos hacia arriba para quedar centrado respecto de toda la superficie, no solo del espacio inferior a la cabecera.
+
 La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
 Se ejecutaron **43 pruebas XCTest, 43 correctas, 0 fallos**:

@@ -25,13 +25,13 @@ struct TrayView: View {
         .background {
             TrayGlassSurface(cornerRadius: 20)
         }
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay {
             if store.isDropTargeted {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .stroke(Color.accentColor, lineWidth: 2)
             }
         }
-        .shadow(color: .black.opacity(0.34), radius: 18, y: 8)
         .padding(8)
         .scaleEffect(visualState.scale)
         .opacity(visualState.opacity)
@@ -48,6 +48,7 @@ struct TrayView: View {
             if store.items.isEmpty {
                 emptyState
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .offset(y: -23)
             } else {
                 VStack(spacing: 8) {
                     previewStack
