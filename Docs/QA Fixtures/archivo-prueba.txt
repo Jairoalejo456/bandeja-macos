@@ -1,1 +1,1 @@
-Este archivo existe únicamente para comprobar que Bandeja conserva el original.
+Este archivo existe únicamente para comprobar que MiniTray conserva el original.

@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B00000000000000000000001"
-               BuildableName = "Bandeja.app"
-               BlueprintName = "Bandeja"
-               ReferencedContainer = "container:Bandeja.xcodeproj">
+               BuildableName = "MiniTray.app"
+               BlueprintName = "MiniTray"
+               ReferencedContainer = "container:MiniTray.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -30,9 +30,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B00000000000000000000002"
-               BuildableName = "BandejaTests.xctest"
-               BlueprintName = "BandejaTests"
-               ReferencedContainer = "container:Bandeja.xcodeproj">
+               BuildableName = "MiniTrayTests.xctest"
+               BlueprintName = "MiniTrayTests"
+               ReferencedContainer = "container:MiniTray.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -43,13 +43,13 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference skipped = "NO" parallelizable = "YES">
+         <TestableReference skipped = "NO" parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B00000000000000000000002"
-               BuildableName = "BandejaTests.xctest"
-               BlueprintName = "BandejaTests"
-               ReferencedContainer = "container:Bandeja.xcodeproj">
+               BuildableName = "MiniTrayTests.xctest"
+               BlueprintName = "MiniTrayTests"
+               ReferencedContainer = "container:MiniTray.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -68,9 +68,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B00000000000000000000001"
-            BuildableName = "Bandeja.app"
-            BlueprintName = "Bandeja"
-            ReferencedContainer = "container:Bandeja.xcodeproj">
+            BuildableName = "MiniTray.app"
+            BlueprintName = "MiniTray"
+            ReferencedContainer = "container:MiniTray.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -84,9 +84,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B00000000000000000000001"
-            BuildableName = "Bandeja.app"
-            BlueprintName = "Bandeja"
-            ReferencedContainer = "container:Bandeja.xcodeproj">
+            BuildableName = "MiniTray.app"
+            BlueprintName = "MiniTray"
+            ReferencedContainer = "container:MiniTray.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

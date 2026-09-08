@@ -1,6 +1,6 @@
 import CoreGraphics
 import XCTest
-@testable import Bandeja
+@testable import MiniTray
 
 final class ShakeDetectorTests: XCTestCase {
     func testDeliberateHorizontalShakeTriggers() {

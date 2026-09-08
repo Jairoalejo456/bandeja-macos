@@ -2,6 +2,20 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.2.1] — 2026-09-07
+
+### Identidad
+
+- Adopta **MiniTray** como nombre definitivo de la aplicación, del proyecto de Xcode, del ejecutable y de los targets de pruebas.
+- Integra el logotipo aprobado como icono nativo de macOS en todas las resoluciones Retina requeridas.
+- Mantiene una adaptación monocromática y legible del símbolo de bandeja en la barra de menús, donde el logotipo completo perdería claridad por su tamaño.
+- Conserva el identificador interno de la versión anterior para mantener las preferencias y permisos locales durante la transición.
+
+### Pruebas y distribución
+
+- Evita ejecuciones paralelas del test host de barra de menús para impedir conflictos entre varias instancias de Launch Services.
+- Actualiza los scripts, el esquema, la documentación y los artefactos de distribución al nombre MiniTray.
+
 ## [0.2.0] — 2026-09-07
 
 ### Interacción y apariencia
@@ -67,7 +81,7 @@ Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Mejoras
 
-- Añade el interruptor **Abrir Bandeja al iniciar sesión** en Ajustes.
+- Añade el interruptor **Abrir MiniTray al iniciar sesión** en Ajustes.
 - Registra o elimina la aplicación principal mediante la API nativa `SMAppService`.
 - Refleja el estado real configurado en macOS y muestra cuándo hace falta aprobación en Ítems de inicio.
 - Permite activar el servicio aunque macOS todavía no lo haya visto y devuelva el estado inicial `notFound`.
@@ -87,7 +101,7 @@ Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Correcciones
 
-- Mantiene visible el acceso de Bandeja en la barra de menús.
+- Mantiene visible el acceso de MiniTray en la barra de menús.
 - Corrige la aparición inmediata del panel durante un arrastre externo.
 - Reduce falsos positivos con muestreo continuo del botón y el cursor.
 
@@ -97,7 +111,7 @@ Primera versión pública del MVP.
 
 ### Incluye
 
-- Bandeja flotante única para archivos, carpetas e imágenes.
+- MiniTray flotante única para archivos, carpetas e imágenes.
 - Activación mediante sacudida durante un arrastre.
 - Vista compacta apilada y cuadrícula expandida.
 - Miniaturas nativas mediante Quick Look.
@@ -113,13 +127,14 @@ Primera versión pública del MVP.
 - Algunos flujos entre aplicaciones requieren validación manual en Finder.
 - No incluye historial, nube, cuentas ni persistencia de la bandeja.
 
-[0.1.0]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.0
-[0.1.1]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.1
-[0.1.2]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.2
-[0.1.3]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.3
-[0.1.4]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.4
-[0.1.5]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.5
-[0.1.6]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.6
-[0.1.7]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.7
-[0.1.8]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.8
-[0.2.0]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.2.0
+[0.1.0]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.1.0
+[0.1.1]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.1.1
+[0.1.2]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.1.2
+[0.1.3]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.1.3
+[0.1.4]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.1.4
+[0.1.5]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.1.5
+[0.1.6]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.1.6
+[0.1.7]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.1.7
+[0.1.8]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.1.8
+[0.2.0]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.2.0
+[0.2.1]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.2.1

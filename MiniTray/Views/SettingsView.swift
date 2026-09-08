@@ -24,7 +24,7 @@ struct SettingsView: View {
         SettingsGroup(title: "Sistema", systemImage: "power") {
             VStack(alignment: .leading, spacing: 8) {
                 Toggle(
-                    "Abrir Bandeja al iniciar sesión",
+                    "Abrir MiniTray al iniciar sesión",
                     isOn: Binding(
                         get: { launchAtLogin.isEnabled },
                         set: { launchAtLogin.setEnabled($0) }
@@ -191,7 +191,7 @@ struct SettingsView: View {
     private var monitoringDetail: String {
         switch settings.gestureMonitoringStatus {
         case .fullAccess:
-            return "Bandeja observa pasivamente el ratón durante el arrastre. No escucha el teclado."
+            return "MiniTray observa pasivamente el ratón durante el arrastre. No escucha el teclado."
         case .checking:
             return "macOS está comprobando si puede detectar arrastres iniciados en otras aplicaciones."
         case .permissionRequired:

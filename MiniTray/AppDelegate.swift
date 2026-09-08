@@ -109,17 +109,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if let button = statusItem.button {
             let image = NSImage(
                 systemSymbolName: "tray.full.fill",
-                accessibilityDescription: "Bandeja"
+                accessibilityDescription: "MiniTray"
             )
             image?.isTemplate = true
             button.image = image
             button.imagePosition = .imageOnly
             button.title = ""
-            button.toolTip = "Bandeja temporal"
-            button.setAccessibilityLabel("Bandeja, utilidad temporal de archivos")
+            button.toolTip = "MiniTray"
+            button.setAccessibilityLabel("MiniTray, bandeja temporal de archivos")
         }
 
-        let menu = NSMenu(title: "Bandeja")
+        let menu = NSMenu(title: "MiniTray")
         menu.delegate = self
 
         let showItem = NSMenuItem(
@@ -183,7 +183,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
-            title: "Salir de Bandeja",
+            title: "Salir de MiniTray",
             action: #selector(NSApplication.terminate(_:)),
             keyEquivalent: "q"
         )

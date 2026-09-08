@@ -1,7 +1,7 @@
 import Carbon.HIToolbox
 import ServiceManagement
 import XCTest
-@testable import Bandeja
+@testable import MiniTray
 
 @MainActor
 final class AppSettingsAndScreenshotTests: XCTestCase {

@@ -1,8 +1,12 @@
-# Bandeja para macOS
+# MiniTray para macOS
 
-Bandeja es una utilidad nativa de barra de menús para reunir temporalmente archivos, carpetas e imágenes mientras se trabaja entre Finder y otras aplicaciones. Mantiene una sola bandeja flotante y guarda únicamente referencias en memoria: añadir o cerrar nunca mueve ni elimina los originales.
+<p align="center">
+  <img src="Brand/MiniTrayLogo.png" alt="Logo de MiniTray" width="280">
+</p>
 
-Versión actual: **0.2.0 (MVP)**.
+MiniTray es una utilidad nativa de barra de menús para reunir temporalmente archivos, carpetas e imágenes mientras se trabaja entre Finder y otras aplicaciones. Mantiene una sola bandeja flotante y guarda únicamente referencias en memoria: añadir o cerrar nunca mueve ni elimina los originales.
+
+Versión actual: **0.2.1 (MVP)**.
 
 ## Requisitos
 
@@ -14,10 +18,10 @@ No hay dependencias de terceros, servidor, cuenta ni almacenamiento persistente.
 
 ## Abrir y usar
 
-1. Abre `Bandeja.xcodeproj` en Xcode.
-2. Selecciona el esquema **Bandeja** y el destino **My Mac**.
+1. Abre `MiniTray.xcodeproj` en Xcode.
+2. Selecciona el esquema **MiniTray** y el destino **My Mac**.
 3. Pulsa **Run** (`⌘R`). La app aparece únicamente con su icono de bandeja en la barra de menús; no añade texto ni ocupa espacio en el Dock.
-4. La primera vez, acepta **Monitorización de entrada** cuando macOS lo solicite. Este permiso permite observar pasivamente los eventos del ratón de un arrastre que empezó en Finder u otra app. Bandeja no solicita eventos del teclado ni puede modificar los eventos observados. Si macOS pide reiniciarla, sal y vuelve a abrirla.
+4. La primera vez, acepta **Monitorización de entrada** cuando macOS lo solicite. Este permiso permite observar pasivamente los eventos del ratón de un arrastre que empezó en Finder u otra app. MiniTray no solicita eventos del teclado ni puede modificar los eventos observados. Si macOS pide reiniciarla, sal y vuelve a abrirla.
 5. Empieza a arrastrar uno o más elementos en Finder.
 6. Sin soltar el botón, mueve el cursor horizontalmente de un lado a otro tres veces con rapidez. La bandeja aparecerá cerca del cursor y siempre dentro del área visible de la pantalla.
 7. Suelta los elementos en cualquier punto de la bandeja, incluida la previsualización central. La bandeja permanece pequeña y enseña la imagen o miniatura completa, respetando su proporción, con hasta dos tarjetas detrás para indicar que hay más contenido.
@@ -27,7 +31,7 @@ También se puede abrir una bandeja vacía desde el icono de barra de menús con
 
 El menú de barra incluye **Ajustes…**. Allí se puede:
 
-- activar o desactivar que Bandeja se abra automáticamente al iniciar la sesión del Mac;
+- activar o desactivar que MiniTray se abra automáticamente al iniciar la sesión del Mac;
 - cambiar la sensibilidad de la sacudida;
 - activar un atajo global y elegir entre cuatro combinaciones para mostrar la bandeja;
 - activar la detección de capturas guardadas por macOS y elegir entre 1 y 10 segundos de visibilidad;
@@ -49,10 +53,10 @@ Compilación Debug:
 
 ```bash
 xcodebuild \
-  -project Bandeja.xcodeproj \
-  -scheme Bandeja \
+  -project MiniTray.xcodeproj \
+  -scheme MiniTray \
   -configuration Debug \
-  -derivedDataPath /tmp/BandejaDerivedData \
+  -derivedDataPath /tmp/MiniTrayDerivedData \
   build
 ```
 
@@ -60,15 +64,15 @@ Pruebas:
 
 ```bash
 xcodebuild test \
-  -project Bandeja.xcodeproj \
-  -scheme Bandeja \
+  -project MiniTray.xcodeproj \
+  -scheme MiniTray \
   -configuration Debug \
-  -derivedDataPath /tmp/BandejaDerivedData \
+  -derivedDataPath /tmp/MiniTrayDerivedData \
   -destination 'platform=macOS' \
   -parallel-testing-enabled NO
 ```
 
-Una compilación universal (Apple Silicon + Intel) lista para abrir queda en `dist/Bandeja.app` después del build Release usado para esta entrega. Tiene firma ad hoc local; no está notarizada ni firmada para distribución pública.
+Una compilación universal (Apple Silicon + Intel) lista para abrir queda en `dist/MiniTray.app` después del build Release usado para esta entrega. Tiene firma ad hoc local; no está notarizada ni firmada para distribución pública.
 
 Para generar la aplicación y el ZIP de una versión local:
 
@@ -76,7 +80,7 @@ Para generar la aplicación y el ZIP de una versión local:
 ./scripts/build-release.sh
 ```
 
-Las versiones publicadas y sus binarios se encuentran en [GitHub Releases](https://github.com/Jairoalejo456/bandeja-macos/releases).
+Las versiones publicadas y sus binarios se encuentran en [GitHub Releases](https://github.com/Jairoalejo456/minitray-macos/releases).
 
 ## Arquitectura
 
@@ -94,7 +98,7 @@ Las versiones publicadas y sus binarios se encuentran en [GitHub Releases](https
 
 ## Permisos y privacidad
 
-Bandeja solicita **Monitorización de entrada** para detectar con fiabilidad la sacudida durante arrastres iniciados en otras aplicaciones. Usa un monitor pasivo de Core Graphics limitado a tres eventos del botón izquierdo; no observa el teclado, no altera los eventos y no solicita Accesibilidad, Grabación de pantalla, Automatización ni acceso completo al disco. Si se deniega, el menú y Ajustes lo indican expresamente y la app mantiene un modo de detección limitado junto con **Mostrar bandeja** y el atajo opcional.
+MiniTray solicita **Monitorización de entrada** para detectar con fiabilidad la sacudida durante arrastres iniciados en otras aplicaciones. Usa un monitor pasivo de Core Graphics limitado a tres eventos del botón izquierdo; no observa el teclado, no altera los eventos y no solicita Accesibilidad, Grabación de pantalla, Automatización ni acceso completo al disco. Si se deniega, el menú y Ajustes lo indican expresamente y la app mantiene un modo de detección limitado junto con **Mostrar bandeja** y el atajo opcional.
 
 Los archivos llegan únicamente porque el usuario los arrastra. El target no usa App Sandbox en este MVP para que las URLs explícitamente depositadas sigan siendo utilizables durante la sesión. No se sube información, no hay analítica y nada de la bandeja se restaura tras reiniciar.
 

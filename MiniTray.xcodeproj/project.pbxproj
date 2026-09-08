@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		110000000000000000000001 /* BandejaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000001 /* BandejaApp.swift */; };
+		110000000000000000000001 /* MiniTrayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000001 /* MiniTrayApp.swift */; };
 		110000000000000000000002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000002 /* AppDelegate.swift */; };
 		110000000000000000000003 /* TrayItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000003 /* TrayItem.swift */; };
 		110000000000000000000004 /* TrayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000004 /* TrayStore.swift */; };
@@ -31,6 +31,7 @@
 		110000000000000000000016 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000019 /* SettingsWindowController.swift */; };
 		110000000000000000000017 /* AppSettingsAndScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000001A /* AppSettingsAndScreenshotTests.swift */; };
 		110000000000000000000018 /* TrayInteractionGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000001B /* TrayInteractionGeometryTests.swift */; };
+		110000000000000000000019 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000001C /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,12 +40,12 @@
 			containerPortal = A00000000000000000000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = B00000000000000000000001;
-			remoteInfo = Bandeja;
+			remoteInfo = MiniTray;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		120000000000000000000001 /* BandejaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandejaApp.swift; sourceTree = "<group>"; };
+		120000000000000000000001 /* MiniTrayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniTrayApp.swift; sourceTree = "<group>"; };
 		120000000000000000000002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		120000000000000000000003 /* TrayItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayItem.swift; sourceTree = "<group>"; };
 		120000000000000000000004 /* TrayStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayStore.swift; sourceTree = "<group>"; };
@@ -59,8 +60,8 @@
 		12000000000000000000000D /* ShakeDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetectorTests.swift; sourceTree = "<group>"; };
 		12000000000000000000000E /* TrayStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayStoreTests.swift; sourceTree = "<group>"; };
 		12000000000000000000000F /* PanelPositionerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelPositionerTests.swift; sourceTree = "<group>"; };
-		120000000000000000000010 /* Bandeja.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bandeja.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		120000000000000000000011 /* BandejaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BandejaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		120000000000000000000010 /* MiniTray.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiniTray.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		120000000000000000000011 /* MiniTrayTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MiniTrayTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		120000000000000000000012 /* TrayPasteboardImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayPasteboardImporter.swift; sourceTree = "<group>"; };
 		120000000000000000000013 /* TrayPasteboardImporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayPasteboardImporterTests.swift; sourceTree = "<group>"; };
 		120000000000000000000014 /* TrayAccessoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayAccessoryViews.swift; sourceTree = "<group>"; };
@@ -71,6 +72,7 @@
 		120000000000000000000019 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		12000000000000000000001A /* AppSettingsAndScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsAndScreenshotTests.swift; sourceTree = "<group>"; };
 		12000000000000000000001B /* TrayInteractionGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayInteractionGeometryTests.swift; sourceTree = "<group>"; };
+		12000000000000000000001C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,8 +96,8 @@
 		A00000000000000000000002 = {
 			isa = PBXGroup;
 			children = (
-				130000000000000000000001 /* Bandeja */,
-				130000000000000000000006 /* BandejaTests */,
+				130000000000000000000001 /* MiniTray */,
+				130000000000000000000006 /* MiniTrayTests */,
 				A00000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -103,24 +105,25 @@
 		A00000000000000000000003 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				120000000000000000000010 /* Bandeja.app */,
-				120000000000000000000011 /* BandejaTests.xctest */,
+				120000000000000000000010 /* MiniTray.app */,
+				120000000000000000000011 /* MiniTrayTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		130000000000000000000001 /* Bandeja */ = {
+		130000000000000000000001 /* MiniTray */ = {
 			isa = PBXGroup;
 			children = (
-				120000000000000000000001 /* BandejaApp.swift */,
+				120000000000000000000001 /* MiniTrayApp.swift */,
 				120000000000000000000002 /* AppDelegate.swift */,
+				12000000000000000000001C /* Assets.xcassets */,
 				130000000000000000000002 /* Models */,
 				130000000000000000000003 /* Services */,
 				130000000000000000000004 /* Views */,
 				130000000000000000000005 /* Window */,
 				12000000000000000000000C /* Info.plist */,
 			);
-			path = Bandeja;
+			path = MiniTray;
 			sourceTree = "<group>";
 		};
 		130000000000000000000002 /* Models */ = {
@@ -167,7 +170,7 @@
 			path = Window;
 			sourceTree = "<group>";
 		};
-		130000000000000000000006 /* BandejaTests */ = {
+		130000000000000000000006 /* MiniTrayTests */ = {
 			isa = PBXGroup;
 			children = (
 				12000000000000000000000D /* ShakeDetectorTests.swift */,
@@ -177,15 +180,15 @@
 				12000000000000000000001A /* AppSettingsAndScreenshotTests.swift */,
 				12000000000000000000001B /* TrayInteractionGeometryTests.swift */,
 			);
-			path = BandejaTests;
+			path = MiniTrayTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B00000000000000000000001 /* Bandeja */ = {
+		B00000000000000000000001 /* MiniTray */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E00000000000000000000002 /* Build configuration list for PBXNativeTarget "Bandeja" */;
+			buildConfigurationList = E00000000000000000000002 /* Build configuration list for PBXNativeTarget "MiniTray" */;
 			buildPhases = (
 				C00000000000000000000002 /* Sources */,
 				C00000000000000000000001 /* Frameworks */,
@@ -195,14 +198,14 @@
 			);
 			dependencies = (
 			);
-			name = Bandeja;
-			productName = Bandeja;
-			productReference = 120000000000000000000010 /* Bandeja.app */;
+			name = MiniTray;
+			productName = MiniTray;
+			productReference = 120000000000000000000010 /* MiniTray.app */;
 			productType = "com.apple.product-type.application";
 		};
-		B00000000000000000000002 /* BandejaTests */ = {
+		B00000000000000000000002 /* MiniTrayTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E00000000000000000000003 /* Build configuration list for PBXNativeTarget "BandejaTests" */;
+			buildConfigurationList = E00000000000000000000003 /* Build configuration list for PBXNativeTarget "MiniTrayTests" */;
 			buildPhases = (
 				C00000000000000000000005 /* Sources */,
 				C00000000000000000000004 /* Frameworks */,
@@ -213,9 +216,9 @@
 			dependencies = (
 				140000000000000000000002 /* PBXTargetDependency */,
 			);
-			name = BandejaTests;
-			productName = BandejaTests;
-			productReference = 120000000000000000000011 /* BandejaTests.xctest */;
+			name = MiniTrayTests;
+			productName = MiniTrayTests;
+			productReference = 120000000000000000000011 /* MiniTrayTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -237,7 +240,7 @@
 					};
 				};
 			};
-			buildConfigurationList = E00000000000000000000001 /* Build configuration list for PBXProject "Bandeja" */;
+			buildConfigurationList = E00000000000000000000001 /* Build configuration list for PBXProject "MiniTray" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = es;
 			hasScannedForEncodings = 0;
@@ -250,8 +253,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B00000000000000000000001 /* Bandeja */,
-				B00000000000000000000002 /* BandejaTests */,
+				B00000000000000000000001 /* MiniTray */,
+				B00000000000000000000002 /* MiniTrayTests */,
 			);
 		};
 /* End PBXProject section */
@@ -261,6 +264,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				110000000000000000000019 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,7 +282,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				110000000000000000000001 /* BandejaApp.swift in Sources */,
+				110000000000000000000001 /* MiniTrayApp.swift in Sources */,
 				110000000000000000000002 /* AppDelegate.swift in Sources */,
 				110000000000000000000003 /* TrayItem.swift in Sources */,
 				110000000000000000000004 /* TrayStore.swift in Sources */,
@@ -317,7 +321,7 @@
 /* Begin PBXTargetDependency section */
 		140000000000000000000002 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B00000000000000000000001 /* Bandeja */;
+			target = B00000000000000000000001 /* MiniTray */;
 			targetProxy = 140000000000000000000001 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -359,18 +363,19 @@
 		D00000000000000000000003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = Bandeja/Info.plist;
+				INFOPLIST_FILE = MiniTray/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.2.0;
+				MARKETING_VERSION = 0.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -381,18 +386,19 @@
 		D00000000000000000000004 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = Bandeja/Info.plist;
+				INFOPLIST_FILE = MiniTray/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.2.0;
+				MARKETING_VERSION = 0.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -411,7 +417,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Bandeja.app/Contents/MacOS/Bandeja";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MiniTray.app/Contents/MacOS/MiniTray";
 			};
 			name = Debug;
 		};
@@ -426,14 +432,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Bandeja.app/Contents/MacOS/Bandeja";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MiniTray.app/Contents/MacOS/MiniTray";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		E00000000000000000000001 /* Build configuration list for PBXProject "Bandeja" */ = {
+		E00000000000000000000001 /* Build configuration list for PBXProject "MiniTray" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D00000000000000000000001 /* Debug */,
@@ -442,7 +448,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E00000000000000000000002 /* Build configuration list for PBXNativeTarget "Bandeja" */ = {
+		E00000000000000000000002 /* Build configuration list for PBXNativeTarget "MiniTray" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D00000000000000000000003 /* Debug */,
@@ -451,7 +457,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E00000000000000000000003 /* Build configuration list for PBXNativeTarget "BandejaTests" */ = {
+		E00000000000000000000003 /* Build configuration list for PBXNativeTarget "MiniTrayTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D00000000000000000000005 /* Debug */,

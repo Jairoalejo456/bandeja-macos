@@ -1,12 +1,12 @@
 import AppKit
 import XCTest
-@testable import Bandeja
+@testable import MiniTray
 
 final class TrayStoreTests: XCTestCase {
     @MainActor
     func testAddingAndRemovingFileOnlyChangesReferences() throws {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("BandejaTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("MiniTrayTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 
@@ -29,7 +29,7 @@ final class TrayStoreTests: XCTestCase {
     @MainActor
     func testMultipleFilesFoldersAndDuplicates() throws {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("BandejaTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("MiniTrayTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 
@@ -54,7 +54,7 @@ final class TrayStoreTests: XCTestCase {
     @MainActor
     func testMissingAndNonFileURLsAreRejected() {
         let store = TrayStore()
-        let missing = URL(fileURLWithPath: "/tmp/Bandeja-missing-\(UUID().uuidString)")
+        let missing = URL(fileURLWithPath: "/tmp/MiniTray-missing-\(UUID().uuidString)")
 
         XCTAssertEqual(store.addFileURLs([missing, URL(string: "https://example.com")!]), 0)
         XCTAssertTrue(store.items.isEmpty)
@@ -76,7 +76,7 @@ final class TrayStoreTests: XCTestCase {
     @MainActor
     func testEmptyCallbackRunsWhenLastReferenceIsRemoved() throws {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("BandejaTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("MiniTrayTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 
@@ -94,7 +94,7 @@ final class TrayStoreTests: XCTestCase {
     @MainActor
     func testClosingPanelClearsReferencesButPreservesOriginal() throws {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("BandejaTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("MiniTrayTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 
@@ -115,7 +115,7 @@ final class TrayStoreTests: XCTestCase {
     @MainActor
     func testExpandedStateCanCollapseAndResetsWhenCleared() throws {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("BandejaTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("MiniTrayTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 
@@ -140,7 +140,7 @@ final class TrayStoreTests: XCTestCase {
     @MainActor
     func testCancelledExternalDragKeepsReferences() throws {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("BandejaTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("MiniTrayTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 
@@ -159,7 +159,7 @@ final class TrayStoreTests: XCTestCase {
     @MainActor
     func testSuccessfulExternalDragClearsReferencesButPreservesOriginal() throws {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("BandejaTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("MiniTrayTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 
@@ -179,7 +179,7 @@ final class TrayStoreTests: XCTestCase {
     @MainActor
     func testExternalDragStateRestoresAfterCancellationAndClear() throws {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("BandejaTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("MiniTrayTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 

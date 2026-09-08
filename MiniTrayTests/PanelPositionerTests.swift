@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 import XCTest
-@testable import Bandeja
+@testable import MiniTray
 
 final class PanelPositionerTests: XCTestCase {
     func testPlacementStaysInsideEveryEdge() {

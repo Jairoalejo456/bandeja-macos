@@ -25,9 +25,9 @@ jobs:
       - name: Build and test
         run: |
           xcodebuild test \
-            -project Bandeja.xcodeproj \
-            -scheme Bandeja \
+            -project MiniTray.xcodeproj \
+            -scheme MiniTray \
             -destination 'platform=macOS' \
-            -derivedDataPath "$RUNNER_TEMP/BandejaDerivedData" \
+            -derivedDataPath "$RUNNER_TEMP/MiniTrayDerivedData" \
             -parallel-testing-enabled NO \
             CODE_SIGNING_ALLOWED=NO

@@ -4,10 +4,10 @@ set -euo pipefail
 project_root="${0:A:h:h}"
 derived_data="$project_root/.build/Release"
 output_directory="$project_root/dist"
-app_source="$derived_data/Build/Products/Release/Bandeja.app"
-app_destination="$output_directory/Bandeja.app"
-staging_directory=$(/usr/bin/mktemp -d /tmp/BandejaRelease.XXXXXX)
-staged_app="$staging_directory/Bandeja.app"
+app_source="$derived_data/Build/Products/Release/MiniTray.app"
+app_destination="$output_directory/MiniTray.app"
+staging_directory=$(/usr/bin/mktemp -d /tmp/MiniTrayRelease.XXXXXX)
+staged_app="$staging_directory/MiniTray.app"
 
 cleanup() {
   rm -rf "$staging_directory"
@@ -17,8 +17,8 @@ trap cleanup EXIT
 mkdir -p "$output_directory"
 
 xcodebuild \
-  -project "$project_root/Bandeja.xcodeproj" \
-  -scheme Bandeja \
+  -project "$project_root/MiniTray.xcodeproj" \
+  -scheme MiniTray \
   -configuration Release \
   -derivedDataPath "$derived_data" \
   ARCHS="arm64 x86_64" \
@@ -32,8 +32,8 @@ codesign --force --deep --sign - "$staged_app"
 codesign --verify --deep --strict "$staged_app"
 
 version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$staged_app/Contents/Info.plist")
-archive="$output_directory/Bandeja-$version-macOS-universal.zip"
-staged_archive="$staging_directory/Bandeja-$version-macOS-universal.zip"
+archive="$output_directory/MiniTray-$version-macOS-universal.zip"
+staged_archive="$staging_directory/MiniTray-$version-macOS-universal.zip"
 ditto -c -k --keepParent "$staged_app" "$staged_archive"
 
 rm -rf "$app_destination"
@@ -41,7 +41,12 @@ rm -f "$archive"
 ditto "$staged_app" "$app_destination"
 ditto "$staged_archive" "$archive"
 xattr -cr "$app_destination"
+# Algunos proveedores de archivos vuelven a adjuntar estas marcas al directorio
+# raíz inmediatamente después de copiarlo. No forman parte de la aplicación y
+# `codesign --strict` las rechaza, así que se retiran de forma explícita.
+xattr -d com.apple.FinderInfo "$app_destination" 2>/dev/null || true
+xattr -d 'com.apple.fileprovider.fpfs#P' "$app_destination" 2>/dev/null || true
 codesign --verify --deep --strict "$app_destination"
 
 echo "Creado: $archive"
-lipo -archs "$staged_app/Contents/MacOS/Bandeja"
+lipo -archs "$staged_app/Contents/MacOS/MiniTray"

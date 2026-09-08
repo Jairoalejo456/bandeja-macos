@@ -1,6 +1,6 @@
 # Privacidad
 
-Bandeja funciona localmente y no transmite telemetría ni datos a un servidor propio.
+MiniTray funciona localmente y no transmite telemetría ni datos a un servidor propio.
 
 - Los elementos reunidos se conservan únicamente en memoria durante la sesión.
 - Cerrar o vaciar la bandeja descarta referencias, no archivos originales.

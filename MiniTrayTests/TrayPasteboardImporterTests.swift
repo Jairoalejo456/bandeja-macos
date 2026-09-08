@@ -1,12 +1,12 @@
 import AppKit
 import XCTest
-@testable import Bandeja
+@testable import MiniTray
 
 final class TrayPasteboardImporterTests: XCTestCase {
     @MainActor
     func testImportsMultipleFileURLsFromPasteboardWithoutChangingFiles() throws {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("BandejaPasteboard-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("MiniTrayPasteboard-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 
@@ -15,7 +15,7 @@ final class TrayPasteboardImporterTests: XCTestCase {
         try Data("primero".utf8).write(to: first)
         try Data("segundo".utf8).write(to: second)
 
-        let pasteboard = NSPasteboard(name: NSPasteboard.Name("BandejaTests-\(UUID().uuidString)"))
+        let pasteboard = NSPasteboard(name: NSPasteboard.Name("MiniTrayTests-\(UUID().uuidString)"))
         pasteboard.clearContents()
         XCTAssertTrue(pasteboard.writeObjects([first as NSURL, second as NSURL]))
 
@@ -30,7 +30,7 @@ final class TrayPasteboardImporterTests: XCTestCase {
     @MainActor
     func testImportsRawImageAsMemoryOnlyItem() throws {
         let sourceImage = try XCTUnwrap(NSImage(systemSymbolName: "photo.fill", accessibilityDescription: nil))
-        let pasteboard = NSPasteboard(name: NSPasteboard.Name("BandejaTests-\(UUID().uuidString)"))
+        let pasteboard = NSPasteboard(name: NSPasteboard.Name("MiniTrayTests-\(UUID().uuidString)"))
         pasteboard.clearContents()
         XCTAssertTrue(pasteboard.writeObjects([sourceImage]))
 

@@ -48,8 +48,8 @@ final class TrayPanelController {
         panel.animationBehavior = .utilityWindow
         panel.isMovable = true
         panel.isMovableByWindowBackground = false
-        panel.title = "Bandeja"
-        panel.setAccessibilityLabel("Bandeja temporal de archivos")
+        panel.title = "MiniTray"
+        panel.setAccessibilityLabel("MiniTray temporal de archivos")
         panel.contentMinSize = .zero
         panel.contentMaxSize = NSSize(width: 2_000, height: 2_000)
 

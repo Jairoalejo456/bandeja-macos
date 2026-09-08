@@ -1,6 +1,6 @@
 import AppKit
 import XCTest
-@testable import Bandeja
+@testable import MiniTray
 
 final class TrayInteractionGeometryTests: XCTestCase {
     func testAspectFitKeepsWholePortraitImageVisible() {

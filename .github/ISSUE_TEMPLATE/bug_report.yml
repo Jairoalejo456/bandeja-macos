@@ -1,5 +1,5 @@
 name: Reportar un error
-description: Comunica un comportamiento reproducible de Bandeja.
+description: Comunica un comportamiento reproducible de MiniTray.
 title: "[Bug]: "
 labels: [bug]
 body:
@@ -9,7 +9,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Versión de Bandeja
+      label: Versión de MiniTray
       placeholder: 0.1.0
     validations:
       required: true

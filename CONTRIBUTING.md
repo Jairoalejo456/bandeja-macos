@@ -1,20 +1,20 @@
-# Contribuir a Bandeja
+# Contribuir a MiniTray
 
-Gracias por ayudar a mejorar Bandeja. El proyecto busca mantener una utilidad macOS pequeña, rápida, nativa y respetuosa con los archivos originales.
+Gracias por ayudar a mejorar MiniTray. El proyecto busca mantener una utilidad macOS pequeña, rápida, nativa y respetuosa con los archivos originales.
 
 ## Preparación
 
 1. Usa macOS 14 o posterior y Xcode 26 o una versión compatible con el SDK utilizado por el proyecto.
 2. Crea un fork y una rama con un nombre descriptivo.
-3. Abre `Bandeja.xcodeproj`, selecciona el esquema `Bandeja` y compila para `My Mac`.
+3. Abre `MiniTray.xcodeproj`, selecciona el esquema `MiniTray` y compila para `My Mac`.
 4. Ejecuta todas las pruebas antes de abrir un pull request.
 
 ```bash
 xcodebuild test \
-  -project Bandeja.xcodeproj \
-  -scheme Bandeja \
+  -project MiniTray.xcodeproj \
+  -scheme MiniTray \
   -destination 'platform=macOS' \
-  -derivedDataPath /tmp/BandejaDerivedData \
+  -derivedDataPath /tmp/MiniTrayDerivedData \
   -parallel-testing-enabled NO \
   CODE_SIGNING_ALLOWED=NO
 ```
