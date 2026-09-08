@@ -10,3 +10,12 @@ xcuserdata/
 .swiftpm/
 .idea/
 .vscode/
+.env
+.env.*
+*.p12
+*.pfx
+*.p8
+*.pem
+*.key
+*.mobileprovision
+*.provisionprofile

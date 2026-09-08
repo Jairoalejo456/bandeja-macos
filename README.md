@@ -6,15 +6,25 @@
 
 MiniTray es una utilidad nativa de barra de menús para reunir temporalmente archivos, carpetas e imágenes mientras se trabaja entre Finder y otras aplicaciones. Mantiene una sola bandeja flotante y guarda únicamente referencias en memoria: añadir o cerrar nunca mueve ni elimina los originales.
 
-Versión actual: **0.2.5 (MVP auditado)**.
+Versión actual: **0.2.6 — código abierto bajo licencia MIT**. Incluye todas las funciones y correcciones del MVP auditado 0.2.5; esta entrega actualiza la licencia, la documentación y el empaquetado.
+
+[Descargar MiniTray para macOS](https://github.com/Jairoalejo456/minitray-macos/releases/latest) · [Licencia MIT](LICENSE) · [Registro de cambios](CHANGELOG.md)
 
 ## Requisitos
 
 - macOS 14.0 o posterior.
-- Xcode 16 o posterior recomendado. La compilación de entrega se verificó con Xcode 26.6 y Swift 6.3.3 en modo de lenguaje Swift 5.
+- Xcode 26 o posterior para compilar el código con las APIs de Liquid Glass. La compilación de entrega se verificó con Xcode 26.6 y Swift 6.3.3 en modo de lenguaje Swift 5.
 - Un Mac con AirDrop disponible para comprobar el flujo de compartición real.
 
-No hay dependencias de terceros, servidor, cuenta ni almacenamiento persistente.
+No hay dependencias de terceros, servidor ni cuenta. El contenido de la bandeja permanece en memoria; solo se guardan las preferencias.
+
+## Descargar la aplicación
+
+1. Descarga el ZIP universal desde [la última versión publicada](https://github.com/Jairoalejo456/minitray-macos/releases/latest).
+2. Descomprímelo, mueve **MiniTray.app** a **Aplicaciones** y ábrela. El ZIP sirve para Apple Silicon e Intel e incluye la licencia MIT dentro de la aplicación.
+3. Concede **Monitorización de entrada** cuando macOS lo solicite para detectar la sacudida global.
+
+La descarga tiene firma ad hoc y todavía no está notarizada. macOS puede bloquear su primera apertura; revisa **Ajustes del sistema → Privacidad y seguridad** para autorizarla si confías en esta descarga, siguiendo la [guía de Apple](https://support.apple.com/en-us/102445). También puedes compilarla desde el código siguiendo las instrucciones siguientes.
 
 ## Abrir y usar
 
@@ -43,7 +53,7 @@ La franja superior permite mover el panel. La vista compacta muestra únicamente
 
 En macOS 26 o posterior, la bandeja usa el material Liquid Glass real de SwiftUI con un tinte carbón ligero que deja pasar el color y la luz del fondo. Los controles conservan su propia profundidad de vidrio sin atenuar el contenido al interactuar. En macOS 14 y 15 mantiene la misma jerarquía con materiales nativos translúcidos. Si está activado **Reducir transparencia**, emplea un fondo oscuro sólido de alto contraste.
 
-La vista compacta mide 236 × 236 puntos cuando contiene elementos y la cuadrícula usa 480 puntos de ancho. La aparición, la confirmación de depósito, el paso entre vistas, la cancelación y el cierre emplean transiciones breves sin animar el marco real de la ventana; así las zonas de clic permanecen sincronizadas. Durante una salida se atenúan los controles secundarios y, si el destino rechaza o se cancela el arrastre, el contenido recupera su estado. **Reducir movimiento** acorta estas transiciones y elimina sus cambios de escala.
+La vista compacta mide 236 × 236 puntos cuando contiene elementos y la cuadrícula usa 480 puntos de ancho. La aparición, la confirmación de depósito, el paso entre vistas, la cancelación y el cierre emplean transiciones breves sin animar el marco real de la ventana; así las zonas de clic permanecen sincronizadas. Miniaturas y controles conservan su opacidad durante la salida y, si el destino rechaza o se cancela el arrastre, el contenido permanece disponible. **Reducir movimiento** acorta estas transiciones y elimina sus cambios de escala.
 
 Al pulsar la cápsula se abre una cuadrícula con todas las previsualizaciones y el tamaño total. El botón de regreso vuelve a la vista compacta sin perder contenido. La bandeja no crece al añadir más archivos mientras siga contraída; incluso con decenas de elementos conserva el mismo tamaño.
 
@@ -111,7 +121,7 @@ El permiso se puede conceder desde **Ajustes del sistema → Privacidad y seguri
 - La detección de capturas solo puede reaccionar a archivos que macOS haya guardado e indexado como capturas. Una captura enviada únicamente al portapapeles no crea un archivo y no se detecta; Spotlight desactivado o una ubicación no indexada también pueden impedirla.
 - El atajo global ofrece cuatro combinaciones predefinidas. Si otra aplicación ya usa la elegida, Ajustes muestra el conflicto y permite escoger otra.
 - No hay historial, múltiples bandejas, sincronización, enlaces, compresión, extensiones de Finder, cuentas ni pagos.
-- La app está construida para desarrollo local. Distribuirla fuera de Xcode requiere firma, notarización y los permisos de cuenta de Apple correspondientes, que no se realizaron.
+- El ZIP público tiene firma ad hoc y puede requerir autorización de apertura en macOS. La firma Developer ID y la notarización están pendientes para una distribución más cómoda.
 
 El resultado de la auditoría final está en [Docs/Final-Audit-0.2.5.md](Docs/Final-Audit-0.2.5.md), la guía de repetición manual en [Docs/Manual-QA.md](Docs/Manual-QA.md) y las referencias visuales en [Docs/Visual-Research.md](Docs/Visual-Research.md).
 
@@ -121,4 +131,6 @@ Las mejoras y correcciones son bienvenidas mediante issues y pull requests. Cons
 
 ## Licencia
 
-Todavía no se ha elegido una licencia de código abierto. Mientras se toma esa decisión, el código se publica con los derechos reservados por sus autores. No se añadió una licencia irreversible sin autorización expresa del propietario.
+MiniTray se distribuye bajo la [licencia MIT](LICENSE), cuyo texto estándar publica la [Open Source Initiative](https://opensource.org/license/mit). Permite usar, modificar y redistribuir el proyecto, incluido el uso comercial, conservando el aviso de copyright y la licencia. Se ofrece sin garantía.
+
+La licencia se incluye en el repositorio, en el código fuente de esta versión y en `MiniTray.app/Contents/Resources/LICENSE` dentro de cada nueva compilación.

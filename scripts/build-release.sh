@@ -27,6 +27,7 @@ xcodebuild \
   build
 
 ditto "$app_source" "$staged_app"
+cmp "$project_root/LICENSE" "$staged_app/Contents/Resources/LICENSE"
 xattr -cr "$staged_app"
 codesign --force --deep --sign - "$staged_app"
 codesign --verify --deep --strict "$staged_app"
@@ -34,7 +35,7 @@ codesign --verify --deep --strict "$staged_app"
 version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$staged_app/Contents/Info.plist")
 archive="$output_directory/MiniTray-$version-macOS-universal.zip"
 staged_archive="$staging_directory/MiniTray-$version-macOS-universal.zip"
-ditto -c -k --keepParent "$staged_app" "$staged_archive"
+ditto -c -k --keepParent --norsrc --noextattr --noacl "$staged_app" "$staged_archive"
 
 rm -rf "$app_destination"
 rm -f "$archive"
@@ -48,5 +49,8 @@ xattr -d com.apple.FinderInfo "$app_destination" 2>/dev/null || true
 xattr -d 'com.apple.fileprovider.fpfs#P' "$app_destination" 2>/dev/null || true
 codesign --verify --deep --strict "$app_destination"
 
+(cd "$output_directory" && shasum -a 256 "${archive:t}" > "${archive:t}.sha256")
+
 echo "Creado: $archive"
+echo "Verificación: $archive.sha256"
 lipo -archs "$staged_app/Contents/MacOS/MiniTray"

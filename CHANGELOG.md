@@ -2,6 +2,16 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.2.6] — 2026-09-08
+
+### Publicación bajo MIT
+
+- Publica el proyecto bajo la licencia MIT, con atribución a Jairoalejo456 y a los colaboradores de MiniTray.
+- Incluye la licencia en el repositorio y en los recursos de la aplicación para conservarla al distribuir el binario.
+- Actualiza las instrucciones de descarga, requisitos de compilación y condiciones de contribución.
+- Añade una huella SHA-256 al paquete publicado para verificar la integridad de la descarga.
+- Mantiene las funciones y las correcciones auditadas en 0.2.5. No introduce cambios en la lógica de la aplicación.
+
 ## [0.2.5] — 2026-09-08
 
 ### Correcciones de la auditoría final

@@ -4,7 +4,7 @@ Gracias por ayudar a mejorar MiniTray. El proyecto busca mantener una utilidad m
 
 ## Preparación
 
-1. Usa macOS 14 o posterior y Xcode 26 o una versión compatible con el SDK utilizado por el proyecto.
+1. Usa macOS 14 o posterior y Xcode 26 o posterior con el SDK que contiene las APIs de Liquid Glass.
 2. Crea un fork y una rama con un nombre descriptivo.
 3. Abre `MiniTray.xcodeproj`, selecciona el esquema `MiniTray` y compila para `My Mac`.
 4. Ejecuta todas las pruebas antes de abrir un pull request.
@@ -37,6 +37,10 @@ xcodebuild test \
 - Para cambios visibles, adjunta imágenes de prueba que no contengan información privada.
 
 Los mantenedores pueden solicitar ajustes antes de integrar un cambio. La incorporación de una contribución no implica por sí sola una nueva versión publicada.
+
+## Licencia de las contribuciones
+
+MiniTray usa la [licencia MIT](LICENSE). Al enviar una contribución para integrarla en el proyecto, la ofreces bajo esa misma licencia. Incluye únicamente código y recursos que tengas derecho a aportar y conserva los avisos de autoría aplicables.
 
 ## Versiones
 
