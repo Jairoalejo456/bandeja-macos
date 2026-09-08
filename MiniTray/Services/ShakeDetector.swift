@@ -6,8 +6,8 @@ struct ShakeConfiguration: Equatable {
     var maximumSegmentDuration: TimeInterval
     var gestureWindow: TimeInterval
     var requiredReversals: Int
-    var minimumTotalHorizontalTravel: CGFloat
-    var maximumVerticalToHorizontalRatio: CGFloat
+    var minimumTotalTravel: CGFloat
+    var maximumReversalDotProduct: CGFloat
     var minimumSampleDistance: CGFloat
     var cooldown: TimeInterval
 
@@ -16,8 +16,8 @@ struct ShakeConfiguration: Equatable {
         maximumSegmentDuration: 0.24,
         gestureWindow: 0.72,
         requiredReversals: 3,
-        minimumTotalHorizontalTravel: 120,
-        maximumVerticalToHorizontalRatio: 0.78,
+        minimumTotalTravel: 120,
+        maximumReversalDotProduct: -0.35,
         minimumSampleDistance: 1.5,
         cooldown: 0.9
     )
@@ -27,8 +27,8 @@ struct ShakeConfiguration: Equatable {
         maximumSegmentDuration: 0.21,
         gestureWindow: 0.64,
         requiredReversals: 4,
-        minimumTotalHorizontalTravel: 165,
-        maximumVerticalToHorizontalRatio: 0.62,
+        minimumTotalTravel: 165,
+        maximumReversalDotProduct: -0.55,
         minimumSampleDistance: 2,
         cooldown: 1.0
     )
@@ -38,8 +38,8 @@ struct ShakeConfiguration: Equatable {
         maximumSegmentDuration: 0.28,
         gestureWindow: 0.82,
         requiredReversals: 3,
-        minimumTotalHorizontalTravel: 94,
-        maximumVerticalToHorizontalRatio: 0.95,
+        minimumTotalTravel: 94,
+        maximumReversalDotProduct: -0.20,
         minimumSampleDistance: 1,
         cooldown: 0.75
     )
@@ -48,13 +48,7 @@ struct ShakeConfiguration: Equatable {
 struct ShakeDetector {
     private struct TravelSample {
         let time: TimeInterval
-        let horizontal: CGFloat
-        let vertical: CGFloat
-    }
-
-    private enum Direction: Int {
-        case left = -1
-        case right = 1
+        let distance: CGFloat
     }
 
     var configuration: ShakeConfiguration
@@ -62,9 +56,8 @@ struct ShakeDetector {
     private(set) var isDragging = false
     private var lastPoint: CGPoint?
     private var lastTimestamp: TimeInterval?
-    private var currentDirection: Direction?
     private var segmentStartedAt: TimeInterval?
-    private var segmentDistance: CGFloat = 0
+    private var segmentVector = CGVector.zero
     private var reversalTimes: [TimeInterval] = []
     private var travelSamples: [TravelSample] = []
     private var lastTriggerTimestamp: TimeInterval = -.infinity
@@ -102,35 +95,33 @@ struct ShakeDetector {
         self.lastPoint = point
         self.lastTimestamp = timestamp
 
-        let horizontal = abs(dx)
-        let vertical = abs(dy)
-        guard horizontal + vertical >= configuration.minimumSampleDistance else { return false }
+        let step = CGVector(dx: dx, dy: dy)
+        let stepDistance = magnitude(of: step)
+        guard stepDistance >= configuration.minimumSampleDistance else { return false }
 
-        travelSamples.append(TravelSample(time: timestamp, horizontal: horizontal, vertical: vertical))
+        travelSamples.append(TravelSample(time: timestamp, distance: stepDistance))
         pruneHistory(at: timestamp)
 
-        guard horizontal >= configuration.minimumSampleDistance else { return false }
-        let incomingDirection: Direction = dx < 0 ? .left : .right
-
-        guard let direction = currentDirection else {
-            currentDirection = incomingDirection
+        let currentMagnitude = magnitude(of: segmentVector)
+        guard currentMagnitude > 0 else {
+            segmentVector = step
             segmentStartedAt = timestamp
-            segmentDistance = horizontal
             return false
         }
 
-        if incomingDirection == direction {
-            segmentDistance += horizontal
+        let normalizedDotProduct = dot(step, segmentVector) / (stepDistance * currentMagnitude)
+        guard normalizedDotProduct <= configuration.maximumReversalDotProduct else {
+            segmentVector.dx += step.dx
+            segmentVector.dy += step.dy
             return false
         }
 
         let segmentDuration = timestamp - (segmentStartedAt ?? timestamp)
-        let isDeliberateSegment = segmentDistance >= configuration.minimumSegmentDistance
+        let isDeliberateSegment = currentMagnitude >= configuration.minimumSegmentDistance
             && segmentDuration <= configuration.maximumSegmentDuration
 
-        currentDirection = incomingDirection
         segmentStartedAt = timestamp
-        segmentDistance = horizontal
+        segmentVector = step
 
         guard isDeliberateSegment else {
             reversalTimes.removeAll()
@@ -146,11 +137,9 @@ struct ShakeDetector {
         let firstReversal = reversalTimes[reversalTimes.count - configuration.requiredReversals]
         let analysisStart = max(timestamp - configuration.gestureWindow, firstReversal - configuration.maximumSegmentDuration)
         let recentTravel = travelSamples.filter { $0.time >= analysisStart }
-        let horizontalTravel = recentTravel.reduce(CGFloat.zero) { $0 + $1.horizontal }
-        let verticalTravel = recentTravel.reduce(CGFloat.zero) { $0 + $1.vertical }
+        let totalTravel = recentTravel.reduce(CGFloat.zero) { $0 + $1.distance }
 
-        guard horizontalTravel >= configuration.minimumTotalHorizontalTravel else { return false }
-        guard verticalTravel <= horizontalTravel * configuration.maximumVerticalToHorizontalRatio else { return false }
+        guard totalTravel >= configuration.minimumTotalTravel else { return false }
 
         lastTriggerTimestamp = timestamp
         resetGestureAfterTrigger(keeping: point, timestamp: timestamp)
@@ -165,9 +154,8 @@ struct ShakeDetector {
     private mutating func resetMotion(keeping point: CGPoint?, timestamp: TimeInterval?) {
         lastPoint = point
         lastTimestamp = timestamp
-        currentDirection = nil
         segmentStartedAt = timestamp
-        segmentDistance = 0
+        segmentVector = .zero
         reversalTimes.removeAll()
         travelSamples.removeAll()
     }
@@ -175,10 +163,17 @@ struct ShakeDetector {
     private mutating func resetGestureAfterTrigger(keeping point: CGPoint, timestamp: TimeInterval) {
         lastPoint = point
         lastTimestamp = timestamp
-        currentDirection = nil
         segmentStartedAt = timestamp
-        segmentDistance = 0
+        segmentVector = .zero
         reversalTimes.removeAll()
         travelSamples.removeAll()
+    }
+
+    private func magnitude(of vector: CGVector) -> CGFloat {
+        sqrt(vector.dx * vector.dx + vector.dy * vector.dy)
+    }
+
+    private func dot(_ lhs: CGVector, _ rhs: CGVector) -> CGFloat {
+        lhs.dx * rhs.dx + lhs.dy * rhs.dy
     }
 }

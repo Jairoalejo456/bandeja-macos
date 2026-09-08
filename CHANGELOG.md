@@ -2,6 +2,23 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.2.2] — 2026-09-07
+
+### Gesto y precisión
+
+- Reconoce sacudidas horizontales, verticales y diagonales mediante inversiones vectoriales rápidas, sin favorecer un eje.
+- Exige que macOS haya publicado contenido importable nuevo en el portapapeles de arrastre durante la pulsación actual antes de mostrar la bandeja.
+- Evita abrir MiniTray al seleccionar texto o mover contenido interno en aplicaciones como Canva cuando no existe un arrastre real de archivo o imagen.
+- Conserva los umbrales configurables de sensibilidad, distancia, velocidad, número de inversiones y enfriamiento.
+
+### Apariencia
+
+- Retira las instrucciones visibles de uso de la bandeja vacía y conserva únicamente una señal gráfica discreta y accesible.
+
+### Pruebas
+
+- Añade cobertura para sacudidas verticales y diagonales, trayectorias curvas normales, datos antiguos del portapapeles, contenido no importable y un arrastre fresco válido.
+
 ## [0.2.1] — 2026-09-07
 
 ### Identidad
@@ -138,3 +155,4 @@ Primera versión pública del MVP.
 [0.1.8]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.1.8
 [0.2.0]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.2.0
 [0.2.1]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.2.1
+[0.2.2]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.2.2

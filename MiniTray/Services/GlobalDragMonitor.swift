@@ -93,6 +93,32 @@ struct GlobalDragSampleProcessor {
     }
 }
 
+struct ExternalDragRecognitionGate {
+    private var lastIdleChangeCount: Int
+    private var changeCountBeforePress: Int?
+
+    init(initialChangeCount: Int) {
+        lastIdleChangeCount = initialChangeCount
+    }
+
+    mutating func beginPress() {
+        changeCountBeforePress = lastIdleChangeCount
+    }
+
+    mutating func endPress(observedChangeCount: Int) {
+        changeCountBeforePress = nil
+        lastIdleChangeCount = observedChangeCount
+    }
+
+    func recognizesActiveImportableDrag(
+        observedChangeCount: Int,
+        hasImportableContent: Bool
+    ) -> Bool {
+        guard let changeCountBeforePress else { return false }
+        return observedChangeCount != changeCountBeforePress && hasImportableContent
+    }
+}
+
 @MainActor
 final class GlobalDragMonitor {
     enum Sensitivity: String, CaseIterable {
@@ -118,6 +144,9 @@ final class GlobalDragMonitor {
     private let onDragEnded: () -> Void
     private let onStatusChange: (GestureMonitoringStatus) -> Void
     private let shouldIgnoreDragStart: (CGPoint) -> Bool
+    private let dragPasteboard: NSPasteboard
+    private var dragRecognitionGate: ExternalDragRecognitionGate
+    private var didPresentTrayDuringCurrentPress = false
     private(set) var sensitivity: Sensitivity
 
     static let monitoredEventMask: CGEventMask = [
@@ -139,7 +168,8 @@ final class GlobalDragMonitor {
         onShake: @escaping (CGPoint) -> Void,
         onDragEnded: @escaping () -> Void = {},
         onStatusChange: @escaping (GestureMonitoringStatus) -> Void = { _ in },
-        shouldIgnoreDragStart: @escaping (CGPoint) -> Bool = { _ in false }
+        shouldIgnoreDragStart: @escaping (CGPoint) -> Bool = { _ in false },
+        dragPasteboard: NSPasteboard = NSPasteboard(name: .drag)
     ) {
         self.sensitivity = sensitivity
         self.sampleProcessor = GlobalDragSampleProcessor(configuration: sensitivity.configuration)
@@ -147,6 +177,10 @@ final class GlobalDragMonitor {
         self.onDragEnded = onDragEnded
         self.onStatusChange = onStatusChange
         self.shouldIgnoreDragStart = shouldIgnoreDragStart
+        self.dragPasteboard = dragPasteboard
+        self.dragRecognitionGate = ExternalDragRecognitionGate(
+            initialChangeCount: dragPasteboard.changeCount
+        )
     }
 
     func start(requestPermission: Bool = true) {
@@ -207,6 +241,10 @@ final class GlobalDragMonitor {
         removeEventTap()
         stopPollingFallback()
         sampleProcessor.reset(configuration: sensitivity.configuration)
+        dragRecognitionGate = ExternalDragRecognitionGate(
+            initialChangeCount: dragPasteboard.changeCount
+        )
+        didPresentTrayDuringCurrentPress = false
     }
 
     func setSensitivity(_ sensitivity: Sensitivity) {
@@ -308,6 +346,12 @@ final class GlobalDragMonitor {
         point: CGPoint,
         timestamp: TimeInterval
     ) {
+        let isStartingNewPress = isLeftButtonPressed && !sampleProcessor.isLeftButtonPressed
+        if isStartingNewPress {
+            dragRecognitionGate.beginPress()
+            didPresentTrayDuringCurrentPress = false
+        }
+
         let ignoreNewPress = isLeftButtonPressed
             && !sampleProcessor.isLeftButtonPressed
             && shouldIgnoreDragStart(point)
@@ -322,9 +366,21 @@ final class GlobalDragMonitor {
         case .none:
             break
         case let .shake(cursor):
+            guard dragRecognitionGate.recognizesActiveImportableDrag(
+                observedChangeCount: dragPasteboard.changeCount,
+                hasImportableContent: TrayPasteboardImporter.canImport(from: dragPasteboard)
+            ) else { break }
+            didPresentTrayDuringCurrentPress = true
             onShake(cursor)
         case .dragEnded:
-            onDragEnded()
+            if didPresentTrayDuringCurrentPress {
+                onDragEnded()
+            }
+        }
+
+        if !isLeftButtonPressed {
+            dragRecognitionGate.endPress(observedChangeCount: dragPasteboard.changeCount)
+            didPresentTrayDuringCurrentPress = false
         }
     }
 

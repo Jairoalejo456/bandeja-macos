@@ -200,19 +200,11 @@ struct TrayView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 8) {
-            Image(systemName: store.isDropTargeted ? "arrow.down.circle.fill" : "arrow.down.doc")
-                .font(.system(size: 28, weight: .medium))
-                .foregroundStyle(store.isDropTargeted ? Color.accentColor : Color.primary.opacity(0.54))
-                .symbolEffect(.bounce, value: store.isDropTargeted)
-
-            Text(store.isDropTargeted ? "Suelta para reunir" : "Suelta archivos aquí")
-                .font(.system(size: 13, weight: .semibold))
-
-            Text("Los originales no cambian")
-                .font(.system(size: 10))
-                .foregroundStyle(.secondary)
-        }
+        Image(systemName: store.isDropTargeted ? "arrow.down.circle.fill" : "tray")
+            .font(.system(size: 28, weight: .medium))
+            .foregroundStyle(store.isDropTargeted ? Color.accentColor : Color.primary.opacity(0.38))
+            .symbolEffect(.bounce, value: store.isDropTargeted)
+            .accessibilityLabel(store.isDropTargeted ? "Soltar elementos" : "Bandeja vacía")
         .padding(12)
     }
 

@@ -54,19 +54,98 @@ final class ShakeDetectorTests: XCTestCase {
         }
     }
 
-    func testVerticalDominantMotionDoesNotTrigger() {
+    func testDeliberateVerticalShakeTriggers() {
         var detector = ShakeDetector(configuration: .balanced)
         detector.beginDrag(at: .zero, timestamp: 0)
 
         let points = [
-            CGPoint(x: 40, y: 40),
-            CGPoint(x: -4, y: 82),
-            CGPoint(x: 42, y: 128),
-            CGPoint(x: -6, y: 174)
+            CGPoint(x: 1, y: 38),
+            CGPoint(x: 0, y: -3),
+            CGPoint(x: 2, y: 39),
+            CGPoint(x: 1, y: -4)
+        ]
+        for (index, point) in points.enumerated() {
+            let triggered = detector.updateDrag(at: point, timestamp: Double(index + 1) * 0.06)
+            XCTAssertEqual(triggered, index == points.indices.last)
+        }
+    }
+
+    func testDeliberateDiagonalShakeTriggers() {
+        var detector = ShakeDetector(configuration: .balanced)
+        detector.beginDrag(at: .zero, timestamp: 0)
+
+        let points = [
+            CGPoint(x: 31, y: 31),
+            CGPoint(x: -3, y: -3),
+            CGPoint(x: 32, y: 32),
+            CGPoint(x: -4, y: -4)
+        ]
+        for (index, point) in points.enumerated() {
+            let triggered = detector.updateDrag(at: point, timestamp: Double(index + 1) * 0.06)
+            XCTAssertEqual(triggered, index == points.indices.last)
+        }
+    }
+
+    func testCurvedOneWayMotionDoesNotTrigger() {
+        var detector = ShakeDetector(configuration: .balanced)
+        detector.beginDrag(at: .zero, timestamp: 0)
+
+        let points = [
+            CGPoint(x: 24, y: 8),
+            CGPoint(x: 42, y: 28),
+            CGPoint(x: 48, y: 54),
+            CGPoint(x: 36, y: 78),
+            CGPoint(x: 14, y: 91)
         ]
         for (index, point) in points.enumerated() {
             XCTAssertFalse(detector.updateDrag(at: point, timestamp: Double(index + 1) * 0.06))
         }
+    }
+
+    func testExternalDragGateRejectsStaleFilePasteboardDuringOrdinarySelection() {
+        var gate = ExternalDragRecognitionGate(initialChangeCount: 12)
+        gate.beginPress()
+
+        XCTAssertFalse(
+            gate.recognizesActiveImportableDrag(
+                observedChangeCount: 12,
+                hasImportableContent: true
+            ),
+            "El contenido antiguo del portapapeles de arrastre no debe convertir una selección en un drag de archivo"
+        )
+    }
+
+    func testExternalDragGateRejectsChangedPasteboardWithoutImportableContent() {
+        var gate = ExternalDragRecognitionGate(initialChangeCount: 12)
+        gate.beginPress()
+
+        XCTAssertFalse(
+            gate.recognizesActiveImportableDrag(
+                observedChangeCount: 13,
+                hasImportableContent: false
+            )
+        )
+    }
+
+    func testExternalDragGateAcceptsFreshImportableDrag() {
+        var gate = ExternalDragRecognitionGate(initialChangeCount: 12)
+        gate.beginPress()
+
+        XCTAssertTrue(
+            gate.recognizesActiveImportableDrag(
+                observedChangeCount: 13,
+                hasImportableContent: true
+            )
+        )
+
+        gate.endPress(observedChangeCount: 13)
+        gate.beginPress()
+        XCTAssertFalse(
+            gate.recognizesActiveImportableDrag(
+                observedChangeCount: 13,
+                hasImportableContent: true
+            )
+        )
     }
 
     func testDetectorOnlyWorksDuringDragAndResetsOnMouseUp() {

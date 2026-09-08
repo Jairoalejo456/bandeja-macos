@@ -279,7 +279,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             gestureStatusMenuItem?.title = "Comprobando detección global…"
             requestPermissionMenuItem?.isHidden = false
         case .fullAccess:
-            gestureStatusMenuItem?.title = "Detección global activa · sacude ↔ al arrastrar"
+            gestureStatusMenuItem?.title = "Detección global activa · sacude en cualquier dirección"
             requestPermissionMenuItem?.isHidden = true
         case .permissionRequired:
             gestureStatusMenuItem?.title = "Detección limitada · falta permiso"
