@@ -175,4 +175,28 @@ final class TrayStoreTests: XCTestCase {
         XCTAssertTrue(store.items.isEmpty)
         XCTAssertEqual(try Data(contentsOf: file), originalData)
     }
+
+    @MainActor
+    func testExternalDragStateRestoresAfterCancellationAndClear() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("BandejaTests-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let file = directory.appendingPathComponent("arrastre.txt")
+        try Data().write(to: file)
+        let store = TrayStore()
+        store.addFileURLs([file])
+
+        store.beginExternalDrag()
+        XCTAssertTrue(store.isDraggingOut)
+
+        store.endExternalDrag()
+        XCTAssertFalse(store.isDraggingOut)
+        XCTAssertEqual(store.items.count, 1)
+
+        store.beginExternalDrag()
+        store.clear()
+        XCTAssertFalse(store.isDraggingOut)
+    }
 }

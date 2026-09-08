@@ -7,6 +7,7 @@ final class TrayStore: ObservableObject {
     @Published var isDropTargeted = false
     @Published var statusMessage: String?
     @Published private(set) var isExpanded = false
+    @Published private(set) var isDraggingOut = false
 
     var onBecameEmpty: (() -> Void)?
 
@@ -57,6 +58,7 @@ final class TrayStore: ObservableObject {
     func clear() {
         items.removeAll()
         isExpanded = false
+        isDraggingOut = false
         statusMessage = nil
         notifyIfEmpty()
     }
@@ -68,6 +70,15 @@ final class TrayStore: ObservableObject {
 
     func collapse() {
         isExpanded = false
+    }
+
+    func beginExternalDrag() {
+        guard !items.isEmpty else { return }
+        isDraggingOut = true
+    }
+
+    func endExternalDrag() {
+        isDraggingOut = false
     }
 
     func item(withID id: UUID) -> TrayItem? {

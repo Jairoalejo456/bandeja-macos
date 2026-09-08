@@ -35,14 +35,16 @@ Para la versión 0.1.7 se reprodujo el fallo de navegación con dos imágenes re
 
 Para la versión 0.1.8 se retiró el trazo blanco translúcido de medio punto que rodeaba la superficie en reposo. La vista compacta se comprobó sobre un fondo claro, donde el contorno gris resultaba más visible: el panel conserva el vidrio oscuro, las esquinas redondeadas y la sombra de profundidad, pero ya no añade ese recuadro claro. El contorno de acento sigue apareciendo solamente al recibir un arrastre válido.
 
+Para la versión 0.2.0 se redujo el panel compacto de 264 × 264 a 236 × 236 puntos y el detalle de 520 a 480 puntos de ancho. Con dos imágenes reales se comprobó visualmente la previsualización completa, una pulsación para abrir el detalle de 480 × 232, **Atrás** para recuperar exactamente 236 × 236 y la X para dejar cero ventanas visibles al primer clic. También se movió el panel mediante la cabecera de 900,551 a 442,237 sin perder el contenido ni desincronizar su marco. La barra de menús mostró únicamente el símbolo de bandeja, sin título. Durante la validación se descubrió y descartó una primera técnica de animación que interfería con la composición de Liquid Glass; la entrega usa cambios visuales temporizados dentro de SwiftUI y mantiene estático el marco real de AppKit. Dropover permaneció cerrado.
+
 La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
-Se ejecutaron **35 pruebas XCTest, 35 correctas, 0 fallos**:
+Se ejecutaron **38 pruebas XCTest, 38 correctas, 0 fallos**:
 
 - 9 del detector: sacudida deliberada, arrastre normal, microtemblor, gesto lento, movimiento vertical dominante, reinicio al soltar, dos pruebas del muestreo global del botón y exclusión completa de los clics que empiezan dentro de la bandeja;
-- 9 del estado: referencias sin modificación del original, varios archivos y carpetas, duplicados, entradas inválidas, imágenes en memoria, cierre al quedar vacío, expansión/contracción, salida cancelada y salida aceptada preservando el archivo real;
+- 10 del estado: referencias sin modificación del original, varios archivos y carpetas, duplicados, entradas inválidas, imágenes en memoria, cierre al quedar vacío, expansión/contracción, salida cancelada, restauración visual y salida aceptada preservando el archivo real;
 - 2 de `NSPasteboard`: varias URLs reales e imagen sin URL;
-- 5 de ventana: colocación en las cuatro esquinas y el centro del área visible, tamaño compacto idéntico con 1 o 32 elementos, capacidad del panel sin bordes para recibir el primer clic, ausencia de un tamaño mínimo residual impuesto por SwiftUI y sincronización repetida entre el estado visual y el marco al expandir o contraer.
+- 7 de ventana y movimiento: colocación en las cuatro esquinas y el centro del área visible, tamaño compacto idéntico con 1 o 32 elementos, capacidad del panel sin bordes para recibir el primer clic, ausencia de un tamaño mínimo residual impuesto por SwiftUI, sincronización repetida entre el estado visual y el marco, duraciones reducidas con **Reducir movimiento** y elevación temporal durante la recepción externa.
 - 7 de configuración, privacidad e inicio: valores iniciales prudentes, persistencia independiente del contenido, filtro de capturas recientes, combinaciones distintas de atajos, máscara del monitor limitada al ratón y registro/desregistro del ítem de inicio con sus estados de aprobación.
 - 3 de interacción compacta: ajuste completo de imágenes verticales y horizontales y registro de la zona central como destino de archivos e imágenes.
 
@@ -54,7 +56,7 @@ La entrada Finder → Bandeja y la detección global quedan comprobadas a nivel 
 
 Usa los tres elementos incluidos en `Docs/QA Fixtures` y cualquier PDF de prueba. Para comprobar salida hacia Finder sin confundir origen y destino, crea manualmente una carpeta vacía fuera de `QA Fixtures`.
 
-1. Inicia Bandeja con `⌘R` y confirma el texto **Bandeja** junto a su icono en la barra de menús.
+1. Inicia Bandeja con `⌘R` y confirma que la barra de menús muestra únicamente el logotipo de bandeja, sin el texto **Bandeja**.
 2. Arrastra `archivo-prueba.txt`, haz tres inversiones horizontales rápidas sin soltar y confirma que aparece el panel.
 3. Repite un arrastre recto y luego uno con correcciones normales; confirma que no aparece. Si hay falsos positivos, usa sensibilidad **Baja** y registra el patrón.
 4. Deposita por separado el TXT, `imagen-prueba.svg`, un PDF y `carpeta-prueba`; luego deposítalos juntos. Suelta al menos uno exactamente sobre el centro de la miniatura compacta y otro sobre la cuadrícula desplegada. Confirma una vista previa completa para la imagen, sin zoom ni recorte, la primera página del PDF y un icono nativo para cualquier formato que Quick Look no pueda representar. La bandeja debe mantener el mismo tamaño compacto y mostrar visualmente la pila.
@@ -76,6 +78,8 @@ Usa los tres elementos incluidos en `Docs/QA Fixtures` y cualquier PDF de prueba
 20. En **Ajustes → Sistema**, activa **Abrir Bandeja al iniciar sesión** y confirma que macOS la muestra en **General → Ítems de inicio y extensiones**. Si aparece “requiere aprobación”, usa **Abrir Ajustes…** y apruébala. Cierra la sesión y vuelve a entrar para confirmar el arranque; después desactiva la opción y repite para confirmar que ya no se inicia.
 21. Con otra aplicación activa, mueve la bandeja repetidas veces desde la cabecera y ciérrala con un solo clic. Repite dibujando una pequeña trayectoria de ida y vuelta al moverla: la detección global no debe reposicionar ni bloquear el panel. Si Dropover está instalado, repite primero con Dropover cerrado para descartar superposición entre ambas utilidades.
 22. Desde el icono de la barra de menús, pulsa **Mostrar bandeja** sin tener archivos. La bandeja debe permanecer visible durante su intervalo normal, no desaparecer al terminar el mismo clic que abrió el menú.
+23. Activa **Reducir movimiento** en macOS y repite apertura, depósito, expansión, cancelación y cierre. Las transiciones deben ser más breves y no deben cambiar la escala del contenido. Desactívalo y confirma que vuelve el movimiento sutil.
+24. Inicia un arrastre sobre Finder y sobre un diálogo nativo de Abrir/Guardar. La bandeja debe mantenerse por encima mientras recibe el arrastre y volver a su nivel flotante normal al terminar.
 
 ## Criterio de aceptación
 

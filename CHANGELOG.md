@@ -2,6 +2,22 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.2.0] — 2026-09-07
+
+### Interacción y apariencia
+
+- Reduce la bandeja compacta a 236 × 236 puntos y la vista detallada a 480 puntos de ancho, con miniaturas, espacios y controles reajustados.
+- Deja únicamente el logotipo de bandeja en la barra de menús, sin el título textual permanente.
+- Añade transiciones breves para aparición, depósito, expansión, contracción, cancelación y cierre, respetando **Reducir movimiento**.
+- Atenúa los controles secundarios mientras se arrastran elementos hacia otra aplicación y los restaura si la operación se cancela.
+- Eleva temporalmente la bandeja durante un arrastre externo para que permanezca disponible sobre Finder y paneles modales, y recupera después el nivel flotante normal.
+- Mantiene el marco real y las zonas de clic sincronizados durante todas las transiciones; ninguna animación redimensiona la ventana.
+
+### Pruebas
+
+- Añade cobertura para el estado de salida/restauración, las duraciones con movimiento reducido y la política de superposición.
+- Verifica visualmente la bandeja compacta, el ciclo compacto → detalle → compacto, el movimiento manual y el cierre al primer clic con otra aplicación activa.
+
 ## [0.1.8] — 2026-09-07
 
 ### Apariencia
@@ -106,3 +122,4 @@ Primera versión pública del MVP.
 [0.1.6]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.6
 [0.1.7]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.7
 [0.1.8]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.1.8
+[0.2.0]: https://github.com/Jairoalejo456/bandeja-macos/releases/tag/v0.2.0

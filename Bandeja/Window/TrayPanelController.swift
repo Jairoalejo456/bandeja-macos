@@ -13,17 +13,23 @@ final class InteractiveTrayPanel: NSPanel {
 final class TrayPanelController {
     private let store: TrayStore
     private let settings: AppSettings
+    private let visualState = TrayVisualState()
     private let panel: NSPanel
     private var dropContainerView: TrayDropContainerView!
     private var itemSubscription: AnyCancellable?
+    private var dropTargetSubscription: AnyCancellable?
     private var emptyDismissWorkItem: DispatchWorkItem?
+    private var animatedDismissWorkItem: DispatchWorkItem?
+    private var isReceivingExternalDrag = false
+    private var lastItemCount = 0
+    private var visualAnimationGeneration = 0
 
     init(store: TrayStore, settings: AppSettings? = nil) {
         self.store = store
         self.settings = settings ?? .shared
 
         panel = InteractiveTrayPanel(
-            contentRect: NSRect(origin: .zero, size: NSSize(width: 264, height: 180)),
+            contentRect: NSRect(origin: .zero, size: NSSize(width: 236, height: 158)),
             styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -50,10 +56,12 @@ final class TrayPanelController {
         let rootView = TrayView(
             store: store,
             settings: self.settings,
+            visualState: visualState,
             isExpanded: store.isExpanded,
             onClose: { [weak self] in self?.closeAndClear() },
             onExpand: { [weak self] in self?.setExpanded(true) },
             onCollapse: { [weak self] in self?.setExpanded(false) },
+            onExternalDragBegan: { [weak self] in self?.beginExternalDrag() },
             onExternalDragCompleted: { [weak self] operation in
                 self?.completeExternalDrag(operation)
             }
@@ -70,7 +78,8 @@ final class TrayPanelController {
             store.$isExpanded.removeDuplicates()
         )
             .sink { [weak self] count, isExpanded in
-                self?.resize(forItemCount: count, isExpanded: isExpanded)
+                guard let self else { return }
+                self.resize(forItemCount: count, isExpanded: isExpanded)
                 // @Published emits before SwiftUI has necessarily committed its
                 // new branch. Refresh explicitly on the next main-loop turn so
                 // the rendered hierarchy always matches the AppKit panel size.
@@ -78,9 +87,19 @@ final class TrayPanelController {
                     self?.refreshRootView()
                 }
                 if count > 0 {
-                    self?.emptyDismissWorkItem?.cancel()
-                    self?.emptyDismissWorkItem = nil
+                    self.emptyDismissWorkItem?.cancel()
+                    self.emptyDismissWorkItem = nil
                 }
+                if count > self.lastItemCount, self.panel.isVisible {
+                    self.animateDropConfirmation()
+                }
+                self.lastItemCount = count
+            }
+
+        dropTargetSubscription = store.$isDropTargeted
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                self?.updateWindowLevel()
             }
     }
 
@@ -94,46 +113,87 @@ final class TrayPanelController {
 
     func showNearCursor(
         _ cursor: CGPoint = NSEvent.mouseLocation,
-        emptyDismissAfter: TimeInterval = 15
+        emptyDismissAfter: TimeInterval = 15,
+        receivingExternalDrag: Bool = false
     ) {
+        let wasVisible = panel.isVisible
+        animatedDismissWorkItem?.cancel()
+        animatedDismissWorkItem = nil
+        isReceivingExternalDrag = receivingExternalDrag
         synchronizePresentation()
         positionPanel(near: cursor)
+        updateWindowLevel()
 
         // AppKit can defer animator-backed changes while another app owns the drag
         // session. Restore mouse handling and visibility synchronously so a stale
         // transition can never leave an unresponsive panel on screen.
         panel.ignoresMouseEvents = false
         panel.alphaValue = 1
+        resetVisualLayer()
         panel.orderFrontRegardless()
+        wasVisible ? animateAttention() : animateAppearance()
 
         if store.items.isEmpty {
             scheduleEmptyDismissal(after: emptyDismissAfter)
         }
     }
 
-    func hide() {
+    func hide(animated: Bool = true) {
         emptyDismissWorkItem?.cancel()
         emptyDismissWorkItem = nil
         guard panel.isVisible else { return }
-        panel.orderOut(nil)
-        panel.alphaValue = 1
+        guard animatedDismissWorkItem == nil else { return }
+
+        isReceivingExternalDrag = false
+        panel.ignoresMouseEvents = true
+        updateWindowLevel()
+
+        let profile = motionProfile
+        guard animated else {
+            panel.orderOut(nil)
+            resetAfterDismissal()
+            return
+        }
+
+        animateDismissal()
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.panel.orderOut(nil)
+            self.animatedDismissWorkItem = nil
+            self.resetAfterDismissal()
+        }
+        animatedDismissWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + profile.dismissDuration, execute: workItem)
     }
 
     func dragDidEnd() {
+        isReceivingExternalDrag = false
+        updateWindowLevel()
         guard store.items.isEmpty else { return }
         scheduleEmptyDismissal(after: 0.2)
     }
 
     func closeAndClear() {
-        if store.items.isEmpty {
-            hide()
-        } else {
+        hide()
+        if !store.items.isEmpty {
             store.clear()
         }
     }
 
+    func beginExternalDrag() {
+        store.beginExternalDrag()
+        refreshRootView()
+        panel.displayIfNeeded()
+    }
+
     func completeExternalDrag(_ operation: NSDragOperation) {
-        guard !operation.isEmpty, !store.items.isEmpty else { return }
+        store.endExternalDrag()
+        refreshRootView()
+        guard !operation.isEmpty, !store.items.isEmpty else {
+            animateCancelledDrag()
+            return
+        }
+        hide()
         store.clear()
     }
 
@@ -144,6 +204,7 @@ final class TrayPanelController {
             store.collapse()
         }
         synchronizePresentation()
+        animatePresentationChange(expanding: isExpanded)
     }
 
     private func scheduleEmptyDismissal(after delay: TimeInterval) {
@@ -171,7 +232,7 @@ final class TrayPanelController {
         // NSHostingView can otherwise retain the expanded view's minimum width
         // after collapsing. Keep the WindowServer frame and the SwiftUI hit-test
         // tree in lockstep; an interrupted animation must never leave an invisible
-        // 520-point window around a 264-point tray.
+        // expanded window around the compact tray.
         panel.contentMinSize = .zero
         panel.setFrame(frame, display: true, animate: false)
         panel.contentView?.layoutSubtreeIfNeeded()
@@ -192,14 +253,137 @@ final class TrayPanelController {
         TrayView(
             store: store,
             settings: settings,
+            visualState: visualState,
             isExpanded: store.isExpanded,
             onClose: { [weak self] in self?.closeAndClear() },
             onExpand: { [weak self] in self?.setExpanded(true) },
             onCollapse: { [weak self] in self?.setExpanded(false) },
+            onExternalDragBegan: { [weak self] in self?.beginExternalDrag() },
             onExternalDragCompleted: { [weak self] operation in
                 self?.completeExternalDrag(operation)
             }
         )
+    }
+
+    private var motionProfile: TrayMotionProfile {
+        TrayMotionProfile(reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
+    }
+
+    private func updateWindowLevel() {
+        panel.level = TrayWindowLevelPolicy.level(
+            receivingExternalDrag: isReceivingExternalDrag || store.isDropTargeted
+        )
+    }
+
+    private func resetAfterDismissal() {
+        panel.alphaValue = 1
+        panel.ignoresMouseEvents = false
+        resetVisualLayer()
+    }
+
+    private func resetVisualLayer() {
+        visualAnimationGeneration += 1
+        panel.alphaValue = 1
+        setVisualState(opacity: 1, scale: 1)
+    }
+
+    private func animateAppearance() {
+        let profile = motionProfile
+        animateVisual(
+            fromOpacity: 0,
+            fromScale: profile.reduceMotion ? 1 : 0.965,
+            toOpacity: 1,
+            toScale: 1,
+            duration: profile.appearanceDuration
+        )
+    }
+
+    private func animateAttention() {
+        let profile = motionProfile
+        animateVisual(
+            fromOpacity: profile.reduceMotion ? 0.96 : 0.90,
+            fromScale: profile.reduceMotion ? 1 : 1.018,
+            toOpacity: 1,
+            toScale: 1,
+            duration: profile.attentionDuration
+        )
+    }
+
+    private func animateDropConfirmation() {
+        let profile = motionProfile
+        animateVisual(
+            fromOpacity: profile.reduceMotion ? 0.97 : 0.92,
+            fromScale: profile.reduceMotion ? 1 : 1.026,
+            toOpacity: 1,
+            toScale: 1,
+            duration: profile.dropDuration
+        )
+    }
+
+    private func animatePresentationChange(expanding: Bool) {
+        let profile = motionProfile
+        animateVisual(
+            fromOpacity: profile.reduceMotion ? 0.94 : 0.84,
+            fromScale: profile.reduceMotion ? 1 : (expanding ? 0.985 : 1.015),
+            toOpacity: 1,
+            toScale: 1,
+            duration: profile.presentationDuration
+        )
+    }
+
+    private func animateCancelledDrag() {
+        let profile = motionProfile
+        animateVisual(
+            fromOpacity: profile.reduceMotion ? 0.96 : 0.86,
+            fromScale: profile.reduceMotion ? 1 : 0.985,
+            toOpacity: 1,
+            toScale: 1,
+            duration: profile.cancelDuration
+        )
+    }
+
+    private func animateDismissal() {
+        let profile = motionProfile
+        animateVisual(
+            fromOpacity: visualState.opacity,
+            fromScale: visualState.scale,
+            toOpacity: 0,
+            toScale: profile.reduceMotion ? 1 : 0.97,
+            duration: profile.dismissDuration
+        )
+    }
+
+    private func animateVisual(
+        fromOpacity: Double,
+        fromScale: CGFloat,
+        toOpacity: Double,
+        toScale: CGFloat,
+        duration: CFTimeInterval
+    ) {
+        visualAnimationGeneration += 1
+        let generation = visualAnimationGeneration
+        let frameCount = max(1, Int(ceil(duration * 60)))
+
+        for frame in 0...frameCount {
+            let delay = duration * Double(frame) / Double(frameCount)
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                guard let self, generation == self.visualAnimationGeneration else { return }
+                let progress = Double(frame) / Double(frameCount)
+                let eased = 1 - pow(1 - progress, 3)
+                let opacity = fromOpacity + (toOpacity - fromOpacity) * eased
+                let scale = fromScale + (toScale - fromScale) * CGFloat(eased)
+                self.setVisualState(opacity: opacity, scale: scale)
+            }
+        }
+    }
+
+    private func setVisualState(opacity: Double, scale: CGFloat) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            visualState.opacity = opacity
+            visualState.scale = scale
+        }
     }
 
     private func positionPanel(near cursor: CGPoint) {
@@ -223,12 +407,36 @@ final class TrayPanelController {
 struct TrayPanelLayout {
     static func size(itemCount: Int, isExpanded: Bool) -> NSSize {
         guard isExpanded else {
-            return NSSize(width: 264, height: itemCount == 0 ? 180 : 264)
+            return NSSize(width: 236, height: itemCount == 0 ? 158 : 236)
         }
 
         let rows = max(1, Int(ceil(Double(itemCount) / 4.0)))
-        let height = min(CGFloat(570), max(CGFloat(248), CGFloat(rows * 116 + 96)))
-        return NSSize(width: 520, height: height)
+        let height = min(CGFloat(540), max(CGFloat(232), CGFloat(rows * 108 + 88)))
+        return NSSize(width: 480, height: height)
+    }
+}
+
+struct TrayMotionProfile: Equatable {
+    let reduceMotion: Bool
+
+    var appearanceDuration: CFTimeInterval { reduceMotion ? 0.08 : 0.18 }
+    var attentionDuration: CFTimeInterval { reduceMotion ? 0.08 : 0.20 }
+    var dropDuration: CFTimeInterval { reduceMotion ? 0.08 : 0.24 }
+    var presentationDuration: CFTimeInterval { reduceMotion ? 0.10 : 0.20 }
+    var cancelDuration: CFTimeInterval { reduceMotion ? 0.08 : 0.18 }
+    var dismissDuration: CFTimeInterval { reduceMotion ? 0.08 : 0.15 }
+}
+
+@MainActor
+final class TrayVisualState: ObservableObject {
+    @Published var opacity: Double = 1
+    @Published var scale: CGFloat = 1
+}
+
+enum TrayWindowLevelPolicy {
+    static func level(receivingExternalDrag: Bool) -> NSWindow.Level {
+        guard receivingExternalDrag else { return .floating }
+        return NSWindow.Level(rawValue: NSWindow.Level.modalPanel.rawValue + 1)
     }
 }
 

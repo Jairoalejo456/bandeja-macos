@@ -30,11 +30,31 @@ final class PanelPositionerTests: XCTestCase {
         let thirtyTwoItems = TrayPanelLayout.size(itemCount: 32, isExpanded: false)
 
         XCTAssertEqual(oneItem, thirtyTwoItems)
-        XCTAssertEqual(thirtyTwoItems, CGSize(width: 264, height: 264))
+        XCTAssertEqual(thirtyTwoItems, CGSize(width: 236, height: 236))
 
         let expanded = TrayPanelLayout.size(itemCount: 32, isExpanded: true)
-        XCTAssertEqual(expanded.width, 520)
-        XCTAssertEqual(expanded.height, 570, "La cuadrícula debe usar desplazamiento en lugar de salir de pantalla")
+        XCTAssertEqual(expanded.width, 480)
+        XCTAssertEqual(expanded.height, 540, "La cuadrícula debe usar desplazamiento en lugar de salir de pantalla")
+    }
+
+    func testReducedMotionKeepsFeedbackBrief() {
+        let regular = TrayMotionProfile(reduceMotion: false)
+        let reduced = TrayMotionProfile(reduceMotion: true)
+
+        XCTAssertLessThan(reduced.appearanceDuration, regular.appearanceDuration)
+        XCTAssertLessThan(reduced.attentionDuration, regular.attentionDuration)
+        XCTAssertLessThan(reduced.dropDuration, regular.dropDuration)
+        XCTAssertLessThan(reduced.presentationDuration, regular.presentationDuration)
+        XCTAssertLessThan(reduced.cancelDuration, regular.cancelDuration)
+        XCTAssertLessThan(reduced.dismissDuration, regular.dismissDuration)
+    }
+
+    func testTrayRisesOnlyWhileReceivingAnExternalDrag() {
+        XCTAssertEqual(TrayWindowLevelPolicy.level(receivingExternalDrag: false), .floating)
+        XCTAssertGreaterThan(
+            TrayWindowLevelPolicy.level(receivingExternalDrag: true).rawValue,
+            NSWindow.Level.modalPanel.rawValue
+        )
     }
 
     @MainActor

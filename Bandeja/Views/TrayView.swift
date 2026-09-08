@@ -3,12 +3,15 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct TrayView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var store: TrayStore
     @ObservedObject var settings: AppSettings
+    @ObservedObject var visualState: TrayVisualState
     let isExpanded: Bool
     let onClose: () -> Void
     let onExpand: () -> Void
     let onCollapse: () -> Void
+    let onExternalDragBegan: () -> Void
     let onExternalDragCompleted: (NSDragOperation) -> Void
 
     var body: some View {
@@ -20,17 +23,20 @@ struct TrayView: View {
             }
         }
         .background {
-            TrayGlassSurface(cornerRadius: 22)
+            TrayGlassSurface(cornerRadius: 20)
         }
         .overlay {
             if store.isDropTargeted {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .stroke(Color.accentColor, lineWidth: 2)
-                    .animation(.easeOut(duration: 0.14), value: store.isDropTargeted)
             }
         }
-        .shadow(color: .black.opacity(0.42), radius: 24, y: 12)
-        .padding(12)
+        .shadow(color: .black.opacity(0.34), radius: 18, y: 8)
+        .padding(8)
+        .scaleEffect(visualState.scale)
+        .opacity(visualState.opacity)
+        .animation(responsiveAnimation, value: store.isDropTargeted)
+        .animation(responsiveAnimation, value: store.isDraggingOut)
         .environment(\.controlActiveState, .active)
         .environment(\.colorScheme, .dark)
     }
@@ -43,20 +49,20 @@ struct TrayView: View {
                 emptyState
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                VStack(spacing: 10) {
+                VStack(spacing: 8) {
                     previewStack
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                     Button(action: onExpand) {
-                        HStack(spacing: 6) {
+                        HStack(spacing: 5) {
                             Text(compactCountText)
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(.secondary)
                         }
-                        .font(.system(size: 13, weight: .semibold))
-                        .padding(.horizontal, 13)
-                        .frame(height: 32)
+                        .font(.system(size: 12, weight: .semibold))
+                        .padding(.horizontal, 11)
+                        .frame(height: 30)
                         .background {
                             TrayGlassCapsuleBackground()
                         }
@@ -65,9 +71,11 @@ struct TrayView: View {
                     .buttonStyle(.plain)
                     .help("Ver todos los elementos")
                     .accessibilityLabel("Ver \(compactCountText)")
+                    .opacity(secondaryControlOpacity)
+                    .allowsHitTesting(!store.isDraggingOut)
                 }
-                .padding(.horizontal, 14)
-                .padding(.bottom, 12)
+                .padding(.horizontal, 12)
+                .padding(.bottom, 10)
             }
         }
     }
@@ -89,24 +97,26 @@ struct TrayView: View {
                 TrayActionsButton(items: store.items)
                     .frame(width: 38, height: 38)
             }
-            .padding(.horizontal, 10)
+            .padding(.horizontal, 8)
             .zIndex(1)
+            .opacity(secondaryControlOpacity)
+            .allowsHitTesting(!store.isDraggingOut)
         }
-        .frame(height: 52)
+        .frame(height: 46)
     }
 
     private var previewStack: some View {
         ZStack {
             ForEach(Array(store.items.prefix(3).enumerated()).reversed(), id: \.element.id) { index, item in
-                NativeThumbnailView(item: item, size: NSSize(width: 136, height: 108))
-                    .frame(width: 136, height: 108)
-                    .background(Color.black.opacity(0.34), in: RoundedRectangle(cornerRadius: 11))
-                    .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+                NativeThumbnailView(item: item, size: NSSize(width: 120, height: 94))
+                    .frame(width: 120, height: 94)
+                    .background(Color.black.opacity(0.30), in: RoundedRectangle(cornerRadius: 10))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     .overlay {
-                        RoundedRectangle(cornerRadius: 11, style: .continuous)
-                            .stroke(Color.primary.opacity(0.16), lineWidth: 0.75)
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(Color.primary.opacity(0.12), lineWidth: 0.5)
                     }
-                    .shadow(color: .black.opacity(index == 0 ? 0.22 : 0.12), radius: 5, y: 3)
+                    .shadow(color: .black.opacity(index == 0 ? 0.20 : 0.10), radius: 4, y: 2)
                     .rotationEffect(rotation(for: index))
                     .offset(offset(for: index))
             }
@@ -114,14 +124,17 @@ struct TrayView: View {
             CompactDragSourceView(
                 store: store,
                 items: store.items,
+                onBegan: onExternalDragBegan,
                 onCompleted: onExternalDragCompleted,
                 onDoubleClick: revealFrontItemInFinder
             )
-                .frame(width: 174, height: 130)
+                .frame(width: 154, height: 112)
                 .contentShape(Rectangle())
                 .help("Arrastra todos los elementos")
         }
-        .frame(height: 132)
+        .frame(height: 112)
+        .scaleEffect(previewScale)
+        .opacity(previewOpacity)
         .accessibilityElement(children: .contain)
     }
 
@@ -136,8 +149,11 @@ struct TrayView: View {
                 TrayCollectionView(
                     store: store,
                     revealInFinderOnDoubleClick: settings.revealInFinderOnDoubleClick,
+                    onExternalDragBegan: onExternalDragBegan,
                     onExternalDragCompleted: onExternalDragCompleted
                 )
+                .scaleEffect(store.isDraggingOut ? 0.985 : 1)
+                .opacity(store.isDraggingOut ? 0.58 : 1)
 
                 if store.items.isEmpty {
                     emptyState
@@ -175,10 +191,12 @@ struct TrayView: View {
                 TrayActionsButton(items: store.items)
                     .frame(width: 40, height: 40)
             }
-            .padding(.horizontal, 10)
+            .padding(.horizontal, 8)
             .zIndex(1)
+            .opacity(secondaryControlOpacity)
+            .allowsHitTesting(!store.isDraggingOut)
         }
-        .frame(height: 58)
+        .frame(height: 54)
     }
 
     private var emptyState: some View {
@@ -208,8 +226,8 @@ struct TrayView: View {
 
     private func offset(for index: Int) -> CGSize {
         switch index {
-        case 1: return CGSize(width: -9, height: -3)
-        case 2: return CGSize(width: 9, height: -1)
+        case 1: return CGSize(width: -8, height: -3)
+        case 2: return CGSize(width: 8, height: -1)
         default: return .zero
         }
     }
@@ -250,6 +268,26 @@ struct TrayView: View {
         }
         guard byteCount > 0 else { return nil }
         return ByteCountFormatter.string(fromByteCount: byteCount, countStyle: .file)
+    }
+
+    private var responsiveAnimation: Animation? {
+        reduceMotion
+            ? .easeOut(duration: 0.08)
+            : .spring(response: 0.22, dampingFraction: 0.82)
+    }
+
+    private var secondaryControlOpacity: Double {
+        store.isDraggingOut ? 0.24 : 1
+    }
+
+    private var previewOpacity: Double {
+        store.isDraggingOut ? 0.60 : 1
+    }
+
+    private var previewScale: CGFloat {
+        if store.isDraggingOut { return 0.97 }
+        if store.isDropTargeted { return 1.025 }
+        return 1
     }
 
     private func revealFrontItemInFinder() {

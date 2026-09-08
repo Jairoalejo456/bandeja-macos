@@ -29,7 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         dragMonitor = GlobalDragMonitor(
             sensitivity: settings.shakeSensitivity,
             onShake: { [weak self] cursor in
-                self?.panelController.showNearCursor(cursor)
+                self?.panelController.showNearCursor(cursor, receivingExternalDrag: true)
             },
             onDragEnded: { [weak self] in
                 self?.panelController.dragDidEnd()
@@ -104,7 +104,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func configureStatusItem() {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.isVisible = true
         if let button = statusItem.button {
             let image = NSImage(
@@ -113,9 +113,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             )
             image?.isTemplate = true
             button.image = image
-            button.imagePosition = .imageLeading
-            button.title = "Bandeja"
-            button.font = .systemFont(ofSize: 12, weight: .semibold)
+            button.imagePosition = .imageOnly
+            button.title = ""
             button.toolTip = "Bandeja temporal"
             button.setAccessibilityLabel("Bandeja, utilidad temporal de archivos")
         }

@@ -6,19 +6,21 @@ import UniformTypeIdentifiers
 struct TrayCollectionView: NSViewRepresentable {
     @ObservedObject var store: TrayStore
     let revealInFinderOnDoubleClick: Bool
+    let onExternalDragBegan: () -> Void
     let onExternalDragCompleted: (NSDragOperation) -> Void
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
             store: store,
             revealInFinderOnDoubleClick: revealInFinderOnDoubleClick,
+            onExternalDragBegan: onExternalDragBegan,
             onExternalDragCompleted: onExternalDragCompleted
         )
     }
 
     func makeNSView(context: Context) -> NSScrollView {
         let layout = NSCollectionViewFlowLayout()
-        layout.itemSize = NSSize(width: 112, height: 108)
+        layout.itemSize = NSSize(width: 106, height: 104)
         layout.minimumInteritemSpacing = 8
         layout.minimumLineSpacing = 8
         layout.sectionInset = NSEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
@@ -65,6 +67,7 @@ struct TrayCollectionView: NSViewRepresentable {
     @MainActor
     final class Coordinator: NSObject, NSCollectionViewDataSource, NSCollectionViewDelegate {
         let store: TrayStore
+        let onExternalDragBegan: () -> Void
         let onExternalDragCompleted: (NSDragOperation) -> Void
         var revealInFinderOnDoubleClick: Bool
         weak var collectionView: NSCollectionView?
@@ -74,10 +77,12 @@ struct TrayCollectionView: NSViewRepresentable {
         init(
             store: TrayStore,
             revealInFinderOnDoubleClick: Bool,
+            onExternalDragBegan: @escaping () -> Void,
             onExternalDragCompleted: @escaping (NSDragOperation) -> Void
         ) {
             self.store = store
             self.revealInFinderOnDoubleClick = revealInFinderOnDoubleClick
+            self.onExternalDragBegan = onExternalDragBegan
             self.onExternalDragCompleted = onExternalDragCompleted
         }
 
@@ -131,13 +136,20 @@ struct TrayCollectionView: NSViewRepresentable {
         func collectionView(
             _ collectionView: NSCollectionView,
             draggingSession session: NSDraggingSession,
+            willBeginAt screenPoint: NSPoint,
+            forItemsAt indexPaths: Set<IndexPath>
+        ) {
+            onExternalDragBegan()
+        }
+
+        func collectionView(
+            _ collectionView: NSCollectionView,
+            draggingSession session: NSDraggingSession,
             endedAt screenPoint: NSPoint,
             dragOperation operation: NSDragOperation
         ) {
             promiseDelegates.removeAll()
-            if !operation.isEmpty {
-                onExternalDragCompleted(operation)
-            }
+            onExternalDragCompleted(operation)
         }
 
         func collectionView(

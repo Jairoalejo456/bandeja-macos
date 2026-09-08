@@ -73,6 +73,7 @@ final class PreviewImageView: NSView {
 struct CompactDragSourceView: NSViewRepresentable {
     @ObservedObject var store: TrayStore
     let items: [TrayItem]
+    let onBegan: () -> Void
     let onCompleted: (NSDragOperation) -> Void
     let onDoubleClick: () -> Void
 
@@ -85,6 +86,7 @@ struct CompactDragSourceView: NSViewRepresentable {
     func updateNSView(_ view: CompactDragSourceNSView, context: Context) {
         view.store = store
         view.items = items
+        view.onBegan = onBegan
         view.onCompleted = onCompleted
         view.onDoubleClick = onDoubleClick
     }
@@ -93,6 +95,7 @@ struct CompactDragSourceView: NSViewRepresentable {
 final class CompactDragSourceNSView: NSView, NSDraggingSource {
     weak var store: TrayStore?
     var items: [TrayItem] = []
+    var onBegan: (() -> Void)?
     var onCompleted: ((NSDragOperation) -> Void)?
     var onDoubleClick: (() -> Void)?
 
@@ -150,6 +153,7 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
         let draggingItems = makeDraggingItems(at: location)
         guard !draggingItems.isEmpty else { return }
         beganDragging = true
+        onBegan?()
 
         let session = beginDraggingSession(with: draggingItems, event: event, source: self)
         session.animatesToStartingPositionsOnCancelOrFail = true
@@ -195,9 +199,7 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
         promiseDelegates.removeAll()
         initialLocation = nil
         beganDragging = false
-        if !operation.isEmpty {
-            onCompleted?(operation)
-        }
+        onCompleted?(operation)
     }
 
     private func makeDraggingItems(at location: NSPoint) -> [NSDraggingItem] {
