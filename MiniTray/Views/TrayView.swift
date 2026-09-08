@@ -152,8 +152,6 @@ struct TrayView: View {
                     onExternalDragBegan: onExternalDragBegan,
                     onExternalDragCompleted: onExternalDragCompleted
                 )
-                .scaleEffect(store.isDraggingOut ? 0.985 : 1)
-                .opacity(store.isDraggingOut ? 0.58 : 1)
 
                 if store.items.isEmpty {
                     emptyState
@@ -269,15 +267,14 @@ struct TrayView: View {
     }
 
     private var secondaryControlOpacity: Double {
-        store.isDraggingOut ? 0.24 : 1
+        1
     }
 
     private var previewOpacity: Double {
-        store.isDraggingOut ? 0.60 : 1
+        1
     }
 
     private var previewScale: CGFloat {
-        if store.isDraggingOut { return 0.97 }
         if store.isDropTargeted { return 1.025 }
         return 1
     }
@@ -315,7 +312,7 @@ private struct TrayGlassSurface: View {
             } else if #available(macOS 26.0, *) {
                 Color.clear
                     .glassEffect(
-                        .regular.tint(Color(red: 0.07, green: 0.075, blue: 0.085).opacity(0.76)),
+                        .regular.tint(Color(red: 0.08, green: 0.085, blue: 0.095).opacity(0.30)),
                         in: .rect(cornerRadius: cornerRadius)
                     )
             } else {
@@ -328,7 +325,7 @@ private struct TrayGlassSurface: View {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(
                     LinearGradient(
-                        colors: [Color.white.opacity(0.075), Color.clear, Color.black.opacity(0.10)],
+                        colors: [Color.white.opacity(0.12), Color.clear, Color.black.opacity(0.06)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )

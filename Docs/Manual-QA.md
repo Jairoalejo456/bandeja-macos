@@ -39,6 +39,8 @@ Para la versión 0.2.0 se redujo el panel compacto de 264 × 264 a 236 × 236 pu
 
 La versión 0.2.2 reemplaza la dominancia horizontal por detección vectorial y valida automáticamente sacudidas horizontales, verticales y diagonales. También incorpora una compuerta de contenido: el portapapeles de arrastre debe haber cambiado después de iniciar la pulsación y contener archivos o imágenes compatibles. Esto rechaza tanto una selección ordinaria con datos antiguos como un portapapeles nuevo sin contenido importable. Como comprobación integrada, se inició un arrastre real sobre `archivo-prueba.txt` en Finder y se inyectó una trayectoria vertical de cuatro tramos en el nivel HID: Finder publicó un portapapeles nuevo con `public.file-url` y MiniTray mostró un único panel visible de 236 × 158 puntos antes de soltar. La misma trayectoria sobre una zona vacía mantuvo sin cambios el portapapeles y produjo cero paneles. La ejecución humana en los tres ejes y la comprobación dentro de Canva siguen indicadas en el checklist manual y no se presentan como verificadas.
 
+Para la versión 0.2.3 se redujo el tinte carbón del Liquid Glass de 76 % a 30 % y se retiró la atenuación deliberada de miniaturas y controles durante un arrastre de salida. La bandeja compacta con una imagen se revisó visualmente sobre el escritorio y dejó percibir el fondo a través del vidrio sin añadir un contorno gris. Después de activar Finder, WindowServer mantuvo el panel visible en el nivel 9, con opacidad 1 y tamaño 236 × 236 puntos; ya no vuelve al nivel flotante 3 mientras permanece abierto.
+
 La corrección 0.1.1 también se comprobó contra WindowServer con el botón izquierdo mantenido y una trayectoria horizontal de tres inversiones: el gesto creó un único panel visible de 264 × 180 puntos, nivel flotante y opacidad 1 antes de soltar. Una trayectoria recta equivalente produjo cero ventanas, como se esperaba. Esta prueba recorre el muestreo global, el detector y la aparición real del `NSPanel`; no sustituye todavía el arrastre manual de un archivo desde Finder.
 
 Se ejecutaron **43 pruebas XCTest, 43 correctas, 0 fallos**:
@@ -81,7 +83,7 @@ Usa los tres elementos incluidos en `Docs/QA Fixtures` y cualquier PDF de prueba
 21. Con otra aplicación activa, mueve la bandeja repetidas veces desde la cabecera y ciérrala con un solo clic. Repite dibujando una pequeña trayectoria de ida y vuelta al moverla: la detección global no debe reposicionar ni bloquear el panel. Si Dropover está instalado, repite primero con Dropover cerrado para descartar superposición entre ambas utilidades.
 22. Desde el icono de la barra de menús, pulsa **Mostrar bandeja** sin tener archivos. La bandeja debe permanecer visible durante su intervalo normal, no desaparecer al terminar el mismo clic que abrió el menú.
 23. Activa **Reducir movimiento** en macOS y repite apertura, depósito, expansión, cancelación y cierre. Las transiciones deben ser más breves y no deben cambiar la escala del contenido. Desactívalo y confirma que vuelve el movimiento sutil.
-24. Inicia un arrastre sobre Finder y sobre un diálogo nativo de Abrir/Guardar. La bandeja debe mantenerse por encima mientras recibe el arrastre y volver a su nivel flotante normal al terminar.
+24. Inicia un arrastre sobre Finder y sobre un diálogo nativo de Abrir/Guardar. La bandeja debe mantenerse por encima antes, durante y después del arrastre, hasta que se cierre o quede vacía.
 
 ## Criterio de aceptación
 

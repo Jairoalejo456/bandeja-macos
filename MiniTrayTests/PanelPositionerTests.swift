@@ -49,12 +49,12 @@ final class PanelPositionerTests: XCTestCase {
         XCTAssertLessThan(reduced.dismissDuration, regular.dismissDuration)
     }
 
-    func testTrayRisesOnlyWhileReceivingAnExternalDrag() {
-        XCTAssertEqual(TrayWindowLevelPolicy.level(receivingExternalDrag: false), .floating)
-        XCTAssertGreaterThan(
-            TrayWindowLevelPolicy.level(receivingExternalDrag: true).rawValue,
-            NSWindow.Level.modalPanel.rawValue
-        )
+    func testTrayRemainsAboveNormalWindowsAtEveryInteractionStage() {
+        let restingLevel = TrayWindowLevelPolicy.level(receivingExternalDrag: false)
+        let receivingLevel = TrayWindowLevelPolicy.level(receivingExternalDrag: true)
+
+        XCTAssertEqual(restingLevel, receivingLevel)
+        XCTAssertGreaterThan(restingLevel.rawValue, NSWindow.Level.modalPanel.rawValue)
     }
 
     @MainActor

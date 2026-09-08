@@ -6,7 +6,7 @@
 
 MiniTray es una utilidad nativa de barra de menús para reunir temporalmente archivos, carpetas e imágenes mientras se trabaja entre Finder y otras aplicaciones. Mantiene una sola bandeja flotante y guarda únicamente referencias en memoria: añadir o cerrar nunca mueve ni elimina los originales.
 
-Versión actual: **0.2.2 (MVP)**.
+Versión actual: **0.2.3 (MVP)**.
 
 ## Requisitos
 
@@ -41,7 +41,7 @@ El atajo y la detección de capturas empiezan desactivados para evitar interfere
 
 La franja superior permite mover el panel. La vista compacta muestra únicamente la **X**, la pila y la cápsula de cantidad; no hay título, papelera ni acciones para quitar elementos. Cerrar con la **X** olvida todas las referencias y oculta la bandeja, pero nunca elimina los originales. La flecha superior abre un menú nativo con **Abrir con**, **Mostrar en Finder**, **Vista rápida** y los servicios de compartir que macOS tenga disponibles para esos elementos, incluidos AirDrop, Mail, Mensajes y otras extensiones instaladas. **Más opciones…** abre el selector completo del sistema.
 
-En macOS 26 o posterior, la bandeja usa el material Liquid Glass real de SwiftUI, tintado en gris carbón y reservado a la superficie flotante y sus controles. En macOS 14 y 15 mantiene la misma jerarquía con materiales nativos translúcidos. Si está activado **Reducir transparencia**, emplea un fondo oscuro sólido de alto contraste.
+En macOS 26 o posterior, la bandeja usa el material Liquid Glass real de SwiftUI con un tinte carbón ligero que deja pasar el color y la luz del fondo. Los controles conservan su propia profundidad de vidrio sin atenuar el contenido al interactuar. En macOS 14 y 15 mantiene la misma jerarquía con materiales nativos translúcidos. Si está activado **Reducir transparencia**, emplea un fondo oscuro sólido de alto contraste.
 
 La vista compacta mide 236 × 236 puntos cuando contiene elementos y la cuadrícula usa 480 puntos de ancho. La aparición, la confirmación de depósito, el paso entre vistas, la cancelación y el cierre emplean transiciones breves sin animar el marco real de la ventana; así las zonas de clic permanecen sincronizadas. Durante una salida se atenúan los controles secundarios y, si el destino rechaza o se cancela el arrastre, el contenido recupera su estado. **Reducir movimiento** acorta estas transiciones y elimina sus cambios de escala.
 
@@ -86,8 +86,8 @@ Las versiones publicadas y sus binarios se encuentran en [GitHub Releases](https
 
 - **SwiftUI** compone la presentación, el material, la jerarquía y los estados visuales.
 - **Liquid Glass / materiales de AppKit** proporcionan profundidad y contexto sin sacrificar legibilidad: vidrio real en macOS 26, material translúcido de respaldo en macOS 14–15 y superficie sólida con Reducir transparencia.
-- **NSPanel** proporciona una ventana flotante no activante, sobre ventanas normales y movible por su cabecera.
-- **Superposición adaptativa** mantiene el nivel flotante normal durante el uso ordinario y eleva temporalmente la única bandeja mientras recibe un arrastre externo, incluso sobre paneles modales de apertura o guardado; después restaura el nivel habitual para no invadir otras aplicaciones.
+- **NSPanel** proporciona una ventana no activante, movible por su cabecera y permanentemente elevada mientras está visible, sin quitar el foco a la aplicación de trabajo.
+- **Superposición estable** mantiene la única bandeja por encima de ventanas normales y paneles modales durante todo su ciclo visible; solo abandona el primer plano cuando se cierra o queda vacía.
 - **NSCollectionView / NSPasteboard** reciben URLs de archivo, carpetas e imágenes y publican de nuevo los elementos mediante drag & drop estándar. La pila compacta ofrece el conjunto completo; la cuadrícula permite una selección individual o múltiple. Los archivos existentes se ofrecen con URL y operación de copia; una imagen sin archivo de origen se conserva en memoria y se ofrece como PNG mediante `NSFilePromiseProvider` solo cuando el usuario la deposita fuera. Una salida aceptada descarta las referencias y cierra el panel; una salida cancelada no cambia el estado.
 - **Quick Look Thumbnailing** solicita a macOS la miniatura nativa de cada URL. Imágenes, PDF, vídeo, documentos y otros formatos compatibles muestran su contenido; un tipo sin generador Quick Look usa como respaldo el icono nativo de Finder.
 - **Core Graphics** instala un monitor pasivo (`listenOnly`) de sesión para tres eventos del ratón: botón izquierdo pulsado, arrastre y liberación. Monitorización de entrada permite recibirlos cuando el arrastre pertenece a Finder u otra aplicación. El monitor nunca modifica ni bloquea eventos y su máscara excluye el teclado. Mientras falta el permiso, un muestreo limitado de posición y botón mantiene una alternativa funcional. El detector vectorial exige segmentos rápidos, distancia acumulada, tres inversiones de dirección y un tiempo de enfriamiento, sin privilegiar el eje horizontal, vertical o diagonal. Antes de mostrar el panel, MiniTray comprueba además que macOS haya iniciado durante esa pulsación un portapapeles de arrastre nuevo con archivos o imágenes importables; una selección ordinaria o un lienzo que solo mueve su contenido no pasa esa validación. Solo hay un `NSPanel` y Launch Services prohíbe múltiples instancias de la app.

@@ -36,7 +36,7 @@ final class TrayPanelController {
         )
         panel.isReleasedWhenClosed = false
         panel.isFloatingPanel = true
-        panel.level = .floating
+        panel.level = TrayWindowLevelPolicy.alwaysOnTop
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
         panel.backgroundColor = .clear
         panel.isOpaque = false
@@ -434,9 +434,12 @@ final class TrayVisualState: ObservableObject {
 }
 
 enum TrayWindowLevelPolicy {
+    static let alwaysOnTop = NSWindow.Level(
+        rawValue: NSWindow.Level.modalPanel.rawValue + 1
+    )
+
     static func level(receivingExternalDrag: Bool) -> NSWindow.Level {
-        guard receivingExternalDrag else { return .floating }
-        return NSWindow.Level(rawValue: NSWindow.Level.modalPanel.rawValue + 1)
+        alwaysOnTop
     }
 }
 

@@ -2,6 +2,23 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.2.3] — 2026-09-08
+
+### Liquid Glass
+
+- Reduce el tinte opaco de la superficie para que el Liquid Glass nativo vuelva a reflejar el color y la luz del contenido situado detrás.
+- Refuerza la profundidad con una iluminación diagonal sutil sin recuperar el contorno gris retirado anteriormente.
+- Mantiene archivos, miniaturas y controles a opacidad completa durante el arrastre; la interacción ya no manda partes de la bandeja visualmente a segundo plano.
+
+### Ventana
+
+- Mantiene el panel en un nivel elevado constante mientras está visible, incluso cuando Finder u otra aplicación recibe el foco.
+- Conserva el comportamiento no activante para no interrumpir el trabajo en la aplicación de destino.
+
+### Pruebas
+
+- Actualiza la prueba de nivel de ventana para exigir la misma elevación antes, durante y después de un arrastre externo.
+
 ## [0.2.2] — 2026-09-07
 
 ### Gesto y precisión
