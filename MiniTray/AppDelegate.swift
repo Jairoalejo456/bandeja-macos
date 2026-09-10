@@ -20,7 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
 #if DEBUG
-        if ProcessInfo.processInfo.arguments.contains("--show-settings") {
+        if ProcessInfo.processInfo.arguments.contains("--show-settings") || ProcessInfo.processInfo.arguments.contains("--qa-isolated") {
             NSApp.setActivationPolicy(.regular)
         }
 #endif
@@ -64,10 +64,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             self?.handleScreenshotStatus(status)
         }
 
-        observeSettings()
-        configureStatusItem()
         let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
-        dragMonitor.start(requestPermission: !isRunningTests)
+        var isolatedQA = false
+#if DEBUG
+        isolatedQA = ProcessInfo.processInfo.arguments.contains("--qa-isolated")
+#endif
+        if !isolatedQA {
+            observeSettings()
+            dragMonitor.start(requestPermission: !isRunningTests)
+        }
+        configureStatusItem()
 
 #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
@@ -80,7 +86,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         if arguments.contains("--show-tray") {
             DispatchQueue.main.async { [weak self] in
-                self?.panelController.showNearCursor()
+                if isolatedQA, let screen = NSScreen.main {
+                    self?.panelController.showNearCursor(CGPoint(x: screen.frame.maxX - 280,
+                                                                  y: screen.frame.midY + 100))
+                    if let frame = self?.panelController.presentationFrame {
+                        print("QA panel frame: \(frame); screen: \(screen.frame)")
+                    }
+                } else {
+                    self?.panelController.showNearCursor()
+                }
             }
         }
         if arguments.contains("--show-settings") {

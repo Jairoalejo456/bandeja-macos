@@ -21,7 +21,7 @@ xcodebuild test \
 
 ## Principios que deben preservarse
 
-- La bandeja guarda referencias temporales; nunca debe mover o borrar originales.
+- Recoger, cancelar y cerrar solo cambian referencias temporales; no deben mover ni borrar originales. Una salida deliberada puede negociar movimiento o copia con Finder. MiniTray no debe borrar el origen por su cuenta después de la entrega.
 - Solo puede existir una bandeja.
 - El contenido no se restaura tras reiniciar.
 - No se deben añadir telemetría, cuentas, red o permisos innecesarios.
@@ -44,4 +44,13 @@ MiniTray usa la [licencia MIT](LICENSE). Al enviar una contribución para integr
 
 ## Versiones
 
-El proyecto utiliza etiquetas `vMAJOR.MINOR.PATCH`. Antes de crear una versión se actualizan `CFBundleShortVersionString`, `MARKETING_VERSION` y `CHANGELOG.md`. `./scripts/build-release.sh` genera un binario universal y un ZIP local; publicar, firmar con Developer ID o notarizar son pasos separados y requieren autorización y credenciales apropiadas.
+El proyecto utiliza etiquetas `vMAJOR.MINOR.PATCH`. Antes de crear una versión se actualizan `MARKETING_VERSION` (que alimenta `CFBundleShortVersionString`), `CURRENT_PROJECT_VERSION` y `CHANGELOG.md`. `./scripts/build-release.sh` genera un binario universal y un ZIP local.
+
+Las entregas terminadas solicitadas por el propietario deben quedar también en GitHub, no únicamente instaladas en su Mac:
+
+1. Revisar cambios, privacidad, licencia y pruebas; documentar las verificaciones pendientes sin presentarlas como superadas.
+2. Guardar el código, pruebas y documentación en un commit y subirlo al repositorio oficial. Excluir configuraciones locales, certificados, credenciales, capturas personales y resultados temporales.
+3. Esperar la comprobación de GitHub Actions. Crear la etiqueta correspondiente y una GitHub Release con notas en `Docs/Releases`, ZIP universal y su SHA-256.
+4. Verificar que etiqueta, código, versión del binario y huella publicada corresponden a la misma entrega. Informar los enlaces de código y descarga.
+
+La publicación de estas entregas está autorizada por el propietario. Esa autorización no incluye compras, creación de certificados, firma con Developer ID, notarización ni cambios en cuentas de Apple, que siguen siendo pasos separados.

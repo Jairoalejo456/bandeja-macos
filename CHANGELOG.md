@@ -2,6 +2,65 @@
 
 Este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.2.9] — 2026-09-09
+
+### Miniaturas y señal de traslado
+
+- Rasteriza la primera página del PDF sobre papel blanco opaco, conservando proporción, rotación y recorte, sin modificar el documento. Corrige también el escalado de páginas pequeñas en Retina.
+- Realiza la lectura PDF en una cola de fondo y comparte la miniatura entre pila, cuadrícula y arrastre. Agrupa solicitudes simultáneas para evitar renderizados repetidos.
+- Usa las previsualizaciones al arrastrar, tanto en la pila como en la cuadrícula, y las actualiza si terminan de cargar durante la sesión.
+- Añade una flecha de 16 puntos al primer archivo del conjunto. Indica intención de traslado, no aceptación ni resultado del destino. El cursor nativo conserva la señal de copia/rechazo; Opción retira la flecha y las imágenes en memoria no la muestran.
+- Mantiene intactas las URLs, las operaciones nativas de movimiento/copia, las promesas de imagen, el cierre y la cancelación. No añade permisos ni dependencias externas.
+
+### Verificación
+
+- 85 pruebas XCTest correctas: 12 casos nuevos para PDF opaco, rotación, recorte, escalado Retina, documentos inválidos, caché compartida, proporción/transparencia, asociación de URLs y señal con Opción; conserva las 73 pruebas anteriores.
+- Revisión visual de un PDF sintético en pila y cuadrícula. Comparación del raster nativo con Poppler y revisión de la imagen de arrastre generada con y sin flecha. El documento de prueba mantiene exactamente su huella SHA-256.
+- La automatización del ratón inicia la sesión AppKit, pero no entrega su finalización; por ello no se declara verificada en esta pasada la transferencia/cancelación real entre aplicaciones ni la señal durante todo el recorrido. Se retiró un ajuste provisional de recarga de celdas al comprobar este límite del control automático.
+- Compilación Release universal (Apple Silicon e Intel), firma e instalación local 0.2.9 (19) verificadas con el mismo certificado e identificador. Respaldo recuperable de 0.2.8 y ninguna publicación remota en esta pasada. La lógica de mover archivos no se sustituye por operaciones propias del sistema de archivos; los destinos siguen negociando la operación nativa.
+
+### Publicación acumulada
+
+- Publica en GitHub la entrega 0.2.9, incluyendo los cambios de 0.2.7 y 0.2.8 que hasta esta pasada solo estaban disponibles localmente. Incluye fuente, pruebas, documentación, ZIP universal ad hoc, SHA-256 y licencia MIT.
+- Repite las 85 pruebas y reconstruye Release desde una copia limpia del código publicable. Completa una revisión estática general de seguridad sin vulnerabilidades reportables; no equivale a auditar los frameworks de macOS ni todos los flujos externos.
+- Precisa la documentación sobre traslado consentido, consulta de Opción y retención temporal de cachés de previsualización. Conserva explícitos los límites de verificación funcional.
+
+## [0.2.8] — 2026-09-09
+
+### Traslado de archivos
+
+- Corrige la máscara de arrastre que restringía a copia tanto la pila compacta como la cuadrícula. Finder puede mover las URLs originales al destino.
+- Unifica la política de salida y calcula la operación de la cuadrícula solo a partir de los elementos seleccionados. Mantiene las promesas de PNG para imágenes en memoria y los modificadores nativos de macOS.
+- Recoger, cerrar o cancelar sigue sin tocar los originales. La notificación de salida solo descarta referencias: no hay borrado posterior ni una operación de archivos programada por MiniTray.
+
+### Verificación
+
+- 73 pruebas XCTest correctas. Añade casos para archivos/carpetas, imágenes en memoria, lotes mixtos, selección expandida, cancelación/cierre y protección de un archivo nuevo que aparezca en la antigua ruta tras un traslado.
+- Prueba manual asistida con Finder: PDF individual desde la cuadrícula y pila compacta de dos PDF y una carpeta. Los cuatro originales desaparecen del origen y las huellas SHA-256 de destino coinciden exactamente.
+- La prueba automática del ratón no completó los arrastres; el usuario los ejecutó y la comprobación de ubicaciones y huellas se realizó por separado. No se afirma haber probado un volumen externo ni envíos reales a otras aplicaciones.
+- Cierre con X comprobado en la copia de prueba: el archivo mantuvo su huella. La repetición de un arrastre hacia la misma carpeta no pudo verificarse automáticamente y permanece en la lista de comprobaciones manuales.
+- Compilación Release universal (Apple Silicon e Intel), firma verificada e instalación local con el mismo identificador y certificado que la versión anterior. Se conserva un respaldo local de 0.2.7. No se publica una nueva versión en GitHub en esta pasada.
+
+## [0.2.7] — 2026-09-09
+
+### Movimiento nativo
+
+- Adapta la referencia de movimiento entregada para entrada, recepción, absorción de carpeta, expansión/colapso, salida y compartición.
+- Evalúa las curvas Bézier y sus fotogramas clave con un único reloj cancelable que se detiene cuando no hay animaciones.
+- Redimensiona el panel real desde su posición actual, con fundido de contenido e inversión inmediata sin zonas de clic desajustadas.
+- Conserva la presentación durante la salida sin retrasar el descarte lógico de referencias ni tocar los originales.
+- Desactiva la animación de destino de AppKit antes de aceptar el depósito, para evitar una segunda animación de absorción.
+- Anima la compartición cuando el servicio nativo confirma el envío. Cancelar o fallar no vacía la bandeja; un resultado atrasado tampoco descarta archivos nuevos.
+- Respeta Reducir movimiento con fundidos de 120 ms y mantiene el vidrio recortado; no desenfoca el material de fondo.
+- Evita recargar miniaturas y consultar tamaños de archivo en cada fotograma.
+
+### Verificación
+
+- 67 pruebas XCTest correctas, incluyendo curvas, secuencias, interrupciones, cierre/reapertura, absorción cancelada y 50 inversiones de tamaño con 32 elementos.
+- Verifica la misma ruta de confirmación para AirDrop, Mail, Mensajes y servicios genéricos de terceros desde «Más opciones…», sin realizar envíos reales. Documenta la diferencia entre compartir mediante un servicio nativo y «Abrir con», que no comunica un envío posterior.
+- Comprobación interactiva de pila, expansión/regreso con un clic, cabecera, menú nativo y cancelación de AirDrop.
+- Los límites de la comprobación entre aplicaciones están documentados en [Motion-0.2.7](Docs/Motion-0.2.7.md); no se declara una transferencia AirDrop real ni equivalencia píxel a píxel.
+
 ## [0.2.6] — 2026-09-08
 
 ### Publicación bajo MIT
@@ -207,3 +266,4 @@ Primera versión pública del MVP.
 [0.2.0]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.2.0
 [0.2.1]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.2.1
 [0.2.2]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.2.2
+[0.2.9]: https://github.com/Jairoalejo456/minitray-macos/releases/tag/v0.2.9

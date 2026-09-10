@@ -10,12 +10,14 @@ final class TrayStore: ObservableObject {
     @Published private(set) var isDraggingOut = false
 
     var onBecameEmpty: (() -> Void)?
+    var onAcceptedDrop: ((TrayIncomingDrop) -> Void)?
 
     @discardableResult
     func addFileURLs(_ urls: [URL]) -> Int {
         let existingPaths = Set(items.compactMap(\.fileURL).map(canonicalPath))
         var paths = existingPaths
         var added = 0
+        var additions: [TrayItem] = []
 
         for url in urls where url.isFileURL {
             let normalizedURL = url.standardizedFileURL
@@ -23,12 +25,13 @@ final class TrayStore: ObservableObject {
             guard !paths.contains(path) else { continue }
             guard FileManager.default.fileExists(atPath: normalizedURL.path) else { continue }
 
-            items.append(TrayItem(url: normalizedURL))
+            additions.append(TrayItem(url: normalizedURL))
             paths.insert(path)
             added += 1
         }
 
         if added > 0 {
+            items.append(contentsOf: additions)
             statusMessage = nil
         }
         return added
@@ -45,6 +48,12 @@ final class TrayStore: ObservableObject {
 
     func remove(id: UUID) {
         items.removeAll { $0.id == id }
+        notifyIfEmpty()
+    }
+
+    func remove(ids: Set<UUID>) {
+        guard items.contains(where: { ids.contains($0.id) }) else { return }
+        items.removeAll { ids.contains($0.id) }
         notifyIfEmpty()
     }
 
@@ -105,6 +114,8 @@ final class TrayStore: ObservableObject {
 
     private func notifyIfEmpty() {
         if items.isEmpty {
+            isExpanded = false
+            isDraggingOut = false
             onBecameEmpty?()
         }
     }

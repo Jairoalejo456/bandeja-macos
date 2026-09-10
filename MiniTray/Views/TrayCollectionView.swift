@@ -1,10 +1,14 @@
 import AppKit
+import CoreImage
 import QuickLookThumbnailing
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct TrayCollectionView: NSViewRepresentable {
     @ObservedObject var store: TrayStore
+    var items: [TrayItem]? = nil
+    var itemPoses: [UUID: MotionPose] = [:]
+    private var displayItems: [TrayItem] { items ?? store.items }
     let revealInFinderOnDoubleClick: Bool
     let onExternalDragBegan: () -> Void
     let onExternalDragCompleted: (NSDragOperation) -> Void
@@ -39,8 +43,8 @@ struct TrayCollectionView: NSViewRepresentable {
         collectionView.onDoubleClick = { [weak coordinator = context.coordinator] indexPath in
             coordinator?.openDoubleClickedItem(at: indexPath)
         }
-        collectionView.setDraggingSourceOperationMask(.copy, forLocal: false)
-        collectionView.setDraggingSourceOperationMask(.copy, forLocal: true)
+        collectionView.setDraggingSourceOperationMask([], forLocal: false)
+        collectionView.setDraggingSourceOperationMask([], forLocal: true)
         collectionView.registerForDraggedTypes([.fileURL, .png, .tiff])
 
         let scrollView = NSScrollView()
@@ -51,28 +55,36 @@ struct TrayCollectionView: NSViewRepresentable {
         scrollView.borderType = .noBorder
         scrollView.documentView = collectionView
         context.coordinator.collectionView = collectionView
-        context.coordinator.lastItemIDs = store.items.map(\.id)
+        context.coordinator.items = displayItems
+        context.coordinator.itemPoses = itemPoses
+        context.coordinator.lastItemIDs = displayItems.map(\.id)
         return scrollView
     }
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
         context.coordinator.revealInFinderOnDoubleClick = revealInFinderOnDoubleClick
-        let currentIDs = store.items.map(\.id)
+        context.coordinator.items = displayItems
+        context.coordinator.itemPoses = itemPoses
+        let currentIDs = displayItems.map(\.id)
         if currentIDs != context.coordinator.lastItemIDs {
             context.coordinator.lastItemIDs = currentIDs
             context.coordinator.collectionView?.reloadData()
         }
+        context.coordinator.applyMotion()
     }
 
     @MainActor
     final class Coordinator: NSObject, NSCollectionViewDataSource, NSCollectionViewDelegate {
         let store: TrayStore
+        var items: [TrayItem] = []
+        var itemPoses: [UUID: MotionPose] = [:]
         let onExternalDragBegan: () -> Void
         let onExternalDragCompleted: (NSDragOperation) -> Void
         var revealInFinderOnDoubleClick: Bool
         weak var collectionView: NSCollectionView?
         var lastItemIDs: [UUID] = []
         private var promiseDelegates: [UUID: ImagePromiseDelegate] = [:]
+        private let dragPreview = TrayDragPreviewSession()
 
         init(
             store: TrayStore,
@@ -86,18 +98,27 @@ struct TrayCollectionView: NSViewRepresentable {
             self.onExternalDragCompleted = onExternalDragCompleted
         }
 
+        func applyMotion() {
+            guard let collectionView else { return }
+            for path in collectionView.indexPathsForVisibleItems() {
+                guard items.indices.contains(path.item),
+                      let cell = collectionView.item(at: path) as? TrayCollectionViewItem else { continue }
+                cell.applyMotion(itemPoses[items[path.item].id] ?? .identity)
+            }
+        }
+
         func openDoubleClickedItem(at indexPath: IndexPath) {
             let index = indexPath.item
             guard revealInFinderOnDoubleClick,
-                  store.items.indices.contains(index),
-                  let url = store.items[index].fileURL else { return }
+                  items.indices.contains(index),
+                  let url = items[index].fileURL else { return }
             NSWorkspace.shared.activateFileViewerSelecting([url])
         }
 
         func numberOfSections(in collectionView: NSCollectionView) -> Int { 1 }
 
         func collectionView(_ collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
-            store.items.count
+            items.count
         }
 
         func collectionView(
@@ -108,21 +129,37 @@ struct TrayCollectionView: NSViewRepresentable {
                 withIdentifier: TrayCollectionViewItem.identifier,
                 for: indexPath
             ) as? TrayCollectionViewItem,
-            store.items.indices.contains(indexPath.item) else {
+            items.indices.contains(indexPath.item) else {
                 return NSCollectionViewItem()
             }
 
-            let trayItem = store.items[indexPath.item]
+            let trayItem = items[indexPath.item]
             item.configure(with: trayItem)
+            item.applyMotion(itemPoses[trayItem.id] ?? .identity)
             return item
+        }
+
+        func collectionView(
+            _ collectionView: NSCollectionView,
+            canDragItemsAt indexPaths: Set<IndexPath>,
+            with event: NSEvent
+        ) -> Bool {
+            let draggedItems = indexPaths.compactMap { path in
+                items.indices.contains(path.item) ? items[path.item] : nil
+            }
+            let operations = draggedItems.count == indexPaths.count
+                ? TrayDragPolicy.operations(for: draggedItems) : []
+            collectionView.setDraggingSourceOperationMask(operations, forLocal: false)
+            collectionView.setDraggingSourceOperationMask(operations, forLocal: true)
+            return !operations.isEmpty
         }
 
         func collectionView(
             _ collectionView: NSCollectionView,
             pasteboardWriterForItemAt indexPath: IndexPath
         ) -> NSPasteboardWriting? {
-            guard store.items.indices.contains(indexPath.item) else { return nil }
-            let item = store.items[indexPath.item]
+            guard items.indices.contains(indexPath.item) else { return nil }
+            let item = items[indexPath.item]
             switch item.content {
             case let .file(url):
                 return url as NSURL
@@ -139,7 +176,12 @@ struct TrayCollectionView: NSViewRepresentable {
             willBeginAt screenPoint: NSPoint,
             forItemsAt indexPaths: Set<IndexPath>
         ) {
+            let draggedItems = indexPaths.sorted().compactMap { path in
+                items.indices.contains(path.item) ? items[path.item] : nil
+            }
             onExternalDragBegan()
+            dragPreview.begin(session, items: draggedItems,
+                              scale: collectionView.window?.backingScaleFactor ?? 2)
         }
 
         func collectionView(
@@ -148,7 +190,10 @@ struct TrayCollectionView: NSViewRepresentable {
             endedAt screenPoint: NSPoint,
             dragOperation operation: NSDragOperation
         ) {
+            dragPreview.end()
             promiseDelegates.removeAll()
+            collectionView.setDraggingSourceOperationMask([], forLocal: false)
+            collectionView.setDraggingSourceOperationMask([], forLocal: true)
             onExternalDragCompleted(operation)
         }
 
@@ -164,6 +209,7 @@ struct TrayCollectionView: NSViewRepresentable {
             }
 
             store.isDropTargeted = TrayPasteboardImporter.canImport(from: draggingInfo.draggingPasteboard)
+            if store.isDropTargeted { draggingInfo.animatesToDestination = false }
             dropOperation.pointee = .on
             return store.isDropTargeted ? .copy : []
         }
@@ -176,7 +222,7 @@ struct TrayCollectionView: NSViewRepresentable {
         ) -> Bool {
             defer { store.isDropTargeted = false }
             guard !isInternalDrag(draggingInfo, in: collectionView) else { return false }
-            return TrayPasteboardImporter.importItems(from: draggingInfo.draggingPasteboard, into: store) > 0
+            return TrayPasteboardImporter.importDrop(draggingInfo, into: store, destination: collectionView)
         }
 
         private func isInternalDrag(_ draggingInfo: NSDraggingInfo, in collectionView: NSCollectionView) -> Bool {
@@ -209,6 +255,7 @@ private final class TrayCollectionViewItem: NSCollectionViewItem {
     private let iconView = FirstMouseImageView()
     private let nameField = FirstMouseTextField(labelWithString: "")
     private var representedID: UUID?
+    private let motionBlur = CIFilter(name: "CIGaussianBlur")
 
     override func loadView() {
         view = HoverCellView()
@@ -284,6 +331,25 @@ private final class TrayCollectionViewItem: NSCollectionViewItem {
         }
     }
 
+    func applyMotion(_ pose: MotionPose) {
+        guard let layer = view.layer else { return }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        layer.opacity = Float(pose.opacity)
+        let offsetY = view.isFlipped ? pose.y : -pose.y
+        var transform = CATransform3DMakeTranslation(view.bounds.midX, view.bounds.midY + offsetY, 0)
+        transform = CATransform3DScale(transform, pose.scale, pose.scale, 1)
+        transform = CATransform3DTranslate(transform, -view.bounds.midX, -view.bounds.midY, 0)
+        layer.sublayerTransform = transform
+        if pose.blur > 0, let motionBlur {
+            motionBlur.setValue(pose.blur, forKey: kCIInputRadiusKey)
+            layer.filters = [motionBlur]
+        } else {
+            layer.filters = nil
+        }
+        CATransaction.commit()
+    }
+
     private func updateAppearance() {
         guard let cell = view as? HoverCellView else { return }
         cell.isItemSelected = isSelected
@@ -295,6 +361,20 @@ final class NativeThumbnailLoader {
     static let shared = NativeThumbnailLoader()
 
     private let cache = NSCache<NSString, NSImage>()
+    private var pending: [String: [(NSImage) -> Void]] = [:]
+    private let pdfQueue = DispatchQueue(label: "MiniTray.pdf-previews", qos: .userInitiated)
+
+    init() {
+        cache.countLimit = 256
+    }
+
+    private func cacheKey(for url: URL, scale: CGFloat) -> String {
+        "\(url.standardizedFileURL.path)|128|\(min(max(scale, 1), 4))"
+    }
+
+    func cachedThumbnail(for url: URL, scale: CGFloat) -> NSImage? {
+        cache.object(forKey: cacheKey(for: url, scale: scale) as NSString)
+    }
 
     func loadThumbnail(
         for url: URL,
@@ -302,32 +382,58 @@ final class NativeThumbnailLoader {
         scale: CGFloat,
         completion: @escaping (NSImage) -> Void
     ) {
-        let key = "\(url.standardizedFileURL.path)|\(Int(size.width))x\(Int(size.height))|\(scale)"
+        // Una miniatura común de suficiente resolución para pila, cuadrícula y arrastre.
+        let density = min(max(scale.isFinite ? scale : 2, 1), 4)
+        let key = cacheKey(for: url, scale: density)
         if let cachedImage = cache.object(forKey: key as NSString) {
             completion(cachedImage)
             return
         }
 
-        if let directlyDecodableImage = NSImage(contentsOf: url) {
-            cache.setObject(directlyDecodableImage, forKey: key as NSString)
-            completion(directlyDecodableImage)
+        if pending[key] != nil {
+            pending[key]?.append(completion)
             return
+        }
+        pending[key] = [completion]
+        let finish: (NSImage) -> Void = { [weak self] image in
+            guard let self else { return }
+            self.cache.setObject(image, forKey: key as NSString)
+            let callbacks = self.pending.removeValue(forKey: key) ?? []
+            callbacks.forEach { $0(image) }
         }
 
         let fallback = NSWorkspace.shared.icon(forFile: url.path)
+        if UTType(filenameExtension: url.pathExtension)?.conforms(to: .pdf) == true {
+            pdfQueue.async {
+                let image = PDFPreviewRenderer.image(for: url, size: CGSize(width: 128, height: 128), scale: density)
+                DispatchQueue.main.async { finish(image ?? fallback) }
+            }
+            return
+        }
+
+        if let directlyDecodableImage = NSImage(contentsOf: url) {
+            if directlyDecodableImage.representations.contains(where: { $0 is NSPDFImageRep }) {
+                pdfQueue.async {
+                    let image = PDFPreviewRenderer.image(for: url, size: CGSize(width: 128, height: 128), scale: density)
+                    DispatchQueue.main.async { finish(image ?? fallback) }
+                }
+            } else {
+                finish(directlyDecodableImage)
+            }
+            return
+        }
+
         let request = QLThumbnailGenerator.Request(
             fileAt: url,
-            size: size,
-            scale: scale,
+            size: NSSize(width: 128, height: 128),
+            scale: density,
             representationTypes: .all
         )
 
-        QLThumbnailGenerator.shared.generateBestRepresentation(for: request) { [weak self] representation, _ in
+        QLThumbnailGenerator.shared.generateBestRepresentation(for: request) { representation, _ in
             DispatchQueue.main.async {
-                guard let self else { return }
                 let image = representation?.nsImage ?? fallback
-                self.cache.setObject(image, forKey: key as NSString)
-                completion(image)
+                finish(image)
             }
         }
     }

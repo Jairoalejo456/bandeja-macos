@@ -2,7 +2,7 @@
 
 La auditoría ejecutada del MVP 0.2.5 y sus resultados están documentados en [Final-Audit-0.2.5.md](Final-Audit-0.2.5.md). Esta lista permite repetir la aceptación en otro Mac o después de cambios futuros.
 
-Usa los elementos de `Docs/QA Fixtures`, una imagen raster y un PDF. Para probar la salida, crea una carpeta de destino vacía fuera de los fixtures y anota antes las fechas, tamaños o huellas de los originales.
+Usa **copias desechables** de los elementos de `Docs/QA Fixtures`, una imagen raster y un PDF. No arrastres directamente los fixtures versionados: desde 0.2.8 una salida a Finder puede trasladarlos. Crea carpetas de origen y destino vacías para el ensayo y anota antes las fechas, tamaños o huellas de los originales.
 
 ## Flujo principal
 
@@ -11,13 +11,15 @@ Usa los elementos de `Docs/QA Fixtures`, una imagen raster y un PDF. Para probar
 3. Haz un arrastre recto, selecciona texto y mueve un objeto no exportable dentro de otra aplicación. La bandeja no debe aparecer.
 4. Deposita un archivo, varios archivos, una carpeta, una imagen y un PDF; suelta al menos uno en el centro exacto. Todas las zonas internas deben aceptar el contenido.
 5. Comprueba miniatura proporcional de la imagen, primera página del PDF, vistas nativas para formatos compatibles e iconos de Finder como respaldo.
+   - En PDF, incluso sin un fondo pintado en el archivo, el papel debe verse blanco y opaco en pila, cuadrícula y arrastre. Repite con página rotada, recorte desplazado, PDF pequeño y Retina. La transparencia propia de un PNG debe conservarse.
+   - Durante la salida, verifica la previsualización del archivo y una sola flecha discreta de traslado por grupo. Opción debe retirar la flecha; al soltar Opción debe volver. El cursor nativo de copia/rechazo nunca debe taparse ni sustituirse. Cancela y repite: no debe quedar una imagen flotante ni un temporizador activo.
 6. Confirma que la pila compacta mantiene 236 × 236 puntos sin importar la cantidad. Pulsa una vez la cápsula, revisa todos los elementos en la cuadrícula y vuelve con Atrás.
 7. Arrastra la cabecera a diferentes zonas y bordes. La bandeja debe responder al primer intento, quedar visible y conservar todo.
 8. Con contenido existente, repite el gesto con otro archivo. No debe aparecer una segunda bandeja ni perderse el contenido anterior.
-9. Arrastra la pila compacta a Finder y luego un elemento o selección desde la cuadrícula. La entrega debe comenzar al primer intento y la bandeja debe cerrarse cuando el destino la acepte.
+9. Arrastra la pila compacta a otra carpeta de Finder del mismo volumen y luego un elemento o selección desde la cuadrícula. La entrega debe comenzar al primer intento, el archivo debe desaparecer del origen y la bandeja debe cerrarse cuando el destino la acepte. Verifica también una carpeta con contenido. Repite hacia la misma carpeta de origen: no debe duplicar implícitamente los archivos.
 10. Cancela otra salida. La bandeja debe recuperar sus controles y conservar el contenido.
 11. Pulsa X con otra aplicación activa. Debe responder al primer clic, cerrar el panel y olvidar las referencias sin alterar los originales.
-12. Verifica que todos los originales mantienen su ubicación, tamaño, fecha o huella después de depositar, sacar, cancelar y cerrar.
+12. Verifica que los originales mantienen ubicación y contenido al recoger, cancelar y cerrar. Después de un **movimiento aceptado**, compara la huella del destino con la del origen y confirma que la ruta anterior ya no existe. Prueba también Opción para copiar deliberadamente, rechazo del destino y Comando para mover entre volúmenes. No borres un original como remedio si algún destino solo copia. En una app que adjunta/importa archivos y al compartir, el original debe mantenerse.
 
 ## Acciones y ajustes
 

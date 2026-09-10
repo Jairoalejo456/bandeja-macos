@@ -13,15 +13,34 @@ struct TrayView: View {
     let onCollapse: () -> Void
     let onExternalDragBegan: () -> Void
     let onExternalDragCompleted: (NSDragOperation) -> Void
+    var onShared: (Set<UUID>) -> Void = { _ in }
+    var onWindowDragBegan: () -> Void = {}
+
+    private var items: [TrayItem] { visualState.retainedItems ?? store.items }
 
     var body: some View {
-        Group {
-            if isExpanded {
-                expandedContent
-            } else {
-                compactContent
-            }
+        GeometryReader { geometry in
+            surface(size: geometry.size)
         }
+    }
+
+    private func surface(size: CGSize) -> some View {
+        ZStack {
+            if let outgoing = visualState.outgoingExpanded {
+                outgoingContent(expanded: outgoing)
+                    .frame(width: max(1, visualState.outgoingSize.width - 16),
+                           height: max(1, visualState.outgoingSize.height - 16))
+                    .opacity(visualState.outgoingOpacity)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+            Group {
+                if isExpanded { expandedContent } else { compactContent }
+            }
+            .opacity(visualState.contentOpacity)
+        }
+        .frame(width: max(1, size.width - 16), height: max(1, size.height - 16))
+        .blur(radius: visualState.pose.blur)
         .background {
             TrayGlassSurface(cornerRadius: 20)
         }
@@ -32,20 +51,74 @@ struct TrayView: View {
                     .stroke(Color.accentColor, lineWidth: 2)
             }
         }
+        .overlay {
+            if let sweep = visualState.sweep {
+                GeometryReader { geometry in
+                    LinearGradient(colors: [.clear, .white.opacity(0.18), .clear],
+                                   startPoint: .leading, endPoint: .trailing)
+                        .frame(width: geometry.size.width * 0.55)
+                        .rotationEffect(.degrees(-14))
+                        .offset(x: geometry.size.width * (-1.3 + 2.8 * MotionCurve.itemShare.value(at: sweep)))
+                        .opacity(sweep < 0.2 ? sweep / 0.2 : max(0, (1 - sweep) / 0.8))
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .allowsHitTesting(false)
+            }
+        }
         .padding(8)
-        .scaleEffect(visualState.scale)
-        .opacity(visualState.opacity)
+        .scaleEffect(visualState.pose.scale)
+        .offset(x: visualState.pose.x, y: visualState.pose.y)
+        .opacity(visualState.pose.opacity)
         .animation(responsiveAnimation, value: store.isDropTargeted)
         .animation(responsiveAnimation, value: store.isDraggingOut)
         .environment(\.controlActiveState, .active)
         .environment(\.colorScheme, .dark)
     }
 
+    /// A render-only outgoing layer: no second live collection, drag source or
+    /// native button may steal the first click during the crossfade.
+    private func outgoingContent(expanded: Bool) -> some View {
+        VStack(spacing: 0) {
+            HStack {
+                Image(systemName: expanded ? "chevron.left" : "xmark")
+                Spacer()
+                if expanded { Text(expandedCountText).font(.system(size: 15, weight: .semibold)) }
+                Spacer()
+                Image(systemName: "chevron.down")
+            }
+            .padding(.horizontal, 22)
+            .frame(height: expanded ? 54 : 46)
+            if expanded {
+                ScrollView {
+                    LazyVGrid(columns: Array(repeating: GridItem(.fixed(106)), count: 4), spacing: 8) {
+                        ForEach(items) { item in
+                            VStack(spacing: 5) {
+                                NativeThumbnailView(item: item, size: NSSize(width: 78, height: 66))
+                                    .frame(width: 78, height: 66)
+                                Text(item.name).font(.system(size: 12, weight: .medium)).lineLimit(2)
+                            }.frame(width: 106, height: 104)
+                        }
+                    }
+                }.disabled(true)
+            } else {
+                ZStack {
+                    ForEach(Array(items.prefix(3).enumerated()).reversed(), id: \.element.id) { index, item in
+                        NativeThumbnailView(item: item, size: NSSize(width: 120, height: 94))
+                            .frame(width: 120, height: 94)
+                            .rotationEffect(rotation(for: index)).offset(offset(for: index))
+                    }
+                }.frame(maxHeight: .infinity)
+                Text(compactCountText).font(.system(size: 12, weight: .semibold))
+                    .frame(height: 30).padding(.bottom, 10)
+            }
+        }
+    }
+
     private var compactContent: some View {
         VStack(spacing: 0) {
             compactHeader
 
-            if store.items.isEmpty {
+            if items.isEmpty {
                 emptyState
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .offset(y: -23)
@@ -83,7 +156,7 @@ struct TrayView: View {
 
     private var compactHeader: some View {
         ZStack {
-            WindowDragHandle()
+            WindowDragHandle(onBegan: onWindowDragBegan)
 
             HStack {
                 Button(action: onClose) {
@@ -95,7 +168,7 @@ struct TrayView: View {
 
                 Spacer()
 
-                TrayActionsButton(items: store.items)
+                TrayActionsButton(items: items, onShared: onShared)
                     .frame(width: 38, height: 38)
             }
             .padding(.horizontal, 8)
@@ -108,7 +181,7 @@ struct TrayView: View {
 
     private var previewStack: some View {
         ZStack {
-            ForEach(Array(store.items.prefix(3).enumerated()).reversed(), id: \.element.id) { index, item in
+            ForEach(Array(items.prefix(3).enumerated()).reversed(), id: \.element.id) { index, item in
                 NativeThumbnailView(item: item, size: NSSize(width: 120, height: 94))
                     .frame(width: 120, height: 94)
                     .background(Color.black.opacity(0.30), in: RoundedRectangle(cornerRadius: 10))
@@ -120,11 +193,12 @@ struct TrayView: View {
                     .shadow(color: .black.opacity(index == 0 ? 0.20 : 0.10), radius: 4, y: 2)
                     .rotationEffect(rotation(for: index))
                     .offset(offset(for: index))
+                    .modifier(MotionPoseModifier(pose: visualState.itemPoses[item.id] ?? .identity))
             }
 
             CompactDragSourceView(
                 store: store,
-                items: store.items,
+                items: items,
                 onBegan: onExternalDragBegan,
                 onCompleted: onExternalDragCompleted,
                 onDoubleClick: revealFrontItemInFinder
@@ -149,12 +223,15 @@ struct TrayView: View {
             ZStack {
                 TrayCollectionView(
                     store: store,
+                    items: items,
+                    itemPoses: visualState.itemPoses,
                     revealInFinderOnDoubleClick: settings.revealInFinderOnDoubleClick,
                     onExternalDragBegan: onExternalDragBegan,
                     onExternalDragCompleted: onExternalDragCompleted
                 )
+                .frame(width: visualState.contentSize?.width)
 
-                if store.items.isEmpty {
+                if items.isEmpty {
                     emptyState
                         .allowsHitTesting(false)
                 }
@@ -164,7 +241,7 @@ struct TrayView: View {
 
     private var expandedHeader: some View {
         ZStack {
-            WindowDragHandle()
+            WindowDragHandle(onBegan: onWindowDragBegan)
 
             VStack(spacing: 1) {
                 Text(expandedCountText)
@@ -187,7 +264,7 @@ struct TrayView: View {
 
                 Spacer()
 
-                TrayActionsButton(items: store.items)
+                TrayActionsButton(items: items, onShared: onShared)
                     .frame(width: 40, height: 40)
             }
             .padding(.horizontal, 8)
@@ -202,7 +279,6 @@ struct TrayView: View {
         Image(systemName: store.isDropTargeted ? "arrow.down.circle.fill" : "tray")
             .font(.system(size: 28, weight: .medium))
             .foregroundStyle(store.isDropTargeted ? Color.accentColor : Color.primary.opacity(0.38))
-            .symbolEffect(.bounce, value: store.isDropTargeted)
             .accessibilityLabel(store.isDropTargeted ? "Soltar elementos" : "Bandeja vacía")
         .padding(12)
     }
@@ -224,7 +300,7 @@ struct TrayView: View {
     }
 
     private var compactCountText: String {
-        let count = store.items.count
+        let count = items.count
         if itemsAreAllImages {
             return count == 1 ? "1 imagen" : "\(count) imágenes"
         }
@@ -236,27 +312,11 @@ struct TrayView: View {
     }
 
     private var itemsAreAllImages: Bool {
-        !store.items.isEmpty && store.items.allSatisfy { item in
-            switch item.content {
-            case .image:
-                return true
-            case let .file(url):
-                guard let type = UTType(filenameExtension: url.pathExtension) else { return false }
-                return type.conforms(to: .image)
-            }
-        }
+        !items.isEmpty && items.allSatisfy(\.isImage)
     }
 
     private var totalSizeText: String? {
-        let byteCount = store.items.reduce(Int64.zero) { partial, item in
-            switch item.content {
-            case let .image(data, _):
-                return partial + Int64(data.count)
-            case let .file(url):
-                let values = try? url.resourceValues(forKeys: [.fileSizeKey, .totalFileAllocatedSizeKey])
-                return partial + Int64(values?.totalFileAllocatedSize ?? values?.fileSize ?? 0)
-            }
-        }
+        let byteCount = items.reduce(Int64.zero) { $0 + $1.byteCount }
         guard byteCount > 0 else { return nil }
         return ByteCountFormatter.string(fromByteCount: byteCount, countStyle: .file)
     }
@@ -276,13 +336,13 @@ struct TrayView: View {
     }
 
     private var previewScale: CGFloat {
-        if store.isDropTargeted { return 1.025 }
+        if store.isDropTargeted, !reduceMotion { return 1.025 }
         return 1
     }
 
     private func revealFrontItemInFinder() {
         guard settings.revealInFinderOnDoubleClick,
-              let url = store.items.first?.fileURL else { return }
+              let url = items.first?.fileURL else { return }
         NSWorkspace.shared.activateFileViewerSelecting([url])
     }
 }

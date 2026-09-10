@@ -17,6 +17,7 @@ struct NativeThumbnailView: NSViewRepresentable {
     }
 
     func updateNSView(_ imageView: PreviewImageView, context: Context) {
+        guard imageView.representedID != item.id else { return }
         imageView.representedID = item.id
         imageView.image = item.displayImage
 
@@ -49,6 +50,7 @@ enum AspectFitLayout {
 }
 
 final class PreviewImageView: NSView {
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
     var representedID: UUID?
     var image: NSImage? {
         didSet { needsDisplay = true }
@@ -101,7 +103,9 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
 
     private var initialLocation: NSPoint?
     private var beganDragging = false
+    private var sourceOperations: NSDragOperation = []
     private var promiseDelegates: [ImagePromiseDelegate] = []
+    private let dragPreview = TrayDragPreviewSession()
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -130,14 +134,17 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
     }
 
     override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        !validatedOperation(for: sender).isEmpty
+        guard !validatedOperation(for: sender).isEmpty else { return false }
+        // AppKit inspects this between prepare and perform, not afterwards.
+        sender.animatesToDestination = false
+        return true
     }
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         guard let store else { return false }
         defer { store.isDropTargeted = false }
         guard !isInternalDrag(sender) else { return false }
-        return TrayPasteboardImporter.importItems(from: sender.draggingPasteboard, into: store) > 0
+        return TrayPasteboardImporter.importDrop(sender, into: store, destination: self)
     }
 
     override func mouseDown(with event: NSEvent) {
@@ -152,11 +159,13 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
 
         let draggingItems = makeDraggingItems(at: location)
         guard !draggingItems.isEmpty else { return }
+        sourceOperations = TrayDragPolicy.operations(for: items)
         beganDragging = true
         onBegan?()
 
         let session = beginDraggingSession(with: draggingItems, event: event, source: self)
         session.animatesToStartingPositionsOnCancelOrFail = true
+        dragPreview.begin(session, items: items, scale: window?.backingScaleFactor ?? 2)
     }
 
     override func mouseUp(with event: NSEvent) {
@@ -170,7 +179,7 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
         _ session: NSDraggingSession,
         sourceOperationMaskFor context: NSDraggingContext
     ) -> NSDragOperation {
-        .copy
+        sourceOperations
     }
 
     private func validatedOperation(for sender: NSDraggingInfo) -> NSDragOperation {
@@ -188,7 +197,7 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
     }
 
     func ignoreModifierKeys(for session: NSDraggingSession) -> Bool {
-        true
+        false
     }
 
     func draggingSession(
@@ -196,7 +205,9 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
         endedAt screenPoint: NSPoint,
         operation: NSDragOperation
     ) {
+        dragPreview.end()
         promiseDelegates.removeAll()
+        sourceOperations = []
         initialLocation = nil
         beganDragging = false
         onCompleted?(operation)
@@ -217,8 +228,14 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
             }
 
             let draggingItem = NSDraggingItem(pasteboardWriter: writer)
-            let image = item.displayImage
-            let size = fittedSize(for: image.size, maximum: NSSize(width: 88, height: 72))
+            let scale = window?.backingScaleFactor ?? 2
+            let preview = item.fileURL.flatMap { NativeThumbnailLoader.shared.cachedThumbnail(for: $0, scale: scale) }
+                ?? item.displayImage
+            let badgeIndex = items.firstIndex(where: { $0.fileURL != nil })
+            let image = DragPreviewRenderer.image(preview: preview,
+                showTransferBadge: index == badgeIndex && DragPreviewRenderer.showsTransferBadge(for: item, modifiers: NSEvent.modifierFlags),
+                scale: scale)
+            let size = image.size
             let stagger = CGFloat(min(index, 3)) * 4
             let frame = NSRect(
                 x: location.x - size.width / 2 + stagger,
@@ -231,15 +248,11 @@ final class CompactDragSourceNSView: NSView, NSDraggingSource {
         }
     }
 
-    private func fittedSize(for source: NSSize, maximum: NSSize) -> NSSize {
-        guard source.width > 0, source.height > 0 else { return maximum }
-        let scale = min(maximum.width / source.width, maximum.height / source.height, 1)
-        return NSSize(width: max(36, source.width * scale), height: max(36, source.height * scale))
-    }
 }
 
 struct TrayActionsButton: NSViewRepresentable {
     let items: [TrayItem]
+    var onShared: (Set<UUID>) -> Void = { _ in }
 
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -266,12 +279,15 @@ struct TrayActionsButton: NSViewRepresentable {
 
     func updateNSView(_ button: NSButton, context: Context) {
         context.coordinator.items = items
+        context.coordinator.onShared = onShared
         button.isEnabled = !items.isEmpty
     }
 
     @MainActor
     final class Coordinator: NSObject {
         var items: [TrayItem] = []
+        var onShared: (Set<UUID>) -> Void = { _ in }
+        private var sharingSession: TraySharingSession?
         weak var button: NSButton?
         private var sharingServices: [NSSharingService] = []
         private var sharingPicker: NSSharingServicePicker?
@@ -340,6 +356,8 @@ struct TrayActionsButton: NSViewRepresentable {
 
         private func addSharingItems(to menu: NSMenu) {
             let values = shareableValues
+            let session = TraySharingSession(items: items, onShared: onShared)
+            sharingSession = session
             sharingServices = preferredSharingServices(for: values)
 
             for (index, service) in sharingServices.enumerated() {
@@ -355,6 +373,7 @@ struct TrayActionsButton: NSViewRepresentable {
             }
 
             let picker = NSSharingServicePicker(items: values)
+            picker.delegate = session
             sharingPicker = picker
             let moreItem = picker.standardShareMenuItem
             moreItem.title = sharingServices.isEmpty ? "Compartir…" : "Más opciones…"
@@ -408,7 +427,7 @@ struct TrayActionsButton: NSViewRepresentable {
 
         @objc private func performSharingService(_ sender: NSMenuItem) {
             guard sharingServices.indices.contains(sender.tag) else { return }
-            sharingServices[sender.tag].perform(withItems: shareableValues)
+            sharingSession?.perform(sharingServices[sender.tag], values: shareableValues)
         }
 
     }

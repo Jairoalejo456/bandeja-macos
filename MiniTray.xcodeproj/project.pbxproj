@@ -33,6 +33,10 @@
 		110000000000000000000018 /* TrayInteractionGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000001B /* TrayInteractionGeometryTests.swift */; };
 		110000000000000000000019 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000001C /* Assets.xcassets */; };
 		11000000000000000000001A /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000001D /* LICENSE */; };
+		11000000000000000000001B /* TrayMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000001E /* TrayMotion.swift */; };
+		11000000000000000000001C /* TrayMotionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12000000000000000000001F /* TrayMotionTests.swift */; };
+		11000000000000000000001D /* TrayPreviewRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000020 /* TrayPreviewRenderer.swift */; };
+		11000000000000000000001E /* TrayPreviewRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120000000000000000000021 /* TrayPreviewRendererTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +79,10 @@
 		12000000000000000000001B /* TrayInteractionGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayInteractionGeometryTests.swift; sourceTree = "<group>"; };
 		12000000000000000000001C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		12000000000000000000001D /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		12000000000000000000001E /* TrayMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayMotion.swift; sourceTree = "<group>"; };
+		12000000000000000000001F /* TrayMotionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayMotionTests.swift; sourceTree = "<group>"; };
+		120000000000000000000020 /* TrayPreviewRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayPreviewRenderer.swift; sourceTree = "<group>"; };
+		120000000000000000000021 /* TrayPreviewRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrayPreviewRendererTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +154,7 @@
 				120000000000000000000006 /* GlobalDragMonitor.swift */,
 				120000000000000000000007 /* AirDropService.swift */,
 				120000000000000000000012 /* TrayPasteboardImporter.swift */,
+				120000000000000000000020 /* TrayPreviewRenderer.swift */,
 				120000000000000000000016 /* GlobalShortcutMonitor.swift */,
 				120000000000000000000017 /* ScreenshotMonitor.swift */,
 			);
@@ -168,6 +177,7 @@
 			isa = PBXGroup;
 			children = (
 				12000000000000000000000B /* TrayPanelController.swift */,
+				12000000000000000000001E /* TrayMotion.swift */,
 				120000000000000000000019 /* SettingsWindowController.swift */,
 			);
 			path = Window;
@@ -182,6 +192,8 @@
 				120000000000000000000013 /* TrayPasteboardImporterTests.swift */,
 				12000000000000000000001A /* AppSettingsAndScreenshotTests.swift */,
 				12000000000000000000001B /* TrayInteractionGeometryTests.swift */,
+				12000000000000000000001F /* TrayMotionTests.swift */,
+				120000000000000000000021 /* TrayPreviewRendererTests.swift */,
 			);
 			path = MiniTrayTests;
 			sourceTree = "<group>";
@@ -298,6 +310,8 @@
 				11000000000000000000000A /* TrayView.swift in Sources */,
 				110000000000000000000011 /* TrayAccessoryViews.swift in Sources */,
 				11000000000000000000000B /* TrayPanelController.swift in Sources */,
+				11000000000000000000001B /* TrayMotion.swift in Sources */,
+				11000000000000000000001D /* TrayPreviewRenderer.swift in Sources */,
 				11000000000000000000000F /* TrayPasteboardImporter.swift in Sources */,
 				110000000000000000000012 /* AppSettings.swift in Sources */,
 				110000000000000000000013 /* GlobalShortcutMonitor.swift in Sources */,
@@ -317,6 +331,8 @@
 				110000000000000000000010 /* TrayPasteboardImporterTests.swift in Sources */,
 				110000000000000000000017 /* AppSettingsAndScreenshotTests.swift in Sources */,
 				110000000000000000000018 /* TrayInteractionGeometryTests.swift in Sources */,
+				11000000000000000000001C /* TrayMotionTests.swift in Sources */,
+				11000000000000000000001E /* TrayPreviewRendererTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,7 +386,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 16;
+				CURRENT_PROJECT_VERSION = 19;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -379,7 +395,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.2.6;
+				MARKETING_VERSION = 0.2.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -393,7 +409,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 16;
+				CURRENT_PROJECT_VERSION = 19;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -402,7 +418,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.2.6;
+				MARKETING_VERSION = 0.2.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jairo.bandeja;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

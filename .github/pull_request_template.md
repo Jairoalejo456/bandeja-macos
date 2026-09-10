@@ -7,7 +7,7 @@ Describe el cambio y su motivación.
 - [ ] Compila en macOS.
 - [ ] Las pruebas automatizadas pasan.
 - [ ] Probé manualmente las interacciones afectadas.
-- [ ] Los archivos originales nunca se mueven ni eliminan.
+- [ ] Recoger, cancelar y cerrar preservan los originales; cualquier traslado pertenece a una salida deliberada y no a un borrado posterior de MiniTray.
 - [ ] No incluí credenciales, rutas privadas ni datos personales.
 - [ ] Actualicé documentación y CHANGELOG cuando corresponde.
 
